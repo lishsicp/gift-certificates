@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class GiftCertificate {
+public class GiftCertificate implements Entity {
 
   @NonNull
   private long id;

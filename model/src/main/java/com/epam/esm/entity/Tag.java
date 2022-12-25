@@ -6,7 +6,7 @@ import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
-public class Tag {
+public class Tag implements Entity {
 
   @NonNull
   private long id;

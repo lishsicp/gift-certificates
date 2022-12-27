@@ -2,16 +2,19 @@ package com.epam.esm.dao;
 
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.DBErrorCodes;
-import com.epam.esm.exception.DBException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
-@Component
+@Repository
 public class TagDao extends GenericDao<Tag> implements CRDDao<Tag> {
 
     @Autowired
@@ -25,20 +28,27 @@ public class TagDao extends GenericDao<Tag> implements CRDDao<Tag> {
     }
 
     @Override
-    public Tag getById(Long id) throws DBException {
-        return jdbcTemplate.query(TagQuery.GET_BY_ID, new Object[]{id} ,new BeanPropertyRowMapper<>(Tag.class))
+    public Optional<Tag> getById(Long id) {
+        return jdbcTemplate.query(TagQuery.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
                 .stream()
-                .findAny()
-                .orElseThrow(() -> new DBException(DBErrorCodes.NOT_FOUND_BY_ID));
+                .findAny();
     }
 
     @Override
-    public void remove(Tag tag) {
-        jdbcTemplate.update(TagQuery.DELETE, tag.getId());
+    public void remove(Long id) {
+        jdbcTemplate.update(TagQuery.DELETE, id);
     }
 
     @Override
-    public void create(Tag tag) {
-        jdbcTemplate.update(TagQuery.INSERT, tag.getName());
+    public Tag create(Tag tag) {
+        KeyHolder holder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(TagQuery.INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, tag.getName());
+            return ps;
+        }, holder);
+
+        tag.setId(((Number) holder.getKeys().get("id")).longValue());
+        return tag;
     }
 }

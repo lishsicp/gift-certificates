@@ -1,6 +1,6 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dao.TagDao;
+import com.epam.esm.dao.CRDDao;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ErrorCode;
 import com.epam.esm.exception.ErrorBody;
@@ -16,10 +16,10 @@ import java.util.List;
 @Transactional
 public class TagService implements CRDService<Tag> {
 
-    private final TagDao tagDao;
+    private final CRDDao<Tag> tagDao;
 
     @Autowired
-    public TagService(TagDao tagDao) {
+    public TagService(CRDDao<Tag> tagDao) {
         this.tagDao = tagDao;
     }
 

@@ -5,11 +5,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import com.zaxxer.hikari.HikariConfig;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource("classpath:db.properties")
+@PropertySource(value = "classpath:app-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
+@EnableTransactionManagement
+@Profile({"dev", "prod"})
 public class DBConfig {
 
     @Bean
@@ -39,6 +44,11 @@ public class DBConfig {
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public TransactionManager transactionManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
     }
 
 }

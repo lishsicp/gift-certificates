@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -35,11 +36,13 @@ public class TagDao extends GenericDao<Tag> implements CRDDao<Tag> {
     }
 
     @Override
+    @Transactional
     public void remove(Long id) {
         jdbcTemplate.update(TagQuery.DELETE, id);
     }
 
     @Override
+    @Transactional
     public Tag create(Tag tag) {
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {

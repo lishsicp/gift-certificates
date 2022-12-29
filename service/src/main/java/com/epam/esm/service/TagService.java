@@ -1,25 +1,23 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dao.CRDDao;
+import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.ErrorCode;
-import com.epam.esm.exception.ErrorBody;
-import com.epam.esm.exception.ErrorMessage;
-import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
 public class TagService implements CRDService<Tag> {
 
-    private final CRDDao<Tag> tagDao;
+    private final TagDao tagDao;
 
     @Autowired
-    public TagService(CRDDao<Tag> tagDao) {
+    public TagService(TagDao tagDao) {
         this.tagDao = tagDao;
     }
 
@@ -38,6 +36,12 @@ public class TagService implements CRDService<Tag> {
 
     @Override
     public Tag save(Tag tag) {
+        Optional<Tag> tagOptional = tagDao.getByName(tag.getName());
+        if (tagOptional.isPresent()) {
+            throw new DuplicatedKeyException(
+                    new ErrorBody(ErrorMessage.DUPLICATED_TAG, ErrorCode.DUPLICATION_KEY, tag.getName())
+            );
+        }
         return tagDao.create(tag);
     }
 
@@ -48,6 +52,5 @@ public class TagService implements CRDService<Tag> {
                     new ErrorBody(ErrorMessage.RESOURCE_NOT_FOUND, ErrorCode.TAG_NOT_FOUND, id)
             );
         });
-        tagDao.remove(id);
     }
 }

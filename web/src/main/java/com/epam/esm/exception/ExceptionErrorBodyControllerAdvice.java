@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionErrorBodyControllerAdvice {
-    @ExceptionHandler(ResourceNotFoundException.class)
-    ResponseEntity<ErrorBody> handleDBException(ResourceNotFoundException ex) {
+    @ExceptionHandler(AbstractErrorBodyException.class)
+    ResponseEntity<ErrorBody> handleAbstractErrorBodyException(AbstractErrorBodyException ex) {
         ErrorBody errorBody = ex.getErrorBody();
         return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
     }

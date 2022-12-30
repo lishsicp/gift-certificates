@@ -5,13 +5,13 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class GiftCertificate {
+public class GiftCertificate implements Entity {
 
-  @NonNull
   private long id;
 
   @NonNull
@@ -25,10 +25,10 @@ public class GiftCertificate {
   private long duration;
 
   @NonNull
-  private String createDate;
+  private LocalDateTime createDate;
 
   @NonNull
-  private String lastUpdateDate;
+  private LocalDateTime lastUpdateDate;
 
   private List<Tag> tags;
 

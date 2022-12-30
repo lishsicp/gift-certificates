@@ -27,7 +27,7 @@ Application requirements:
 
 General requirements:
 - Code should be clean and should not contain any “developer-purpose” constructions.
-- App should be designed and written with respect to OOP and SOLID principles.
+- App should be designed and written with respect to OOD and SOLID principles.
 - Code should contain valuable comments where appropriate.
 - Public APIs should be documented (Javadoc).
 - Clear layered structure should be used with responsibilities of each application layer defined.

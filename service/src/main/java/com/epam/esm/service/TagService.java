@@ -30,7 +30,10 @@ public class TagService implements CRDService<Tag> {
     public Tag findById(Long id) {
         return tagDao.getById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        new ErrorBody(ErrorMessage.RESOURCE_NOT_FOUND, ErrorCode.TAG_NOT_FOUND, id)
+                        new ErrorBody(
+                                String.format(ErrorMessage.RESOURCE_NOT_FOUND, id),
+                                ErrorCode.TAG_NOT_FOUND
+                        )
                 ));
     }
 
@@ -39,7 +42,10 @@ public class TagService implements CRDService<Tag> {
         Optional<Tag> tagOptional = tagDao.getByName(tag.getName());
         if (tagOptional.isPresent()) {
             throw new DuplicatedKeyException(
-                    new ErrorBody(ErrorMessage.DUPLICATED_TAG, ErrorCode.DUPLICATION_KEY, tag.getName())
+                    new ErrorBody(
+                            String.format(ErrorMessage.DUPLICATED_TAG, tag.getName()),
+                            ErrorCode.DUPLICATION_KEY
+                    )
             );
         }
         return tagDao.create(tag);
@@ -49,7 +55,10 @@ public class TagService implements CRDService<Tag> {
     public void delete(Long id) {
         tagDao.getById(id).ifPresentOrElse(t -> tagDao.remove(id), () -> {
             throw new ResourceNotFoundException(
-                    new ErrorBody(ErrorMessage.RESOURCE_NOT_FOUND, ErrorCode.TAG_NOT_FOUND, id)
+                    new ErrorBody(
+                            String.format(ErrorMessage.RESOURCE_NOT_FOUND, id),
+                            ErrorCode.TAG_NOT_FOUND
+                    )
             );
         });
     }

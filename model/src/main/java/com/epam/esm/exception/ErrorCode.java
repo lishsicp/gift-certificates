@@ -8,6 +8,8 @@ public class ErrorCode {
 
     public static final int CERTIFICATE_NOT_FOUND = 40402;
 
-    public static final int DUPLICATION_KEY = 40001;
+    public static final int VALIDATION_ERROR = 40001;
+
+    public static final int DUPLICATION_KEY = 40002;
 }
 

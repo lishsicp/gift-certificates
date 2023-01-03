@@ -1,4 +1,4 @@
-package com.epam.esm.dao;
+package com.epam.esm.dao.queries;
 
 public class TagQuery {
     public static final String GET_ALL = "SELECT * FROM tag";

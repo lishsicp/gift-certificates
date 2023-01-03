@@ -10,7 +10,7 @@ public class Tag implements Entity {
 
   private long id;
 
-  @Pattern(regexp = "\\w{2,128}+", message = "should be between 2 and 128 letters.")
+  @Pattern(regexp = "[\\w\\s]{2,128}+", message = "should be between 2 and 128 letters.")
   private String name;
 
 }

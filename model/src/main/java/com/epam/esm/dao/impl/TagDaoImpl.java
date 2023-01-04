@@ -4,6 +4,8 @@ import com.epam.esm.dao.GenericDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.queries.TagQuery;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.DaoException;
+import com.epam.esm.exception.DaoExceptionErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,10 +33,11 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
     }
 
     @Override
-    public Optional<Tag> getById(Long id) {
+    public Tag getById(Long id) throws DaoException {
         return jdbcTemplate.query(TagQuery.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
                 .stream()
-                .findAny();
+                .findAny()
+                .orElseThrow( ()-> new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND));
     }
 
     @Override
@@ -46,22 +49,40 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
 
     @Override
     @Transactional
-    public void remove(Long id) {
-        jdbcTemplate.update(TagQuery.DELETE, id);
+    public void remove(Long id) throws DaoException {
+        int updatedRows = jdbcTemplate.update(TagQuery.DELETE, id);
+        if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND);
     }
 
     @Override
     @Transactional
-    public Tag create(Tag tag) {
+    public Tag create(Tag tag) throws DaoException {
         KeyHolder holder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
+        int updatedFields = jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(TagQuery.INSERT, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, tag.getName());
             return ps;
         }, holder);
+        if (updatedFields > 0) {
+            tag.setId(((Number) holder.getKeys().get("id")).longValue());
+            return tag;
+        }
+        throw new DaoException(DaoExceptionErrorCode.TAG_SAVE_FAILURE);
+    }
 
-        tag.setId(((Number) holder.getKeys().get("id")).longValue());
-        return tag;
+    @Override
+    public List<Tag> getTagsForCertificate(Long certificateId) {
+        return jdbcTemplate.query(TagQuery.GET_TAGS_FOR_CERTIFICATE, new BeanPropertyRowMapper<>(Tag.class), certificateId);
+    }
+
+    @Override
+    public void assignTagToCertificate(Long certificateId, Long tagId) {
+        jdbcTemplate.update(TagQuery.ADD_TAG_TO_CERTIFICATE, certificateId, tagId);
+    }
+
+    @Override
+    public void detachTagsFromCertificate(Long certificateId) {
+        jdbcTemplate.update(TagQuery.DELETE_TAGS_FROM_CERTIFICATE, certificateId);
     }
 
 }

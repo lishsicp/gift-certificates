@@ -6,6 +6,8 @@ import com.epam.esm.dao.QueryBuilder;
 import com.epam.esm.dao.queries.GiftCertificateQuery;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.filter.SearchFilter;
+import com.epam.esm.exception.DaoException;
+import com.epam.esm.exception.DaoExceptionErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,16 +18,17 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
 public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implements GiftCertificateDao {
 
+    private final QueryBuilder queryBuilder;
 
     @Autowired
-    protected GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate) {
+    protected GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate, QueryBuilder queryBuilder) {
         super(jdbcTemplate);
+        this.queryBuilder = queryBuilder;
     }
 
     @Override
@@ -35,44 +38,50 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
 
     @Override
     public List<GiftCertificate> getAll(SearchFilter searchFilter) {
-        String query = new QueryBuilder().buildFilteredSelectQuery(GiftCertificateQuery.GET_ALL_FILTERED, searchFilter);
+        String query = queryBuilder.buildFilteredSelectQuery(GiftCertificateQuery.GET_ALL_FILTERED, searchFilter);
         return jdbcTemplate.query(query, new BeanPropertyRowMapper<>(GiftCertificate.class));
     }
 
     @Override
-    public Optional<GiftCertificate> getById(Long id) {
+    public GiftCertificate getById(Long id) throws DaoException {
         return jdbcTemplate.query(GiftCertificateQuery.GET_BY_ID, new BeanPropertyRowMapper<>(GiftCertificate.class), id)
                 .stream()
-                .findAny();
+                .findAny()
+                .orElseThrow(() -> new DaoException(DaoExceptionErrorCode.CERTIFICATE_NOT_FOUND));
     }
 
     @Override
-    public void remove(Long id) {
-        jdbcTemplate.update(GiftCertificateQuery.DELETE_BY_ID, id);
+    public void remove(Long id) throws DaoException {
+        int updatedRows = jdbcTemplate.update(GiftCertificateQuery.DELETE_BY_ID, id);
+        if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.CERTIFICATE_NOT_FOUND);
     }
 
     @Override
-    public GiftCertificate create(GiftCertificate giftCertificate) {
+    public GiftCertificate create(GiftCertificate giftCertificate) throws DaoException {
         KeyHolder holder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
+        int updatedFields = jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(GiftCertificateQuery.INSERT, Statement.RETURN_GENERATED_KEYS);
             int index = 1;
             ps.setString(index++, giftCertificate.getName());
             ps.setString(index++, giftCertificate.getDescription());
             ps.setBigDecimal(index++, giftCertificate.getPrice());
-            ps.setLong(index, giftCertificate.getDuration());
+            ps.setLong(index++, giftCertificate.getDuration());
+            Timestamp createdDate = Timestamp.valueOf(giftCertificate.getCreateDate());
+            ps.setTimestamp(index++, createdDate);
+            ps.setTimestamp(index, createdDate);
             return ps;
         }, holder);
-        giftCertificate.setId(((Number) holder.getKeys().get("id")).longValue());
-        giftCertificate.setCreateDate(((Timestamp) holder.getKeys().get("create_date")).toLocalDateTime());
-        giftCertificate.setLastUpdateDate(((Timestamp) holder.getKeys().get("last_update_date")).toLocalDateTime());
-        return giftCertificate;
+        if (updatedFields > 0) {
+            giftCertificate.setId(((Number) holder.getKeys().get("id")).longValue());
+            return giftCertificate;
+        }
+        throw new DaoException(DaoExceptionErrorCode.CERTIFICATE_SAVE_FAILURE);
     }
 
     @Override
     public void update(GiftCertificate giftCertificate) {
         jdbcTemplate.update(GiftCertificateQuery.UPDATE, giftCertificate.getName(), giftCertificate.getDescription(),
-                giftCertificate.getPrice(), giftCertificate.getDuration(), LocalDateTime.now(), giftCertificate.getId());
+                giftCertificate.getPrice(), giftCertificate.getDuration(), giftCertificate.getLastUpdateDate(), giftCertificate.getId());
     }
 
 }

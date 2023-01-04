@@ -1,7 +1,8 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.service.CRDService;
+import com.epam.esm.exception.DaoException;
+import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,26 +19,26 @@ import java.util.List;
 @Validated
 public class TagController {
 
-    private final CRDService<Tag> tagCRDService;
+    private final TagService tagService;
 
     @Autowired
-    public TagController(CRDService<Tag> tagCRDService) {
-        this.tagCRDService = tagCRDService;
+    public TagController(TagService tagService) {
+        this.tagService = tagService;
     }
 
     @GetMapping()
     public List<Tag> allTags() {
-        return tagCRDService.findAll();
+        return tagService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Tag tagById(@PathVariable @Valid @Min(1) Long id) {
-        return tagCRDService.findById(id);
+    public Tag tagById(@PathVariable @Valid @Min(1) Long id) throws DaoException {
+        return tagService.findById(id);
     }
 
     @PostMapping("/new")
-    public ResponseEntity<Object> saveTag(@RequestBody @Valid Tag tag) {
-        Tag savedTag = tagCRDService.save(tag);
+    public ResponseEntity<Object> saveTag(@RequestBody @Valid Tag tag) throws DaoException {
+        Tag savedTag = tagService.save(tag);
         URI locationUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -47,8 +48,8 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Tag> deleteTag(@PathVariable @Valid @Min(1) Long id) {
-        tagCRDService.delete(id);
+    public ResponseEntity<Tag> deleteTag(@PathVariable @Valid @Min(1) Long id) throws DaoException {
+        tagService.delete(id);
         return ResponseEntity.noContent().build();
     }
 

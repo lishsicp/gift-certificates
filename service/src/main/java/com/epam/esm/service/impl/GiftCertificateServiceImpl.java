@@ -7,6 +7,8 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.filter.SearchFilter;
 import com.epam.esm.exception.*;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.service.exception.IncorrectUpdateValueException;
+import com.epam.esm.service.validator.GiftCertificateUpdateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +81,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public void update(GiftCertificate giftCertificate) throws DaoException {
+    public void update(GiftCertificate giftCertificate) throws DaoException, IncorrectUpdateValueException {
+        GiftCertificateUpdateValidator.validate(giftCertificate);
         long certificateId = giftCertificate.getId();
         saveNewTags(giftCertificate);
         tagDao.detachTagsFromCertificate(certificateId);

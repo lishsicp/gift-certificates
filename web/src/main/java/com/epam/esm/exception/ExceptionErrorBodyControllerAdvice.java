@@ -1,5 +1,7 @@
 package com.epam.esm.exception;
 
+import com.epam.esm.service.exception.IncorrectUpdateValueException;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DuplicateKeyException;
@@ -21,7 +23,8 @@ public class ExceptionErrorBodyControllerAdvice {
 
     @ExceptionHandler(DaoException.class)
     ResponseEntity<ErrorBody> handleDaoException(DaoException ex) {
-        ErrorBody errorBody = new ErrorBody(ex.getMessage(), ex.getErrorCode());
+        String errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(ex.getErrorCode()));
+        ErrorBody errorBody = new ErrorBody(errorMessage, ex.getErrorCode());
         return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
     }
 
@@ -32,12 +35,18 @@ public class ExceptionErrorBodyControllerAdvice {
     ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<ErrorBody> errors = new LinkedList<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
+                    ErrorBody errorBody = new ErrorBody();
                     String errorMessage = error.getDefaultMessage();
                     String fieldName = Arrays.stream(((FieldError) error).getField().split("\\.")).reduce((first, second) -> second).orElse("Field");
-                    ErrorBody errorBody = new ErrorBody(
-                            String.format("%s - %s", fieldName, errorMessage),
-                            DaoExceptionErrorCode.VALIDATION_ERROR
-                    );
+                    if (StringUtils.isNumeric(errorMessage)) {
+                        int errorCode = Integer.parseInt(errorMessage);
+                        errorBody.setErrorCode(errorCode);
+                        errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(errorCode));
+                        errorBody.setErrorMessage(errorMessage);
+                    } else {
+                        errorBody.setErrorMessage(String.format("%s - %s", fieldName, errorMessage));
+                        errorBody.setErrorCode(DaoExceptionErrorCode.VALIDATION_ERROR);
+                    }
                     errors.add(errorBody);
                 }
         );
@@ -67,7 +76,15 @@ public class ExceptionErrorBodyControllerAdvice {
 
     @ExceptionHandler
     public ResponseEntity<ErrorBody> handleDuplicateKeyException(DuplicateKeyException ex) {
-        ErrorBody errorBody = new ErrorBody(ex.getLocalizedMessage(), DaoExceptionErrorCode.DUPLICATION_KEY);
+        String errorMessage = ExceptionMessageLocalizer.toLocale("40010");
+        ErrorBody errorBody = new ErrorBody(errorMessage, 40010);
+        return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorBody> handleIncorrectUpdateValueException(IncorrectUpdateValueException ex) {
+        String errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(ex.getErrorCode()));
+        ErrorBody errorBody = new ErrorBody(errorMessage, ex.getErrorCode());
         return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
     }
 }

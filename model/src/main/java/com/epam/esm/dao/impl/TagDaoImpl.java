@@ -67,7 +67,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
             tag.setId(((Number) holder.getKeys().get("id")).longValue());
             return tag;
         }
-        throw new DaoException(DaoExceptionErrorCode.TAG_SAVE_FAILURE);
+        throw new DaoException(DaoExceptionErrorCode.SAVE_FAILURE);
     }
 
     @Override

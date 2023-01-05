@@ -14,8 +14,7 @@ public class DaoExceptionErrorCode {
 
     public static final int INVALID_FILTER_PARAM = 40003;
 
-    public static final int TAG_SAVE_FAILURE = 50001;
+    public static final int SAVE_FAILURE = 50001;
 
-    public static final int CERTIFICATE_SAVE_FAILURE = 50002;
 }
 

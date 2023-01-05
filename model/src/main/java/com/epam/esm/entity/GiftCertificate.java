@@ -16,18 +16,18 @@ public class GiftCertificate implements Entity {
 
   private long id;
 
-  @NotBlank
+  @NotBlank(message = "error.blank")
   @Pattern(regexp = "[\\w\\s]{2,128}")
   private String name;
 
-  @NotBlank
+  @NotBlank(message = "error.blank")
   @Pattern(regexp = ".{2,512}")
   private String description;
 
-  @Digits(integer = 7, fraction = 2)
+  @Digits(integer = 7, fraction = 2, message = "40005")
   private BigDecimal price;
 
-  @Positive
+  @Positive(message = "40006")
   private int duration;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

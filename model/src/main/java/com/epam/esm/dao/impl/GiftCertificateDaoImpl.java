@@ -75,7 +75,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
             giftCertificate.setId(((Number) holder.getKeys().get("id")).longValue());
             return giftCertificate;
         }
-        throw new DaoException(DaoExceptionErrorCode.CERTIFICATE_SAVE_FAILURE);
+        throw new DaoException(DaoExceptionErrorCode.SAVE_FAILURE);
     }
 
     @Override

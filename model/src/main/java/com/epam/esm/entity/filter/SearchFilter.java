@@ -6,14 +6,14 @@ import javax.validation.constraints.Pattern;
 
 @Data
 public class SearchFilter {
-    @Pattern(regexp = "[\\w\\s]{2,128}+", message = "tag name should be between 2 and 128 letters.")
+    @Pattern(regexp = "[\\w\\s]{2,128}+", message = "40002")
     String tagName;
-    @Pattern(regexp = "[\\w\\s]{2,128}+", message = "Gift Certificate name should be between 2 and 128 letters.")
+    @Pattern(regexp = "[\\w\\s]{2,128}+", message = "40003")
     String name;
-    @Pattern(regexp = "[\\w\\s]{2,512}+", message = "Gift Certificate description should be between 2 and 128 letters.")
+    @Pattern(regexp = "[\\w\\s]{2,512}+", message = "40004")
     String description;
-    @Pattern(regexp = "NAME|LAST_UPDATE_DATE", message = "Can only be equal to 'NAME' or 'LAST_UPDATE_DATE'")
+    @Pattern(regexp = "NAME|LAST_UPDATE_DATE", message = "40007")
     String orderBy;
-    @Pattern(regexp = "ASC|DESC", message = "Can only be equal to 'ASC' or 'DESC'")
+    @Pattern(regexp = "ASC|DESC", message = "40008")
     String orderByType;
 }

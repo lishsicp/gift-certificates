@@ -80,8 +80,36 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
 
     @Override
     public void update(GiftCertificate giftCertificate) {
-        jdbcTemplate.update(GiftCertificateQuery.UPDATE, giftCertificate.getName(), giftCertificate.getDescription(),
-                giftCertificate.getPrice(), giftCertificate.getDuration(), giftCertificate.getLastUpdateDate(), giftCertificate.getId());
+        Map<String, String> updateParams = getUpdateParams(giftCertificate);
+        String updateQuery = queryBuilder.buildUpdateQuery("UPDATE gift_certificate SET ", updateParams);
+        jdbcTemplate.update(updateQuery);
+    }
+
+    private Map<String, String> getUpdateParams(GiftCertificate giftCertificate) {
+        Map<String, String> fields = new HashMap<>();
+
+        if (giftCertificate.getId() != 0) {
+            fields.put("id", String.valueOf(giftCertificate.getId()));
+        }
+
+        if (giftCertificate.getName() != null) {
+            fields.put("name", giftCertificate.getName());
+        }
+
+        if (giftCertificate.getDescription() != null) {
+            fields.put("description", giftCertificate.getDescription());
+        }
+
+        if (giftCertificate.getPrice() != null) {
+            fields.put("price", giftCertificate.getPrice().toString());
+        }
+
+        if (giftCertificate.getDuration() != 0) {
+            fields.put("duration", String.valueOf(giftCertificate.getDuration()));
+        }
+        fields.put("last_update_date", giftCertificate.getLastUpdateDate().toString());
+
+        return fields;
     }
 
 }

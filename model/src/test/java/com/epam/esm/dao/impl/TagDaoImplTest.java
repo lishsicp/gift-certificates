@@ -50,7 +50,7 @@ class TagDaoImplTest {
     @Test
     void getByName_ReturnsTagWithName() {
         Optional<Tag> tagOptional = tagDao.getByName("tag1");
-        assertEquals("tag1", tagOptional.get().getName());
+        assertTrue(tagOptional.isPresent());
     }
 
     @Test

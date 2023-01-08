@@ -35,17 +35,23 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public List<GiftCertificate> findAll() {
-        return giftCertificateDao.getAll();
+        List<GiftCertificate> giftCertificates = giftCertificateDao.getAll();
+        getTagsForCertificates(giftCertificates);
+        return giftCertificates;
     }
 
     @Override
     public List<GiftCertificate> findAllCertificatesWithFilter(SearchFilter searchFilter) {
         List<GiftCertificate> giftCertificates = giftCertificateDao.getAll(searchFilter);
+        getTagsForCertificates(giftCertificates);
+        return giftCertificates;
+    }
+
+    public void getTagsForCertificates(List<GiftCertificate> giftCertificates) {
         for (GiftCertificate gc : giftCertificates) {
             List<Tag> tagsForCertificate = tagDao.getTagsForCertificate(gc.getId());
             gc.setTags(tagsForCertificate);
         }
-        return giftCertificates;
     }
 
     @Override
@@ -92,7 +98,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificateDao.update(giftCertificate);
     }
 
-    private void assignTagsToCertificate(Long certificateId, List<Tag> tags) throws DaoException {
+    private void assignTagsToCertificate(Long certificateId, List<Tag> tags) {
         List<Tag> tagsToAssign = getIdsForTags(tags);
         for (Tag tag : tagsToAssign) {
             tagDao.assignTagToCertificate(certificateId, tag.getId());

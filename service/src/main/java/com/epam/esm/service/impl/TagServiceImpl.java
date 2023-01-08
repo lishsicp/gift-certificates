@@ -3,7 +3,6 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.*;
-import com.epam.esm.service.CRDService;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +38,6 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public void delete(Long id) throws DaoException {
-        tagDao.getById(id);
+        tagDao.remove(id);
     }
 }

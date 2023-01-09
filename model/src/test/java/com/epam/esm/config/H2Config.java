@@ -42,7 +42,7 @@ public class H2Config {
     public DataSource dataSource(HikariConfig config) {
         HikariDataSource dataSource = new HikariDataSource(config);
         Resource initData = new ClassPathResource("schema.sql");
-        Resource fillData = new ClassPathResource("data.sql");
+        Resource fillData = new ClassPathResource("test_data.sql");
         DatabasePopulator databasePopulator = new ResourceDatabasePopulator(initData, fillData);
         DatabasePopulatorUtils.execute(databasePopulator, dataSource);
         return dataSource;

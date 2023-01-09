@@ -36,22 +36,20 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public List<GiftCertificate> findAll() {
         List<GiftCertificate> giftCertificates = giftCertificateDao.getAll();
-        getTagsForCertificates(giftCertificates);
+        giftCertificates.forEach(this::getTagsForCertificates);
         return giftCertificates;
     }
 
     @Override
     public List<GiftCertificate> findAllCertificatesWithFilter(SearchFilter searchFilter) {
         List<GiftCertificate> giftCertificates = giftCertificateDao.getAll(searchFilter);
-        getTagsForCertificates(giftCertificates);
+        giftCertificates.forEach(this::getTagsForCertificates);
         return giftCertificates;
     }
 
-    public void getTagsForCertificates(List<GiftCertificate> giftCertificates) {
-        for (GiftCertificate gc : giftCertificates) {
-            List<Tag> tagsForCertificate = tagDao.getTagsForCertificate(gc.getId());
-            gc.setTags(tagsForCertificate);
-        }
+    public void getTagsForCertificates(GiftCertificate giftCertificates) {
+        List<Tag> tagsForCertificate = tagDao.getTagsForCertificate(giftCertificates.getId());
+        giftCertificates.setTags(tagsForCertificate);
     }
 
     @Override

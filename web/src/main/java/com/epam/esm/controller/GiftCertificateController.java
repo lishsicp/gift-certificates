@@ -14,6 +14,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.List;
 
@@ -30,8 +31,20 @@ public class GiftCertificateController {
     }
 
     @GetMapping()
-    public List<GiftCertificate> findAllCertificatesFiltered(@Valid @RequestBody(required = false) SearchFilter searchFilter) {
-        if (searchFilter == null) return giftCertificateService.findAll();
+    public List<GiftCertificate> findAllCertificatesFiltered(
+            @Pattern(regexp = "[\\w\\s]{2,128}+", message = "40002") @RequestParam(required = false) String tagName,
+            @Pattern(regexp = "[\\w\\s]{2,128}+", message = "40003") @RequestParam(required = false) String name,
+            @Pattern(regexp = "[\\w\\s]{2,512}+", message = "40004") @RequestParam(required = false) String description,
+            @Pattern(regexp = "NAME|LAST_UPDATE_DATE", message = "40007") @RequestParam(required = false) String sortBy,
+            @Pattern(regexp = "ASC|DESC", message = "40008") @RequestParam(required = false) String sortByType
+    ) {
+        SearchFilter searchFilter = SearchFilter.builder()
+                .tagName(tagName)
+                .name(name)
+                .description(description)
+                .sortBy(sortBy)
+                .sortByType(sortByType)
+                .build();
         return giftCertificateService.findAllCertificatesWithFilter(searchFilter);
     }
 

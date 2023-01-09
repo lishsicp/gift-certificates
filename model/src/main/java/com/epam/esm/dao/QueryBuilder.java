@@ -19,10 +19,10 @@ public class QueryBuilder {
         if (!StringUtils.isEmpty(searchFilter.getDescription())) {
             selectQuery.append(addWhereLikeParameter(selectQuery, "gc.description", searchFilter.getDescription(), false));
         }
-        if (searchFilter.getOrderBy() != null) {
-            selectQuery.append(" ORDER BY ").append("gc.").append(searchFilter.getOrderBy().toLowerCase());
-            if (searchFilter.getOrderByType() != null) {
-                selectQuery.append(" ").append(searchFilter.getOrderByType());
+        if (searchFilter.getSortBy() != null) {
+            selectQuery.append(" ORDER BY ").append("gc.").append(searchFilter.getSortBy().toLowerCase());
+            if (searchFilter.getSortByType() != null) {
+                selectQuery.append(" ").append(searchFilter.getSortByType());
             }
         }
         return selectQuery.toString();

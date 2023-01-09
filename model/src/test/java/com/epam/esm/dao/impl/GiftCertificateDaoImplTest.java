@@ -1,6 +1,7 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.config.H2Config;
+import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.filter.SearchFilter;
 import com.epam.esm.exception.DaoException;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +27,9 @@ class GiftCertificateDaoImplTest {
 
     @Autowired
     GiftCertificateDaoImpl giftCertificateDao;
+
+    @Autowired
+    TagDao tagDao;
 
     @Test
     void create_ReturnsCreatedCertificateId() throws DaoException {
@@ -40,18 +45,22 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void getAllWithFilterPassed_ReturnsCertificatesWithFilterApplied() {
-        SearchFilter searchFilter = new SearchFilter();
-        searchFilter.setTagName("tag1");
-        searchFilter.setOrderBy("NAME");
-        searchFilter.setOrderByType("DESC");
+    void getAllWithFilterPassed_ShouldReturnAllCertificates() {
+        SearchFilter searchFilter = SearchFilter.builder()
+                .tagName("tag2")
+                .description("description")
+                .name("gift")
+                .sortByType("DESC")
+                .sortBy("NAME")
+                .build();
         List<GiftCertificate> giftCertificateList = giftCertificateDao.getAll(searchFilter);
-        long actualAmount = giftCertificateList.size();
+        giftCertificateList.forEach(c -> c.setTags(tagDao.getTagsForCertificate(c.getId())));
+        long actualAmount = giftCertificateDao.getAll().size();
         long checkedAmount = giftCertificateList.stream()
                 .filter(c -> c.getName().contains("gift"))
                 .filter(c -> c.getDescription().contains("description"))
+                .filter(c -> c.getTags().stream().anyMatch(tag -> tag.getName().contains("tag2")))
                 .count();
-
         assertEquals(checkedAmount, actualAmount);
     }
 
@@ -64,14 +73,13 @@ class GiftCertificateDaoImplTest {
     @Test
     void getById_ReturnsCertificateWithId() throws DaoException {
         GiftCertificate giftCertificate = giftCertificateDao.getById(1L);
-
         assertEquals(1L, giftCertificate.getId());
     }
 
     @Test
     void update_UpdatesOnlyCertificatesName() throws DaoException {
         GiftCertificate initialCertificate = new GiftCertificate();
-        initialCertificate.setName("initialName");
+        initialCertificate.setName("updatesOnlyCertificatesName");
         initialCertificate.setDescription("initialDescription");
         initialCertificate.setPrice(BigDecimal.ONE);
         initialCertificate.setDuration(2);
@@ -85,7 +93,35 @@ class GiftCertificateDaoImplTest {
         giftCertificateDao.update(update);
 
         initialCertificate = giftCertificateDao.getById(id);
+        giftCertificateDao.remove(id);
         assertEquals(update.getName(), initialCertificate.getName());
+    }
+
+    @Test
+    void update_UpdatesAllFields() throws DaoException {
+        GiftCertificate initialCertificate = new GiftCertificate();
+        initialCertificate.setName("UpdatesAllFields");
+        initialCertificate.setDescription("initialDescription");
+        initialCertificate.setPrice(BigDecimal.ONE);
+        initialCertificate.setDuration(2);
+        initialCertificate.setCreateDate(LocalDateTime.now());
+        long id = giftCertificateDao.create(initialCertificate).getId();
+
+        GiftCertificate update = new GiftCertificate();
+        update.setId(id);
+        update.setDescription("updatedDescription");
+        update.setPrice(BigDecimal.TEN);
+        update.setDuration(3);
+        LocalDateTime updatedLastCreatedDate = LocalDateTime.now();
+        update.setLastUpdateDate(updatedLastCreatedDate);
+        giftCertificateDao.update(update);
+
+        GiftCertificate updatedCertificate = giftCertificateDao.getById(id);
+        assertNotSame(update.getName(), updatedCertificate.getName());
+        assertEquals(update.getDescription(), updatedCertificate.getDescription());
+        assertEquals(update.getDuration(), updatedCertificate.getDuration());
+        assertEquals(0, updatedCertificate.getPrice().compareTo(update.getPrice()));
+        assertEquals(update.getLastUpdateDate().truncatedTo(ChronoUnit.MILLIS), updatedCertificate.getLastUpdateDate().truncatedTo(ChronoUnit.MILLIS));
     }
 
     @Test

@@ -35,18 +35,9 @@ public class ExceptionErrorBodyControllerAdvice {
     ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<ErrorBody> errors = new LinkedList<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
-                    ErrorBody errorBody = new ErrorBody();
+                    String field = Arrays.stream(((FieldError) error).getField().split("\\.")).reduce((first, second) -> second).orElse("Field");
                     String errorMessage = error.getDefaultMessage();
-                    String fieldName = Arrays.stream(((FieldError) error).getField().split("\\.")).reduce((first, second) -> second).orElse("Field");
-                    if (StringUtils.isNumeric(errorMessage)) {
-                        int errorCode = Integer.parseInt(errorMessage);
-                        errorBody.setErrorCode(errorCode);
-                        errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(errorCode));
-                        errorBody.setErrorMessage(errorMessage);
-                    } else {
-                        errorBody.setErrorMessage(String.format("%s - %s", fieldName, errorMessage));
-                        errorBody.setErrorCode(DaoExceptionErrorCode.VALIDATION_ERROR);
-                    }
+                    ErrorBody errorBody = errorBodyMessageSetter(errorMessage, field);
                     errors.add(errorBody);
                 }
         );
@@ -61,17 +52,26 @@ public class ExceptionErrorBodyControllerAdvice {
         List<ErrorBody> errors = new LinkedList<>();
         ex.getConstraintViolations()
                 .forEach(e -> {
-                    String className = e.getRootBeanClass().getSimpleName();
-                    String property = e.getPropertyPath().toString();
-                    String message = e.getMessage();
-                    String invalidValue = e.getInvalidValue().toString();
-                    String fullMessage = String.format("%s.%s value '%s' %s", className, property, invalidValue, message);
-                    ErrorBody exceptionDto = new ErrorBody(
-                            fullMessage, DaoExceptionErrorCode.VALIDATION_ERROR
-                    );
-                    errors.add(exceptionDto);
+                    String errorMessage = e.getMessage();
+                    String field = e.getPropertyPath().iterator().next().getName();
+                    ErrorBody errorBody = errorBodyMessageSetter(errorMessage, field);
+                    errors.add(errorBody);
                 });
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    private ErrorBody errorBodyMessageSetter(String errorMessage, String errorField) {
+        ErrorBody errorBody = new ErrorBody();
+        if (StringUtils.isNumeric(errorMessage)) {
+            int errorCode = Integer.parseInt(errorMessage);
+            errorBody.setErrorCode(errorCode);
+            errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(errorCode));
+            errorBody.setErrorMessage(errorMessage);
+        } else {
+            errorBody.setErrorMessage(String.format("%s - %s", errorField, errorMessage));
+            errorBody.setErrorCode(DaoExceptionErrorCode.VALIDATION_ERROR);
+        }
+        return errorBody;
     }
 
     @ExceptionHandler

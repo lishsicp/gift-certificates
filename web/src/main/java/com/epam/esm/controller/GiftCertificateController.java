@@ -18,6 +18,12 @@ import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * This class is an endpoint of the API which allows to perform CRUD operations
+ * with {@link com.epam.esm.entity.GiftCertificate} entities accessed through <i>api/certificates</i>.
+ * @author Lobur Yaroslav
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("api/certificates")
 @Validated
@@ -30,6 +36,21 @@ public class GiftCertificateController {
         this.giftCertificateService = giftCertificateService;
     }
 
+    /**
+     * Allows to get certificates with tags (all params are optional and can be used in conjunction):
+     * <ul>
+     *  <li>by tag name</li>
+     *  <li>search by part of name/description</li>
+     *  <li>sort by date or by name ASC/DESC</li>
+     * </ul>
+     *
+     * @param tagName     valid {@link Tag} name.
+     * @param name        valid {@link GiftCertificate} name
+     * @param description valid {@link GiftCertificate} description
+     * @param sortBy      sort by {@link GiftCertificate} name or {@link GiftCertificate} last update date
+     * @param sortByType  sort order is either ASC or DESC
+     * @return a {@link List} of found {@link GiftCertificate} entities with specified parameters.
+     */
     @GetMapping()
     public List<GiftCertificate> findAllCertificatesFiltered(
             @Pattern(regexp = "[\\w\\s]{2,128}+", message = "40002") @RequestParam(required = false) String tagName,
@@ -48,11 +69,25 @@ public class GiftCertificateController {
         return giftCertificateService.findAllCertificatesWithFilter(searchFilter);
     }
 
+    /**
+     * Gets a {@link com.epam.esm.entity.GiftCertificate} by its <code>id</code> from database.
+     * @param id for {@link com.epam.esm.entity.GiftCertificate}
+     * @return requested {@link com.epam.esm.entity.GiftCertificate} entity. Response code 200.
+     * @throws DaoException if {@link com.epam.esm.entity.GiftCertificate} is not found.
+     */
     @GetMapping("/{id}")
-    public GiftCertificate giftCertificateById(@PathVariable @Valid @Min(1) Long id) throws DaoException {
+    public GiftCertificate giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
         return giftCertificateService.findById(id);
     }
 
+    /**
+     * Creates a new {@link GiftCertificate} entity with a
+     * {@link List} of {@link Tag} entities.
+     * If new {@link Tag} entities are passed during creation – they will be created in the database.
+     * @param giftCertificate must be valid according to {@link com.epam.esm.entity.GiftCertificate} entity.
+     * @return ResponseEntity with saved {@link com.epam.esm.entity.Tag}. Response code 201.
+     * @throws DaoException if {@link com.epam.esm.entity.Tag} an error occurred during saving.
+     */
     @PostMapping("/new")
     public ResponseEntity<Object> saveGiftCertificate(@RequestBody @Valid GiftCertificate giftCertificate) throws DaoException {
         GiftCertificate savedCert = giftCertificateService.save(giftCertificate);
@@ -64,14 +99,31 @@ public class GiftCertificateController {
         return ResponseEntity.created(locationUri).body(savedCert);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Object> updateGiftCertificate(@RequestBody GiftCertificate giftCertificate) throws DaoException, IncorrectUpdateValueException {
+    /**
+     * Updates a {@link GiftCertificate} by specified <code>id</code>.
+     * @param id a {@link GiftCertificate} id.
+     * @param giftCertificate a {@link GiftCertificate} that contains information for updating.
+     * Updates only fields, that are passed in request body.
+     * @return ResponseEntity with message. Response code 203.
+     * @throws DaoException if the {@link GiftCertificate} entity do not exist.
+     * @throws IncorrectUpdateValueException if the {@link GiftCertificate} entity contains invalid values.
+     */
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody GiftCertificate giftCertificate) throws DaoException, IncorrectUpdateValueException {
+        giftCertificate.setId(id);
         giftCertificateService.update(giftCertificate);
         return ResponseEntity.status(HttpStatus.CREATED).body("Success");
     }
 
+    /**
+     * Deletes {@link com.epam.esm.entity.GiftCertificate} entity from database.
+     *
+     * @param id for {@link com.epam.esm.entity.GiftCertificate} to delete.
+     * @return ResponseEntity with empty body. Response code 204.
+     * @throws DaoException if {@link com.epam.esm.entity.GiftCertificate} entity do not exist.
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<GiftCertificate> deleteGiftCertificate(@PathVariable @Valid @Min(1) Long id) throws DaoException {
+    public ResponseEntity<Object> deleteGiftCertificate(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
         giftCertificateService.delete(id);
         return ResponseEntity.noContent().build();
     }

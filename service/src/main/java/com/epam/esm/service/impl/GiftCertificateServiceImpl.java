@@ -88,15 +88,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void update(GiftCertificate giftCertificate) throws DaoException, IncorrectUpdateValueException {
         GiftCertificateUpdateValidator.validate(giftCertificate);
         long certificateId = giftCertificate.getId();
-        saveNewTags(giftCertificate);
-        tagDao.detachTagsFromCertificate(certificateId);
-        assignTagsToCertificate(certificateId, giftCertificate.getTags());
-        giftCertificate.setTags(tagDao.getTagsForCertificate(certificateId));
+        if (giftCertificate.getTags() != null) {
+            saveNewTags(giftCertificate);
+            tagDao.detachTagsFromCertificate(certificateId);
+            assignTagsToCertificate(certificateId, giftCertificate.getTags());
+            giftCertificate.setTags(tagDao.getTagsForCertificate(certificateId));
+        }
         giftCertificate.setLastUpdateDate(LocalDateTime.now(zoneId));
         giftCertificateDao.update(giftCertificate);
     }
 
     private void assignTagsToCertificate(Long certificateId, List<Tag> tags) {
+        if (tags == null || tags.isEmpty()) return;
         List<Tag> tagsToAssign = getIdsForTags(tags);
         for (Tag tag : tagsToAssign) {
             tagDao.assignTagToCertificate(certificateId, tag.getId());

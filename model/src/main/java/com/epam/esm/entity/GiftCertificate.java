@@ -1,9 +1,11 @@
 package com.epam.esm.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,22 +16,26 @@ public class GiftCertificate implements Entity {
 
   private long id;
 
-  @NonNull
+  @NotBlank(message = "error.blank")
+  @Pattern(regexp = "[\\w\\s]{2,128}")
   private String name;
 
+  @NotBlank(message = "error.blank")
+  @Pattern(regexp = ".{2,512}")
   private String description;
 
-  @NonNull
+  @Digits(integer = 7, fraction = 2, message = "40005")
   private BigDecimal price;
 
-  private long duration;
+  @Positive(message = "40006")
+  private int duration;
 
-  @NonNull
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime createDate;
 
-  @NonNull
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime lastUpdateDate;
 
-  private List<Tag> tags;
+  private List<@Valid Tag> tags;
 
 }

@@ -55,7 +55,7 @@ class GiftCertificateDaoImplTest {
                 .build();
         List<GiftCertificate> giftCertificateList = giftCertificateDao.getAll(searchFilter);
         giftCertificateList.forEach(c -> c.setTags(tagDao.getTagsForCertificate(c.getId())));
-        long actualAmount = giftCertificateDao.getAll().size();
+        long actualAmount = giftCertificateList.size();
         long checkedAmount = giftCertificateList.stream()
                 .filter(c -> c.getName().contains("gift"))
                 .filter(c -> c.getDescription().contains("description"))

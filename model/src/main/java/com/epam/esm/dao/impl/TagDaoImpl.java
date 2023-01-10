@@ -37,7 +37,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
         return jdbcTemplate.query(TagQuery.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
                 .stream()
                 .findAny()
-                .orElseThrow( ()-> new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND));
+                .orElseThrow( ()-> new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND, id));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
     @Transactional
     public void remove(Long id) throws DaoException {
         int updatedRows = jdbcTemplate.update(TagQuery.DELETE, id);
-        if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND);
+        if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND, id);
     }
 
     @Override

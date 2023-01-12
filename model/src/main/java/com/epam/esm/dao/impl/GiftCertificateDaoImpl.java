@@ -81,7 +81,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     @Override
     public void update(GiftCertificate giftCertificate) throws DaoException {
         Map<String, String> updateParams = getUpdateParams(giftCertificate);
-        String updateQuery = queryBuilder.buildUpdateQuery("UPDATE gift_certificate SET ", updateParams);
+        String updateQuery = queryBuilder.buildUpdateQuery(GiftCertificateQuery.UPDATE, updateParams);
         int updatedRows = jdbcTemplate.update(updateQuery);
         if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.CERTIFICATE_NOT_FOUND, giftCertificate.getId());
     }

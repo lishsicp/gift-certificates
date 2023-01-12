@@ -27,14 +27,15 @@ import java.util.List;
  */
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ExceptionErrorBodyControllerAdvice {
+public class ExceptionControllerAdvice {
+
 
     /**
      * Handles {@link DaoException}
      */
     @ExceptionHandler(DaoException.class)
     ResponseEntity<ErrorBody> handleDaoException(DaoException ex) {
-        String errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(ex.getErrorCode()));
+        String errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(ex.getErrorCode()));
         if (ex.getParameter() != null) errorMessage = String.format(errorMessage, ex.getParameter());
         ErrorBody errorBody = new ErrorBody(errorMessage, ex.getErrorCode());
         return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
@@ -77,7 +78,7 @@ public class ExceptionErrorBodyControllerAdvice {
         if (StringUtils.isNumeric(errorMessage)) {
             int errorCode = Integer.parseInt(errorMessage);
             errorBody.setErrorCode(errorCode);
-            errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(errorCode));
+            errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(errorCode));
             errorBody.setErrorMessage(errorMessage);
         } else {
             errorBody.setErrorMessage(String.format("%s - %s", errorField, errorMessage));
@@ -91,7 +92,7 @@ public class ExceptionErrorBodyControllerAdvice {
      */
     @ExceptionHandler
     public ResponseEntity<ErrorBody> handleDuplicateKeyException(DuplicateKeyException ex) {
-        String errorMessage = ExceptionMessageLocalizer.toLocale("40010");
+        String errorMessage = ExceptionMessageI18n.toLocale("40010");
         ErrorBody errorBody = new ErrorBody(errorMessage, 40010);
         return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
     }
@@ -101,7 +102,7 @@ public class ExceptionErrorBodyControllerAdvice {
      */
     @ExceptionHandler
     public ResponseEntity<ErrorBody> handleIncorrectUpdateValueException(IncorrectUpdateValueException ex) {
-        String errorMessage = ExceptionMessageLocalizer.toLocale(String.valueOf(ex.getErrorCode()));
+        String errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(ex.getErrorCode()));
         ErrorBody errorBody = new ErrorBody(errorMessage, ex.getErrorCode());
         return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
     }
@@ -111,7 +112,7 @@ public class ExceptionErrorBodyControllerAdvice {
      */
     @ExceptionHandler
     public ResponseEntity<Object> handle(HttpRequestMethodNotSupportedException ex) {
-        String errorMessage = ExceptionMessageLocalizer.toLocale("error.methodNotSupported");
+        String errorMessage = ExceptionMessageI18n.toLocale("error.methodNotSupported");
         ErrorBody errorBody = new ErrorBody(errorMessage, HttpStatus.METHOD_NOT_ALLOWED.value());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorBody);
     }
@@ -121,7 +122,7 @@ public class ExceptionErrorBodyControllerAdvice {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Object> handle() {
-        String errorMessage = ExceptionMessageLocalizer.toLocale("error.badRequest");
+        String errorMessage = ExceptionMessageI18n.toLocale("error.badRequest");
         ErrorBody errorBody = new ErrorBody(errorMessage, HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody);
     }

@@ -88,7 +88,7 @@ public class GiftCertificateController {
      * @return ResponseEntity with saved {@link com.epam.esm.entity.Tag}. Response code 201.
      * @throws DaoException if {@link com.epam.esm.entity.Tag} an error occurred during saving.
      */
-    @PostMapping("/new")
+    @PostMapping
     public ResponseEntity<Object> saveGiftCertificate(@RequestBody @Valid GiftCertificate giftCertificate) throws DaoException {
         GiftCertificate savedCert = giftCertificateService.save(giftCertificate);
         URI locationUri = ServletUriComponentsBuilder
@@ -108,7 +108,7 @@ public class GiftCertificateController {
      * @throws DaoException if the {@link GiftCertificate} entity do not exist.
      * @throws IncorrectUpdateValueException if the {@link GiftCertificate} entity contains invalid values.
      */
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody GiftCertificate giftCertificate) throws DaoException, IncorrectUpdateValueException {
         giftCertificate.setId(id);
         giftCertificateService.update(giftCertificate);

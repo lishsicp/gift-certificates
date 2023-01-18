@@ -59,7 +59,7 @@ public class TagController {
      * @return ResponseEntity with saved {@link com.epam.esm.entity.Tag}. Response code 201.
      * @throws DaoException if {@link com.epam.esm.entity.Tag} an error occurred during saving.
      */
-    @PostMapping("/new")
+    @PostMapping
     public ResponseEntity<Object> saveTag(@RequestBody @Valid Tag tag) throws DaoException {
         Tag savedTag = tagService.save(tag);
         URI locationUri = ServletUriComponentsBuilder

@@ -1,0 +1,25 @@
+package com.epam.esm.dto.converter;
+
+import com.epam.esm.dto.GiftCertificateDto;
+import com.epam.esm.entity.GiftCertificate;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.stereotype.Component;
+
+@Component
+public class GiftCertificateConverter extends ModelDtoConverter<GiftCertificateDto, GiftCertificate> {
+
+    public GiftCertificateConverter(ModelMapper modelMapper) {
+        super(modelMapper);
+    }
+
+    @Override
+    public GiftCertificate toEntity(GiftCertificateDto giftCertificateDto) {
+        return modelMapper.map(giftCertificateDto, GiftCertificate.class);
+    }
+
+    @Override
+    public GiftCertificateDto toDto(GiftCertificate giftCertificate) {
+        return modelMapper.map(giftCertificate, GiftCertificateDto.class);
+    }
+}

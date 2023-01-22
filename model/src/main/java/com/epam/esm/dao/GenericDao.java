@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -18,8 +19,10 @@ public abstract class GenericDao<T> implements CRDDao<T> {
     }
 
     @Override
-    public List<T> getAll() {
+    public List<T> getAll(Pageable pageable) {
         return entityManager.createQuery("select c from " + classType.getSimpleName() + " c", classType)
+                .setFirstResult((int) pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
                 .getResultList();
     }
 

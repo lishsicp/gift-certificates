@@ -6,6 +6,8 @@ import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.IncorrectUpdateValueException;
 import com.epam.esm.service.validator.GiftCertificateUpdateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,8 +27,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificate> findAll() {
-        return giftCertificateDao.getAll();
+    public List<GiftCertificate> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return giftCertificateDao.getAll(pageable);
     }
 
     @Override

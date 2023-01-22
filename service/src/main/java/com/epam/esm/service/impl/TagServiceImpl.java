@@ -21,8 +21,9 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> findAll() {
-        return tagDao.getAll();
+    public List<Tag> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return tagDao.getAll(pageable);
     }
 
     @Override

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface CRDService<T> {
-    List<T> findAll();
+    List<T> findAll(int page, int size);
     T findById(Long id) throws DaoException;
     T save(T t) throws DaoException;
     void delete(Long id) throws DaoException;

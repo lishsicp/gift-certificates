@@ -6,18 +6,15 @@ import com.epam.esm.entity.*;
 import com.epam.esm.exception.*;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.IncorrectUpdateValueException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,8 +44,11 @@ public class GiftCertificateController {
      * @return a {@link List} of found {@link GiftCertificate} entities.
      */
     @GetMapping()
-    public List<GiftCertificateDto> findAllCertificates() {
-        List<GiftCertificate> giftCertificates = giftCertificateService.findAll();
+    public List<GiftCertificateDto> findAllCertificates(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int size
+    ) {
+        List<GiftCertificate> giftCertificates = giftCertificateService.findAll(page, size);
         return giftCertificates.stream().map(giftCertificateDtoConverter::toDto).collect(Collectors.toList());
     }
 
@@ -80,7 +80,7 @@ public class GiftCertificateController {
                 .path("/{id}")
                 .buildAndExpand(savedCert.getId())
                 .toUri();
-        return ResponseEntity.created(locationUri).body(savedCert);
+        return ResponseEntity.created(locationUri).body(giftCertificateDtoConverter.toDto(savedCert));
     }
 
     /**

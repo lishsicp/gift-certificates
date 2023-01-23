@@ -9,6 +9,7 @@ import com.epam.esm.service.exception.IncorrectUpdateValueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -49,6 +50,16 @@ public class GiftCertificateController {
             @RequestParam(required = false, defaultValue = "5") int size
     ) {
         List<GiftCertificate> giftCertificates = giftCertificateService.findAll(page, size);
+        return giftCertificates.stream().map(giftCertificateDtoConverter::toDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/filter")
+    public List<GiftCertificateDto> findAllCertificatesFiltered(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int size,
+            @RequestParam MultiValueMap<String, String> filterParams
+    ) {
+        List<GiftCertificate> giftCertificates = giftCertificateService.findAllWithFilter(page, size, filterParams);
         return giftCertificates.stream().map(giftCertificateDtoConverter::toDto).collect(Collectors.toList());
     }
 

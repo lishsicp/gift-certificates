@@ -4,17 +4,19 @@ import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.IncorrectUpdateValueException;
-import com.epam.esm.service.validator.GiftCertificateUpdateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
 @Service
+@Transactional
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final ZoneId zoneId = ZoneId.of("UTC");
@@ -55,5 +57,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificate update(GiftCertificate giftCertificate) throws IncorrectUpdateValueException {
         giftCertificate.setLastUpdateDate(LocalDateTime.now(zoneId));
         return giftCertificateDao.update(giftCertificate);
+    }
+
+    @Override
+    public List<GiftCertificate> findAllWithFilter(int page, int size, MultiValueMap<String, String> params) {
+        Pageable pageable = PageRequest.of(page, size);
+        return giftCertificateDao.getAllWithFilter(pageable, params);
     }
 }

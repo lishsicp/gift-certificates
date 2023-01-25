@@ -32,8 +32,8 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
 
     @Override
     public List<GiftCertificate> getAllWithFilter(Pageable page, MultiValueMap<String, String> params) {
-        QueryBuilder<GiftCertificate> queryBuilder = new GiftCertificateQueryBuilder();
-        CriteriaQuery<GiftCertificate> criteriaQuery = queryBuilder.buildQuery(params, entityManager.getCriteriaBuilder());
+        QueryBuilder<GiftCertificate> queryBuilder = new GiftCertificateQueryBuilder(entityManager.getCriteriaBuilder());
+        CriteriaQuery<GiftCertificate> criteriaQuery = queryBuilder.buildQuery(params);
         return entityManager
                 .createQuery(criteriaQuery)
                 .setFirstResult((int) page.getOffset())

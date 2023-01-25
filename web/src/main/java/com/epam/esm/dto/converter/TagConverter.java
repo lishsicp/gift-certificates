@@ -6,7 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TagConverter extends ModelDtoConverter<TagDto, Tag> {
+public class TagConverter extends ModelDtoConverter<Tag, TagDto> {
 
     public TagConverter(ModelMapper modelMapper) {
         super(modelMapper);

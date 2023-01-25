@@ -1,11 +1,12 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.GiftCertificateDto;
-import com.epam.esm.dto.converter.ModelDtoConverter;
+import com.epam.esm.dto.converter.GiftCertificateConverter;
 import com.epam.esm.entity.*;
 import com.epam.esm.exception.*;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.IncorrectUpdateValueException;
+import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +34,10 @@ public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
 
-    private final ModelDtoConverter<GiftCertificateDto, GiftCertificate> giftCertificateDtoConverter;
+    private final GiftCertificateConverter giftCertificateDtoConverter;
 
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService, ModelDtoConverter<GiftCertificateDto, GiftCertificate> giftCertificateDtoConverter) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateConverter giftCertificateDtoConverter) {
         this.giftCertificateService = giftCertificateService;
         this.giftCertificateDtoConverter = giftCertificateDtoConverter;
     }
@@ -70,7 +71,7 @@ public class GiftCertificateController {
      * @throws DaoException if {@link com.epam.esm.entity.GiftCertificate} is not found.
      */
     @GetMapping("/{id}")
-    public GiftCertificateDto giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
+    public GiftCertificateDto giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException, PersistentException {
         GiftCertificate giftCertificate = giftCertificateService.findById(id);
         return giftCertificateDtoConverter.toDto(giftCertificate);
     }
@@ -104,7 +105,7 @@ public class GiftCertificateController {
      * @throws IncorrectUpdateValueException if the {@link GiftCertificate} entity contains invalid values.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody GiftCertificateDto giftCertificateDto) throws DaoException, IncorrectUpdateValueException {
+    public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody GiftCertificateDto giftCertificateDto) throws DaoException, IncorrectUpdateValueException, PersistentException {
         giftCertificateDto.setId(id);
         giftCertificateService.update(giftCertificateDtoConverter.toEntity(giftCertificateDto));
         return ResponseEntity.status(HttpStatus.CREATED).body("Success");
@@ -118,7 +119,7 @@ public class GiftCertificateController {
      * @throws DaoException if {@link com.epam.esm.entity.GiftCertificate} entity do not exist.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteGiftCertificate(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
+    public ResponseEntity<Object> deleteGiftCertificate(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException, PersistentException {
         giftCertificateService.delete(id);
         return ResponseEntity.noContent().build();
     }

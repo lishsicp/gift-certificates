@@ -6,7 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GiftCertificateConverter extends ModelDtoConverter<GiftCertificateDto, GiftCertificate> {
+public class GiftCertificateConverter extends ModelDtoConverter<GiftCertificate, GiftCertificateDto> {
 
     public GiftCertificateConverter(ModelMapper modelMapper) {
         super(modelMapper);

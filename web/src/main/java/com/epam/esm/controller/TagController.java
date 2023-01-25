@@ -5,6 +5,7 @@ import com.epam.esm.dto.converter.TagConverter;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.service.TagService;
+import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -55,7 +56,7 @@ public class TagController {
      * @throws DaoException if {@link Tag} is not found.
      */
     @GetMapping("/{id}")
-    public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
+    public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
         return tagConverter.toDto(tagService.findById(id));
     }
 
@@ -86,7 +87,7 @@ public class TagController {
      * @throws DaoException if {@link Tag} entity do not exist.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
+    public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
         tagService.delete(id);
         return ResponseEntity.noContent().build();
     }

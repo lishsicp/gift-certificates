@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
+
 
 public abstract class GenericDao<T> implements CRDDao<T> {
 
@@ -27,14 +29,15 @@ public abstract class GenericDao<T> implements CRDDao<T> {
     }
 
     @Override
-    public T getById(Long id) {
-        return entityManager.find(classType, id);
+    public Optional<T> getById(Long id) {
+        return Optional.ofNullable(entityManager.find(classType, id));
     }
 
     @Override
     @Transactional
-    public void delete(T t) {
-        entityManager.remove(t);
+    public void delete(Long id) {
+        T entity = entityManager.find(classType, id);
+        entityManager.remove(entity);
     }
 
     @Override

@@ -2,8 +2,8 @@ package com.epam.esm.controller;
 
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.converter.TagConverter;
+import com.epam.esm.dto.group.OnPersist;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.DaoException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +43,9 @@ public class TagController {
      * @return a {@link List} of {@link Tag} entities. Response code 200.
      */
     @GetMapping()
-    public List<TagDto> allTags(@RequestParam(required = false, defaultValue = "0") int page,
-                             @RequestParam(required = false, defaultValue = "5") int size) {
+    public List<TagDto> allTags(
+            @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
+            @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
         List<Tag> tags = tagService.findAll(page, size);
         return tags.stream().map(tagConverter::toDto).collect(Collectors.toList());
     }
@@ -53,7 +54,7 @@ public class TagController {
      * Gets a {@link Tag} by its <code>id</code> from database.
      * @param id for {@link Tag}
      * @return {@link Tag} entity. Response code 200.
-     * @throws DaoException if {@link Tag} is not found.
+     * @throws PersistentException if {@link Tag} is not found.
      */
     @GetMapping("/{id}")
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
@@ -65,18 +66,17 @@ public class TagController {
      *
      * @param tagDto must be valid according to {@link Tag} entity.
      * @return ResponseEntity with saved {@link Tag}. Response code 201.
-     * @throws DaoException if {@link Tag} an error occurred during saving.
+     * @throws PersistentException if {@link Tag} an error occurred during saving.
      */
     @PostMapping
-    public ResponseEntity<Object> saveTag(@RequestBody @Valid TagDto tagDto) throws DaoException {
+    public ResponseEntity<Object> saveTag(@RequestBody @Validated(OnPersist.class) TagDto tagDto) throws PersistentException {
         Tag savedTag = tagService.save(tagConverter.toEntity(tagDto));
         URI locationUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedTag.getId())
                 .toUri();
-        tagDto.setId(savedTag.getId());
-        return ResponseEntity.created(locationUri).body(tagDto);
+        return ResponseEntity.created(locationUri).body(tagConverter.toDto(savedTag));
     }
 
     /**
@@ -84,7 +84,7 @@ public class TagController {
      *
      * @param id for {@link Tag} to delete.
      * @return ResponseEntity with empty body. Response code 204.
-     * @throws DaoException if {@link Tag} entity do not exist.
+     * @throws PersistentException if {@link Tag} entity do not exist.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {

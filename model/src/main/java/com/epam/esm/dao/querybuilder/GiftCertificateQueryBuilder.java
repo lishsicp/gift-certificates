@@ -56,7 +56,7 @@ public class GiftCertificateQueryBuilder extends SpecificationBuilder implements
                     orders.add(getOrder(filterValue, root.get(CREATE_DATE_FIELD)));
                     break;
                 default:
-                    throw new IllegalArgumentException();
+                    break;
             }
         }
         return criteriaQuery

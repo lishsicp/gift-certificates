@@ -6,14 +6,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @Entity
 @Table(name = "tag")
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class Tag {
 
   @Id

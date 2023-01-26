@@ -31,7 +31,7 @@ public class GiftCertificate {
   private BigDecimal price;
 
   @Column(name = "duration", nullable = false)
-  private long duration;
+  private Long duration;
 
   @Column(name = "create_date")
   private LocalDateTime createDate;

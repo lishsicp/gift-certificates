@@ -1,10 +1,10 @@
 package com.epam.esm.exception;
 
-import com.epam.esm.service.exception.IncorrectUpdateValueException;
+import com.epam.esm.service.exception.ExceptionErrorCode;
+import com.epam.esm.service.exception.PersistentException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -31,10 +31,10 @@ public class ExceptionControllerAdvice {
 
 
     /**
-     * Handles {@link DaoException}
+     * Handles {@link PersistentException}
      */
-    @ExceptionHandler(DaoException.class)
-    ResponseEntity<ErrorBody> handleDaoException(DaoException ex) {
+    @ExceptionHandler(PersistentException.class)
+    ResponseEntity<ErrorBody> handlePersistentException(PersistentException ex) {
         String errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(ex.getErrorCode()));
         if (ex.getParameter() != null) errorMessage = String.format(errorMessage, ex.getParameter());
         ErrorBody errorBody = new ErrorBody(errorMessage, ex.getErrorCode());
@@ -50,7 +50,8 @@ public class ExceptionControllerAdvice {
         ex.getBindingResult().getAllErrors().forEach(error -> {
                     String field = Arrays.stream(((FieldError) error).getField().split("\\.")).reduce((first, second) -> second).orElse("Field");
                     String errorMessage = error.getDefaultMessage();
-                    ErrorBody errorBody = errorBodyValidationMessageSetter(errorMessage, field);
+                    Object value = ((FieldError) error).getRejectedValue();
+                    ErrorBody errorBody = errorBodyValidationMessageSetter(errorMessage, field, value);
                     errors.add(errorBody);
                 }
         );
@@ -67,44 +68,28 @@ public class ExceptionControllerAdvice {
                 .forEach(e -> {
                     String errorMessage = e.getMessage();
                     String field = e.getPropertyPath().iterator().next().getName();
-                    ErrorBody errorBody = errorBodyValidationMessageSetter(errorMessage, field);
+                    String invalidValue = "";
+                    for (Object o : e.getPropertyPath()) {
+                        invalidValue = o.toString();
+                    }
+                    ErrorBody errorBody = errorBodyValidationMessageSetter(errorMessage, field, invalidValue);
                     errors.add(errorBody);
                 });
         return ResponseEntity.badRequest().body(errors);
     }
 
-    private ErrorBody errorBodyValidationMessageSetter(String errorMessage, String errorField) {
+    private ErrorBody errorBodyValidationMessageSetter(String errorMessage, String errorField, Object invalidValue) {
         ErrorBody errorBody = new ErrorBody();
         if (StringUtils.isNumeric(errorMessage)) {
             int errorCode = Integer.parseInt(errorMessage);
             errorBody.setErrorCode(errorCode);
             errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(errorCode));
-            errorBody.setErrorMessage(errorMessage);
+            errorBody.setErrorMessage(String.format(errorMessage, invalidValue));
         } else {
             errorBody.setErrorMessage(String.format("%s - %s", errorField, errorMessage));
-            errorBody.setErrorCode(DaoExceptionErrorCode.VALIDATION_ERROR);
+            errorBody.setErrorCode(ExceptionErrorCode.VALIDATION_ERROR);
         }
         return errorBody;
-    }
-
-    /**
-     * Handles {@link DuplicateKeyException}
-     */
-    @ExceptionHandler
-    public ResponseEntity<ErrorBody> handleDuplicateKeyException(DuplicateKeyException ex) {
-        String errorMessage = ExceptionMessageI18n.toLocale("40010");
-        ErrorBody errorBody = new ErrorBody(errorMessage, 40010);
-        return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
-    }
-
-    /**
-     * Handles {@link IncorrectUpdateValueException}
-     */
-    @ExceptionHandler
-    public ResponseEntity<ErrorBody> handleIncorrectUpdateValueException(IncorrectUpdateValueException ex) {
-        String errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(ex.getErrorCode()));
-        ErrorBody errorBody = new ErrorBody(errorMessage, ex.getErrorCode());
-        return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
     }
 
     /**

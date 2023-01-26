@@ -13,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -38,8 +39,17 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
                 .createQuery(criteriaQuery)
                 .setFirstResult((int) page.getOffset())
                 .setMaxResults(page.getPageSize())
-                .getResultStream()
+                .getResultList()
+                .stream()
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<GiftCertificate> getByName(String name) {
+        return entityManager
+                .createQuery("select c from GiftCertificate c where c.name = :name", GiftCertificate.class)
+                .setParameter("name", name)
+                .getResultList().stream().findFirst();
     }
 }

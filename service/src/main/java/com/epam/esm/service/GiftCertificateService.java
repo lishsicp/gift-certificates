@@ -6,5 +6,5 @@ import org.springframework.util.MultiValueMap;
 import java.util.List;
 
 public interface GiftCertificateService extends CRUDService<GiftCertificate> {
-    List<GiftCertificate> findAllWithFilter(int page, int size, MultiValueMap<String, String> params);
+    List<GiftCertificate> getAllWithFilter(int page, int size, MultiValueMap<String, String> params);
 }

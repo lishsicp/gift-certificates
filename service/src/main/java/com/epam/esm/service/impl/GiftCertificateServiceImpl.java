@@ -4,6 +4,7 @@ import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.service.GenericService;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.ExceptionErrorCode;
 import com.epam.esm.service.exception.PersistentException;
@@ -21,34 +22,24 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GiftCertificateServiceImpl implements GiftCertificateService {
+public class GiftCertificateServiceImpl extends GenericService<GiftCertificate> implements GiftCertificateService {
 
-    private final ZoneId zoneId = ZoneId.of("UTC");
+    private final ZoneId zoneId = ZoneId.systemDefault();
 
     private final GiftCertificateDao giftCertificateDao;
     private final TagDao tagDao;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateDao giftCertificateDao, TagDao tagDao) {
+        super(giftCertificateDao);
         this.giftCertificateDao = giftCertificateDao;
         this.tagDao = tagDao;
     }
 
     @Override
-    public List<GiftCertificate> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        return giftCertificateDao.findAll(pageable);
-    }
-
-    @Override
-    public GiftCertificate getById(Long id) throws PersistentException {
-        return giftCertificateDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND, id));
-    }
-
-    @Override
     @Transactional
     public GiftCertificate save(GiftCertificate giftCertificate) throws PersistentException {
-        Optional<GiftCertificate> existed = giftCertificateDao.getByName(giftCertificate.getName());
+        Optional<GiftCertificate> existed = giftCertificateDao.findByName(giftCertificate.getName());
         if (existed.isPresent())
             throw new PersistentException(ExceptionErrorCode.DUPLICATED_CERTIFICATE, giftCertificate.getName());
         LocalDateTime localDateTime = LocalDateTime.now(zoneId);
@@ -57,14 +48,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setTags(updateTagList(giftCertificate.getTags()));
         giftCertificateDao.save(giftCertificate);
         return giftCertificate;
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long id) throws PersistentException {
-        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(id);
-        if (giftCertificateOptional.isEmpty()) throw new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND, id);
-        giftCertificateDao.delete(id);
     }
 
     @Override
@@ -86,9 +69,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificate> findAllWithFilter(int page, int size, MultiValueMap<String, String> params) {
+    public List<GiftCertificate> getAllWithFilter(int page, int size, MultiValueMap<String, String> params) {
         Pageable pageable = PageRequest.of(page, size);
-        return giftCertificateDao.getAllWithFilter(pageable, params);
+        return giftCertificateDao.findAllWithFilter(pageable, params);
     }
 
     public List<Tag> updateTagList(List<Tag> list) {
@@ -96,7 +79,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             return list;
         List<Tag> tagList = new ArrayList<>();
         for (Tag tagFromRequest : list) {
-            Optional<Tag> tagFromDb = tagDao.getByName(tagFromRequest.getName());
+            Optional<Tag> tagFromDb = tagDao.findByName(tagFromRequest.getName());
             if (tagFromDb.isPresent()) {
                 tagList.add(tagFromDb.get());
             } else {

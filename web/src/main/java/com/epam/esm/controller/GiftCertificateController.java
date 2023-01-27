@@ -60,7 +60,7 @@ public class GiftCertificateController {
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
             @RequestParam @FilterConstraint MultiValueMap<String, String> filterParams
     ) {
-        List<GiftCertificate> giftCertificates = giftCertificateService.findAllWithFilter(page, size, filterParams);
+        List<GiftCertificate> giftCertificates = giftCertificateService.getAllWithFilter(page, size, filterParams);
         return giftCertificates.stream().map(giftCertificateDtoConverter::toDto).collect(Collectors.toList());
     }
 

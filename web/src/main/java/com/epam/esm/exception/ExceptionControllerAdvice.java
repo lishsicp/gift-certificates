@@ -2,11 +2,13 @@ package com.epam.esm.exception;
 
 import com.epam.esm.service.exception.ExceptionErrorCode;
 import com.epam.esm.service.exception.PersistentException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -105,10 +107,21 @@ public class ExceptionControllerAdvice {
     /**
      * Handles {@link MethodArgumentTypeMismatchException}
      */
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ExceptionHandler({
+            MethodArgumentTypeMismatchException.class,
+            HttpMessageNotReadableException.class,
+            JsonProcessingException.class
+    })
     public ResponseEntity<Object> handle() {
         String errorMessage = ExceptionMessageI18n.toLocale("error.badRequest");
         ErrorBody errorBody = new ErrorBody(errorMessage, HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody);
+    }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<Object> handleUnsupportedOperationException() {
+        String errorMessage = ExceptionMessageI18n.toLocale("error.unsupportedOperation");
+        ErrorBody errorBody = new ErrorBody(errorMessage, HttpStatus.METHOD_NOT_ALLOWED.value());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorBody);
     }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GiftCertificateDao extends CRUDDao<GiftCertificate> {
-    List<GiftCertificate> getAllWithFilter(Pageable page, MultiValueMap<String, String> params);
+    List<GiftCertificate> findAllWithFilter(Pageable page, MultiValueMap<String, String> params);
 
-    Optional<GiftCertificate> getByName(String name);
+    Optional<GiftCertificate> findByName(String name);
 }

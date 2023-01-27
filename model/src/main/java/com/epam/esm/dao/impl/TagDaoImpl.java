@@ -18,7 +18,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
     }
 
     @Override
-    public Optional<Tag> getByName(String name) {
+    public Optional<Tag> findByName(String name) {
         return entityManager
                 .createQuery("select tag from Tag tag where tag.name = :name", Tag.class)
                 .setParameter("name", name)

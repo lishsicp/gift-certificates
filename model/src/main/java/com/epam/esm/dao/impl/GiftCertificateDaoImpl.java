@@ -32,7 +32,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     }
 
     @Override
-    public List<GiftCertificate> getAllWithFilter(Pageable page, MultiValueMap<String, String> params) {
+    public List<GiftCertificate> findAllWithFilter(Pageable page, MultiValueMap<String, String> params) {
         QueryBuilder<GiftCertificate> queryBuilder = new GiftCertificateQueryBuilder(entityManager.getCriteriaBuilder());
         CriteriaQuery<GiftCertificate> criteriaQuery = queryBuilder.buildQuery(params);
         return entityManager
@@ -46,7 +46,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     }
 
     @Override
-    public Optional<GiftCertificate> getByName(String name) {
+    public Optional<GiftCertificate> findByName(String name) {
         return entityManager
                 .createQuery("select c from GiftCertificate c where c.name = :name", GiftCertificate.class)
                 .setParameter("name", name)

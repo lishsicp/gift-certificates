@@ -20,7 +20,7 @@ public class GiftCertificateDto {
     @NotEmpty(groups = OnPersist.class)
     private String name;
 
-    @Pattern(regexp = "[\\w\\s]{3,128}+", message = "40004")
+    @Pattern(regexp = "[\\w\\s]{3,256}+", message = "40004")
     @NotEmpty(groups = OnPersist.class)
     private String description;
 

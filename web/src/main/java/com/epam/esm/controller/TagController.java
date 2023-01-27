@@ -46,7 +46,7 @@ public class TagController {
     public List<TagDto> allTags(
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
-        List<Tag> tags = tagService.findAll(page, size);
+        List<Tag> tags = tagService.getAll(page, size);
         return tags.stream().map(tagConverter::toDto).collect(Collectors.toList());
     }
 
@@ -58,7 +58,7 @@ public class TagController {
      */
     @GetMapping("/{id}")
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        return tagConverter.toDto(tagService.findById(id));
+        return tagConverter.toDto(tagService.getById(id));
     }
 
     /**

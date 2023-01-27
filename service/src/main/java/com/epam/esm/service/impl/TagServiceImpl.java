@@ -24,14 +24,14 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> findAll(int page, int size) {
+    public List<Tag> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        return tagDao.getAll(pageable);
+        return tagDao.findAll(pageable);
     }
 
     @Override
-    public Tag findById(Long id) throws PersistentException {
-        return tagDao.getById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.TAG_NOT_FOUND, id));
+    public Tag getById(Long id) throws PersistentException {
+        return tagDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.TAG_NOT_FOUND, id));
     }
 
     @Override
@@ -39,12 +39,12 @@ public class TagServiceImpl implements TagService {
         Optional<Tag> optionalTag = tagDao.getByName(tag.getName());
         if (optionalTag.isPresent())
             throw new PersistentException(ExceptionErrorCode.DUPLICATED_TAG, tag.getName());
-        return tagDao.create(tag);
+        return tagDao.save(tag);
     }
 
     @Override
     public void delete(Long id) throws PersistentException {
-        Tag tag = tagDao.getById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.TAG_NOT_FOUND, id));
+        Tag tag = tagDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.TAG_NOT_FOUND, id));
         tagDao.delete(tag.getId());
     }
 }

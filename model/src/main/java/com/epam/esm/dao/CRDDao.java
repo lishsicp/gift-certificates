@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CRDDao<T> {
-    List<T> getAll(Pageable page);
-    Optional<T> getById(Long id);
+    List<T> findAll(Pageable page);
+    Optional<T> findById(Long id);
     void delete(Long id);
-    T create(T t);
+    T save(T t);
 }

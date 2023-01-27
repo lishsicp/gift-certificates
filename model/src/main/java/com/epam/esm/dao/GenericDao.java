@@ -21,7 +21,7 @@ public abstract class GenericDao<T> implements CRDDao<T> {
     }
 
     @Override
-    public List<T> getAll(Pageable pageable) {
+    public List<T> findAll(Pageable pageable) {
         return entityManager.createQuery("select c from " + classType.getSimpleName() + " c", classType)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
@@ -29,7 +29,7 @@ public abstract class GenericDao<T> implements CRDDao<T> {
     }
 
     @Override
-    public Optional<T> getById(Long id) {
+    public Optional<T> findById(Long id) {
         return Optional.ofNullable(entityManager.find(classType, id));
     }
 
@@ -42,7 +42,7 @@ public abstract class GenericDao<T> implements CRDDao<T> {
 
     @Override
     @Transactional
-    public T create(T t) {
+    public T save(T t) {
         entityManager.persist(t);
         entityManager.flush();
         return t;

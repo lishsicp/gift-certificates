@@ -35,14 +35,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificate> findAll(int page, int size) {
+    public List<GiftCertificate> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        return giftCertificateDao.getAll(pageable);
+        return giftCertificateDao.findAll(pageable);
     }
 
     @Override
-    public GiftCertificate findById(Long id) throws PersistentException {
-        return giftCertificateDao.getById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND, id));
+    public GiftCertificate getById(Long id) throws PersistentException {
+        return giftCertificateDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND, id));
     }
 
     @Override
@@ -55,14 +55,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setCreateDate(localDateTime);
         giftCertificate.setLastUpdateDate(localDateTime);
         giftCertificate.setTags(updateTagList(giftCertificate.getTags()));
-        giftCertificateDao.create(giftCertificate);
+        giftCertificateDao.save(giftCertificate);
         return giftCertificate;
     }
 
     @Override
     @Transactional
     public void delete(Long id) throws PersistentException {
-        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.getById(id);
+        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(id);
         if (giftCertificateOptional.isEmpty()) throw new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND, id);
         giftCertificateDao.delete(id);
     }
@@ -71,7 +71,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificate update(GiftCertificate giftCertificate) throws PersistentException {
         GiftCertificate giftCertificateToUpdate = giftCertificateDao
-                .getById(giftCertificate.getId())
+                .findById(giftCertificate.getId())
                 .orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND));
 
         Optional.ofNullable(giftCertificate.getName()).ifPresent(giftCertificateToUpdate::setName);

@@ -50,7 +50,7 @@ public class GiftCertificateController {
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size
     ) {
-        List<GiftCertificate> giftCertificates = giftCertificateService.findAll(page, size);
+        List<GiftCertificate> giftCertificates = giftCertificateService.getAll(page, size);
         return giftCertificates.stream().map(giftCertificateDtoConverter::toDto).collect(Collectors.toList());
     }
 
@@ -72,7 +72,7 @@ public class GiftCertificateController {
      */
     @GetMapping("/{id}")
     public GiftCertificateDto giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        GiftCertificate giftCertificate = giftCertificateService.findById(id);
+        GiftCertificate giftCertificate = giftCertificateService.getById(id);
         return giftCertificateDtoConverter.toDto(giftCertificate);
     }
 

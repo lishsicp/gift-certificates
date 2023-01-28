@@ -3,6 +3,8 @@ package com.epam.esm.dto;
 
 import com.epam.esm.dto.group.OnPersist;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
@@ -11,7 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class GiftCertificateDto {
+@EqualsAndHashCode(callSuper = true)
+public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
 
     @Min(value = 1, message = "40001")
     private Long id;

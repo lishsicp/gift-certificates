@@ -1,14 +1,15 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.User;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class OrderDto {
+@EqualsAndHashCode(callSuper = false)
+public class OrderDto extends RepresentationModel<OrderDto> {
 
     private Long id;
 
@@ -16,7 +17,7 @@ public class OrderDto {
 
     private LocalDateTime purchaseDate;
 
-    private GiftCertificate giftCertificate;
+    private GiftCertificateDto giftCertificate;
 
-    private User user;
+    private UserDto user;
 }

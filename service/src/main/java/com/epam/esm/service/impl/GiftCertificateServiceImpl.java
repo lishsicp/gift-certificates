@@ -70,7 +70,7 @@ public class GiftCertificateServiceImpl extends GenericService<GiftCertificate> 
 
     @Override
     public List<GiftCertificate> getAllWithFilter(int page, int size, MultiValueMap<String, String> params) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         return giftCertificateDao.findAllWithFilter(pageable, params);
     }
 

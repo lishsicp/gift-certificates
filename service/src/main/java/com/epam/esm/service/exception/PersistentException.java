@@ -1,6 +1,6 @@
 package com.epam.esm.service.exception;
 
-public class PersistentException extends Exception {
+public class PersistentException extends RuntimeException {
 
     private int errorCode;
     private Object parameter;

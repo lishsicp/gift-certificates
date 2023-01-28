@@ -1,5 +1,6 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.assembler.TagModelAssembler;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.converter.TagConverter;
 import com.epam.esm.dto.group.OnPersist;
@@ -7,6 +8,8 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +20,9 @@ import javax.validation.constraints.Min;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * This class is an endpoint of the API which allows to perform CRD operations
@@ -31,11 +37,13 @@ public class TagController {
 
     private final TagService tagService;
     private final TagConverter tagConverter;
+    private final TagModelAssembler tagModelAssembler;
 
     @Autowired
-    public TagController(TagService tagService, TagConverter tagDtoTagController) {
+    public TagController(TagService tagService, TagConverter tagDtoTagController, TagModelAssembler tagModelAssembler) {
         this.tagService = tagService;
         this.tagConverter = tagDtoTagController;
+        this.tagModelAssembler = tagModelAssembler;
     }
 
     /**
@@ -43,11 +51,17 @@ public class TagController {
      * @return a {@link List} of {@link Tag} entities. Response code 200.
      */
     @GetMapping()
-    public List<TagDto> allTags(
+    public CollectionModel<TagDto> allTags(
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
-        List<Tag> tags = tagService.getAll(page, size);
-        return tags.stream().map(tagConverter::toDto).collect(Collectors.toList());
+        List<TagDto> tags = tagService
+                .getAll(page, size)
+                .stream()
+                .map(tagConverter::toDto)
+                .map(tagModelAssembler::toModel)
+                .collect(Collectors.toList());
+        Link selfRel = linkTo(methodOn(this.getClass()).allTags(page, size)).withSelfRel();
+        return CollectionModel.of(tags, selfRel);
     }
 
     /**
@@ -58,7 +72,7 @@ public class TagController {
      */
     @GetMapping("/{id}")
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        return tagConverter.toDto(tagService.getById(id));
+        return tagModelAssembler.toModel(tagConverter.toDto(tagService.getById(id)));
     }
 
     /**
@@ -76,7 +90,7 @@ public class TagController {
                 .path("/{id}")
                 .buildAndExpand(savedTag.getId())
                 .toUri();
-        return ResponseEntity.created(locationUri).body(tagConverter.toDto(savedTag));
+        return ResponseEntity.created(locationUri).body(tagModelAssembler.toModel(tagConverter.toDto(savedTag)));
     }
 
     /**

@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:gifts-test
+    username: sa
+    password:
+  sql:
+    init:
+      schema-locations: classpath:sql/schema-test.sql
+      data-locations: classpath:sql/data-test.sql
+  jooq:
+    sql-dialect: org.hibernate.dialect.PostgreSQLDialect
+  jpa:
+    hibernate:
+      ddl-auto: update

@@ -14,12 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GiftCertificate {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id", nullable = false, insertable = false, updatable = false)
-  private Long id;
+public class GiftCertificate extends BaseEntity<Long> {
 
   @Column(name = "name", nullable = false)
   private String name;

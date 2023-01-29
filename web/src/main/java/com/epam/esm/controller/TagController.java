@@ -4,7 +4,9 @@ import com.epam.esm.assembler.TagModelAssembler;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.converter.TagConverter;
 import com.epam.esm.dto.group.OnPersist;
+import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.entity.User;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +76,18 @@ public class TagController {
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
         Tag tagById = tagService.getById(id);
         TagDto tagDto = tagConverter.toDto(tagById);
+        return tagModelAssembler.toModel(tagDto);
+    }
+
+    /**
+     * Get the most widely used {@link Tag} of a {@link User} with the highest cost of all {@link Order} entities.
+     * @return ResponseEntity with most popular {@link Tag}. Response code 200.
+     * @throws PersistentException if {@link Tag} is not found.
+     */
+    @GetMapping("/popular")
+    public TagDto popularTag() throws PersistentException {
+        Tag popularTag = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
+        TagDto tagDto = tagConverter.toDto(popularTag);
         return tagModelAssembler.toModel(tagDto);
     }
 

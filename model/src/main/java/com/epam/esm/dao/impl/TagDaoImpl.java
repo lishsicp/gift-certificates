@@ -24,4 +24,17 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
                 .setParameter("name", name)
                 .getResultList().stream().findFirst();
     }
+
+    @Override
+    public Optional<Tag> findMostWidelyUsedTagWithHighestCostOfAllOrders() {
+        return entityManager
+                .createQuery(
+                        "select t from Order o " +
+                                "join o.giftCertificate g " +
+                                "join g.tags t " +
+                                "group by t.id " +
+                                "order by count(t.id) desc , sum(o.cost) desc"
+                        , Tag.class)
+                .getResultList().stream().findFirst();
+    }
 }

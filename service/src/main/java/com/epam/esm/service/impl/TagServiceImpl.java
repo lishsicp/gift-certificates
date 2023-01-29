@@ -29,4 +29,13 @@ public class TagServiceImpl extends GenericService<Tag> implements TagService {
             throw new PersistentException(ExceptionErrorCode.DUPLICATED_TAG, tag.getName());
         return tagDao.save(tag);
     }
+
+    @Override
+    public Tag getMostWidelyUsedTagWithHighestCostOfAllOrders() {
+        return tagDao
+                .findMostWidelyUsedTagWithHighestCostOfAllOrders()
+                .orElseThrow(
+                        ()-> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, "id")
+                );
+    }
 }

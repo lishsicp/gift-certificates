@@ -95,7 +95,8 @@ public class GiftCertificateController {
     @GetMapping("/{id}")
     public GiftCertificateDto giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
         GiftCertificate giftCertificate = giftCertificateService.getById(id);
-        return giftCertificateAssembler.toModel(giftCertificateDtoConverter.toDto(giftCertificate));
+        GiftCertificateDto giftCertificateDto = giftCertificateDtoConverter.toDto(giftCertificate);
+        return giftCertificateAssembler.toModel(giftCertificateDto);
     }
 
     /**
@@ -114,7 +115,8 @@ public class GiftCertificateController {
                 .path("/{id}")
                 .buildAndExpand(savedCert.getId())
                 .toUri();
-        return ResponseEntity.created(locationUri).body(giftCertificateAssembler.toModel(giftCertificateDtoConverter.toDto(savedCert)));
+        GiftCertificateDto savedCertDto = giftCertificateDtoConverter.toDto(savedCert);
+        return ResponseEntity.created(locationUri).body(giftCertificateAssembler.toModel(savedCertDto));
     }
 
     /**

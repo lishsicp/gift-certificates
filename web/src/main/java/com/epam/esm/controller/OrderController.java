@@ -45,7 +45,8 @@ public class OrderController {
     public OrderDto orderById(
             @PathVariable @Min(value = 1, message = "40001") Long id) throws PersistentException {
         Order order = orderService.getById(id);
-        return orderAssembler.toModel(orderConverter.toDto(order));
+        OrderDto orderDto = orderConverter.toDto(order);
+        return orderAssembler.toModel(orderDto);
     }
 
     @GetMapping("/users/{id}")
@@ -64,12 +65,13 @@ public class OrderController {
 
     @PostMapping()
     public ResponseEntity<Object> makeOrder(@RequestBody MakeOrderDto orderDto) throws PersistentException {
-        Order saveOrder = orderService.save(orderConverter.toEntity(orderDto));
+        Order savedOrder = orderService.save(orderConverter.toEntity(orderDto));
         URI locationUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(saveOrder.getId())
+                .buildAndExpand(savedOrder.getId())
                 .toUri();
-        return ResponseEntity.created(locationUri).body(orderAssembler.toModel(orderConverter.toDto(saveOrder)));
+        OrderDto savedOrderDto = orderConverter.toDto(savedOrder);
+        return ResponseEntity.created(locationUri).body(orderAssembler.toModel(savedOrderDto));
     }
 }

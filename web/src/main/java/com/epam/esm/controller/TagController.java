@@ -72,7 +72,9 @@ public class TagController {
      */
     @GetMapping("/{id}")
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        return tagModelAssembler.toModel(tagConverter.toDto(tagService.getById(id)));
+        Tag tagById = tagService.getById(id);
+        TagDto tagDto = tagConverter.toDto(tagById);
+        return tagModelAssembler.toModel(tagDto);
     }
 
     /**
@@ -90,7 +92,8 @@ public class TagController {
                 .path("/{id}")
                 .buildAndExpand(savedTag.getId())
                 .toUri();
-        return ResponseEntity.created(locationUri).body(tagModelAssembler.toModel(tagConverter.toDto(savedTag)));
+        TagDto savedTagDto = tagConverter.toDto(savedTag);
+        return ResponseEntity.created(locationUri).body(tagModelAssembler.toModel(savedTagDto));
     }
 
     /**

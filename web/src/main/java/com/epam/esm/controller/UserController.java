@@ -52,7 +52,8 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto userById(@PathVariable @Min(value = 1, message = "40001") Long id) throws PersistentException {
         User user = userService.getById(id);
-        return userAssembler.toModel(userConverter.toDto(user));
+        UserDto dto = userConverter.toDto(user);
+        return userAssembler.toModel(dto);
     }
 
 }

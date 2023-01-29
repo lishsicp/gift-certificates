@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
-public class Order extends BaseEntity<Long> {
+@NoArgsConstructor
+public class Order extends BaseEntity {
 
     private BigDecimal cost;
 
@@ -29,16 +29,26 @@ public class Order extends BaseEntity<Long> {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Builder
+    public Order(Long id, BigDecimal cost, LocalDateTime purchaseDate, GiftCertificate giftCertificate, User user) {
+        super(id);
+        this.cost = cost;
+        this.purchaseDate = purchaseDate;
+        this.giftCertificate = giftCertificate;
+        this.user = user;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Order)) return false;
 
         Order order = (Order) o;
 
         return new EqualsBuilder()
-                .append(id, order.id)
+                .appendSuper(super.equals(o))
                 .append(cost, order.cost)
                 .append(purchaseDate, order.purchaseDate)
                 .append(giftCertificate, order.giftCertificate)
@@ -49,7 +59,7 @@ public class Order extends BaseEntity<Long> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(id)
+                .appendSuper(super.hashCode())
                 .append(cost)
                 .append(purchaseDate)
                 .append(giftCertificate)

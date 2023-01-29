@@ -1,10 +1,7 @@
 package com.epam.esm.entity;
 
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -15,21 +12,27 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
-public class User extends BaseEntity<Long> {
+@NoArgsConstructor
+public class User extends BaseEntity {
 
     private String name;
+
+    @Builder
+    public User(Long id, String name) {
+        super(id);
+        this.name = name;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof User)) return false;
 
         User user = (User) o;
 
         return new EqualsBuilder()
-                .append(id, user.id)
+                .appendSuper(super.equals(o))
                 .append(name, user.name)
                 .isEquals();
     }
@@ -37,7 +40,7 @@ public class User extends BaseEntity<Long> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(id)
+                .appendSuper(super.hashCode())
                 .append(name)
                 .toHashCode();
     }

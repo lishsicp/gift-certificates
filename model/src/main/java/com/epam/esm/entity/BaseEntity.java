@@ -13,33 +13,37 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @EntityListeners(AuditListener.class)
-public abstract class BaseEntity<T extends Serializable> implements Serializable {
+public abstract class BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected T id;
+    protected Long id;
 
     @JsonIgnore
     @Column(name = "operation", nullable = false)
-    private String operation;
+    private transient String operation;
 
     @JsonIgnore
     @Column(name = "timestamp", nullable = false)
-    private Long timestamp;
+    private transient Long timestamp;
+
+    protected BaseEntity(Long id) {
+        this.id = id;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof BaseEntity)) return false;
 
-        BaseEntity<?> that = (BaseEntity<?>) o;
+        BaseEntity that = (BaseEntity) o;
 
-        return new EqualsBuilder().append(id, that.id)
-                .append(operation, that.operation)
-                .append(timestamp, that.timestamp)
+        return new EqualsBuilder()
+                .append(id, that.id)
                 .isEquals();
     }
 
@@ -47,8 +51,6 @@ public abstract class BaseEntity<T extends Serializable> implements Serializable
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(id)
-                .append(operation)
-                .append(timestamp)
                 .toHashCode();
     }
 }

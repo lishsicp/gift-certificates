@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GiftCertificate extends BaseEntity<Long> {
+public class GiftCertificate extends BaseEntity {
 
   @Column(name = "name", nullable = false)
   private String name;
@@ -42,20 +42,32 @@ public class GiftCertificate extends BaseEntity<Long> {
   )
   private List<Tag> tags;
 
+  @Builder
+  public GiftCertificate(Long id, String name, String description, BigDecimal price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, List<Tag> tags) {
+    super(id);
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.duration = duration;
+    this.createDate = createDate;
+    this.lastUpdateDate = lastUpdateDate;
+    this.tags = tags;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
 
-    if (o == null || getClass() != o.getClass()) return false;
+    if (!(o instanceof GiftCertificate)) return false;
 
     GiftCertificate that = (GiftCertificate) o;
 
     return new EqualsBuilder()
-            .append(duration, that.duration)
-            .append(id, that.id)
+            .appendSuper(super.equals(o))
             .append(name, that.name)
             .append(description, that.description)
             .append(price, that.price)
+            .append(duration, that.duration)
             .append(createDate, that.createDate)
             .append(lastUpdateDate, that.lastUpdateDate)
             .append(tags, that.tags)
@@ -65,7 +77,7 @@ public class GiftCertificate extends BaseEntity<Long> {
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-            .append(id)
+            .appendSuper(super.hashCode())
             .append(name)
             .append(description)
             .append(price)
@@ -75,7 +87,6 @@ public class GiftCertificate extends BaseEntity<Long> {
             .append(tags)
             .toHashCode();
   }
-
   @Override
   public String toString() {
     return "GiftCertificate{" +

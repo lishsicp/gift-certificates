@@ -31,6 +31,11 @@ public class OrderDaoImpl extends GenericDao<Order> implements OrderDao {
     }
 
     @Override
+    public List<Order> findAll(Pageable pageable) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void delete(Long id) {
         throw new UnsupportedOperationException();
     }

@@ -18,14 +18,9 @@ public class OrderConverter extends ModelDtoConverter<Order, OrderDto> {
     @Override
     public Order toEntity(OrderDto orderDto) {
         MakeOrderDto dto = (MakeOrderDto) orderDto;
-        Order o = new Order();
-        GiftCertificate certificate = new GiftCertificate();
-        certificate.setId(dto.getGiftCertificateId());
-        o.setGiftCertificate(certificate);
-        User user = new User();
-        user.setId(dto.getUserId());
-        o.setUser(user);
-        return o;
+        GiftCertificate certificate = GiftCertificate.builder().id(dto.getGiftCertificateId()).build();
+        User user = User.builder().id(dto.getUserId()).build();
+        return Order.builder().giftCertificate(certificate).user(user).build();
     }
 
     @Override

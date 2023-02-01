@@ -24,11 +24,11 @@ public abstract class BaseEntity implements Serializable {
 
     @JsonIgnore
     @Column(name = "operation", nullable = false)
-    private transient String operation;
+    private String operation;
 
     @JsonIgnore
     @Column(name = "timestamp", nullable = false)
-    private transient Long timestamp;
+    private Long timestamp;
 
     protected BaseEntity(Long id) {
         this.id = id;

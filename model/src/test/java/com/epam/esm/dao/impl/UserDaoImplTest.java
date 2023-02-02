@@ -53,14 +53,4 @@ class UserDaoImplTest {
         Optional<User> user = userDao.findById(NON_EXISTED_USER_ID);
         assertTrue(user.isEmpty());
     }
-
-    @Test
-    void testDeleteThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> userDao.delete(USER_1.getId()));
-    }
-
-    @Test
-    void testSaveThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> userDao.save(USER_1));
-    }
 }

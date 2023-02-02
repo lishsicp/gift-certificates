@@ -67,12 +67,15 @@ class GiftCertificateDaoImplTest {
     private static final String FILTER_DESCRIPTION_KEY = "description";
     private static final String FILTER_DESCRIPTION_VALUE = "Desc";
     private static final String FILTER_DATE_SORT_KEY = "date_sort";
+    private static final String FILTER_NAME_SORT_KEY = "name_sort";
     private static final String FILTER_DATE_SORT_VALUE = "asc";
+    private static final String FILTER_NAME_SORT_VALUE = "desc";
     private static final String FILTER_TAGS_KEY = "tags";
     private static final String FILTER_TAGS_VALUE_1 = "tag2";
     private static final String FILTER_TAGS_VALUE_2 = "tag4";
     private static final String WRONG_FILTER_KEY = "Wrong key";
     private static final String WRONG_FILTER_VALUE = "Wrong value";
+
 
     @Autowired
     GiftCertificateDao giftCertificateDao;
@@ -156,6 +159,7 @@ class GiftCertificateDaoImplTest {
         filterParams.add(FILTER_TAGS_KEY, FILTER_TAGS_VALUE_1);
         filterParams.add(FILTER_TAGS_KEY, FILTER_TAGS_VALUE_2);
         filterParams.add(FILTER_DATE_SORT_KEY, FILTER_DATE_SORT_VALUE);
+        filterParams.add(FILTER_NAME_SORT_KEY, FILTER_NAME_SORT_VALUE);
 
         List<GiftCertificate> expected = Arrays.asList(CERTIFICATE_2, CERTIFICATE_3);
         List<GiftCertificate> actual = giftCertificateDao.findAllWithFilter(PAGE_REQUEST, filterParams);

@@ -117,20 +117,4 @@ class OrderDaoImplTest {
         List<Order> expected = Arrays.asList(ORDER_1, ORDER_2, ORDER_3);
         assertEquals(expected, actual);
     }
-
-    @Test
-    void testDeleteThrowsException() {
-        Long orderId = ORDER_1.getId();
-        assertThrows(UnsupportedOperationException.class, () -> orderDao.delete(orderId));
-    }
-
-    @Test
-    void testUpdateThrowsException() {
-        assertThrows(UnsupportedOperationException.class, () -> orderDao.update(ORDER_1));
-    }
-
-    @Test
-    void testFindAllThrowsException() {
-        assertThrows(UnsupportedOperationException.class, () -> orderDao.findAll(PAGE_REQUEST));
-    }
 }

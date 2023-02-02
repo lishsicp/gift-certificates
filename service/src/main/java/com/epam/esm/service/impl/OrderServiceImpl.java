@@ -65,4 +65,14 @@ public class OrderServiceImpl extends GenericService<Order> implements OrderServ
         Pageable pageable = PageRequest.of(page - 1, size);
         return orderDao.findOrdersByUserId(id, pageable);
     }
+
+    @Override
+    public List<Order> getAll(int page, int size) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void delete(Long id) throws PersistentException {
+        throw new UnsupportedOperationException();
+    }
 }

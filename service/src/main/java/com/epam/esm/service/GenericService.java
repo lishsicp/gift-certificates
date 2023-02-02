@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class GenericService<T> implements CRDService<T> {
 
@@ -29,7 +30,9 @@ public abstract class GenericService<T> implements CRDService<T> {
 
     @Override
     public void delete(Long id) throws PersistentException {
-        crudDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
+        Optional<T> optionalT = crudDao.findById(id);
+        if (optionalT.isEmpty())
+            throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
         crudDao.delete(id);
     }
 }

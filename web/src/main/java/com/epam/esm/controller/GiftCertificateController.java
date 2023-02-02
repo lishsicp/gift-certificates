@@ -129,8 +129,7 @@ public class GiftCertificateController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody @Valid GiftCertificateDto giftCertificateDto) throws PersistentException {
-        giftCertificateDto.setId(id);
-        giftCertificateService.update(giftCertificateDtoConverter.toEntity(giftCertificateDto));
+        giftCertificateService.update(id, giftCertificateDtoConverter.toEntity(giftCertificateDto));
         return ResponseEntity.status(HttpStatus.CREATED).body("Success");
     }
 

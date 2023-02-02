@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDateTime;
@@ -37,7 +36,6 @@ public class GiftCertificateServiceImpl extends GenericService<GiftCertificate> 
     }
 
     @Override
-    @Transactional
     public GiftCertificate save(GiftCertificate giftCertificate) throws PersistentException {
         Optional<GiftCertificate> existed = giftCertificateDao.findByName(giftCertificate.getName());
         if (existed.isPresent())
@@ -46,13 +44,11 @@ public class GiftCertificateServiceImpl extends GenericService<GiftCertificate> 
         giftCertificate.setCreateDate(localDateTime);
         giftCertificate.setLastUpdateDate(localDateTime);
         giftCertificate.setTags(updateTagList(giftCertificate.getTags()));
-        giftCertificateDao.save(giftCertificate);
-        return giftCertificate;
+        return giftCertificateDao.save(giftCertificate);
     }
 
     @Override
-    @Transactional
-    public GiftCertificate update(GiftCertificate giftCertificate) throws PersistentException {
+    public GiftCertificate update(Long id, GiftCertificate giftCertificate) throws PersistentException {
         GiftCertificate giftCertificateToUpdate = giftCertificateDao
                 .findById(giftCertificate.getId())
                 .orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND));

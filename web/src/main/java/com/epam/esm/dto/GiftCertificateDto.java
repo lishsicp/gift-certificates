@@ -43,6 +43,7 @@ public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> 
     @PastOrPresent
     private LocalDateTime lastUpdateDate;
 
+    @NotEmpty(groups = OnPersist.class)
     private List<@Valid TagDto> tags;
 
 }

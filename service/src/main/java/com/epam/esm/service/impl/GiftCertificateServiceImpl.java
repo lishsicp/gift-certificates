@@ -50,9 +50,8 @@ public class GiftCertificateServiceImpl extends GenericService<GiftCertificate> 
     @Override
     public GiftCertificate update(Long id, GiftCertificate giftCertificate) throws PersistentException {
         GiftCertificate giftCertificateToUpdate = giftCertificateDao
-                .findById(giftCertificate.getId())
+                .findById(id)
                 .orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND));
-
         Optional.ofNullable(giftCertificate.getName()).ifPresent(giftCertificateToUpdate::setName);
         Optional.ofNullable(giftCertificate.getDescription()).ifPresent(giftCertificateToUpdate::setDescription);
         Optional.ofNullable(giftCertificate.getPrice()).ifPresent(giftCertificateToUpdate::setPrice);
@@ -60,7 +59,7 @@ public class GiftCertificateServiceImpl extends GenericService<GiftCertificate> 
         if (giftCertificate.getTags() != null) {
             giftCertificateToUpdate.setTags(updateTagList(giftCertificate.getTags()));
         }
-        giftCertificate.setLastUpdateDate(LocalDateTime.now(zoneId));
+        giftCertificateToUpdate.setLastUpdateDate(LocalDateTime.now(zoneId));
         return giftCertificateDao.update(giftCertificateToUpdate);
     }
 

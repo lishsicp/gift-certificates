@@ -21,4 +21,9 @@ public class UserServiceImpl extends GenericService<User> implements UserService
     public User save(User user) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void delete(Long id) throws PersistentException  {
+        throw new UnsupportedOperationException();
+    }
 }

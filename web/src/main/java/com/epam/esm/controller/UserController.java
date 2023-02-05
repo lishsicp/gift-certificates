@@ -19,6 +19,12 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+/**
+ * This class is an endpoint of the API which allows to perform READ operations
+ * with {@link User} entities accessed through <i>api/users</i>.
+ * @author Lobur Yaroslav
+ * @version 1.0
+ */
 @RestController
 @RequestMapping("api/users")
 @Validated
@@ -35,6 +41,13 @@ public class UserController {
         this.userAssembler = userAssembler;
     }
 
+    /**
+     * Gets all {@link User} entities from database.
+     *
+     * @param page         page number.
+     * @param size         number of showed entities on page.
+     * @return a {@link List} of {@link User} entities. Response code 200.
+     */
     @GetMapping()
     public CollectionModel<UserDto> allUsers(
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
@@ -49,6 +62,12 @@ public class UserController {
         return CollectionModel.of(users, selfRel);
     }
 
+    /**
+     * Gets a {@link User} by its <code>id</code> from database.
+     * @param id for {@link User}
+     * @return {@link User} entity. Response code 200.
+     * @throws PersistentException if {@link User} is not found.
+     */
     @GetMapping("/{id}")
     public UserDto userById(@PathVariable @Min(value = 1, message = "40001") Long id) throws PersistentException {
         User user = userService.getById(id);

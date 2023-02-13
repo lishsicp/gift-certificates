@@ -32,7 +32,7 @@ class GiftCertificateDaoImplTest {
     TagDao tagDao;
 
     @Test
-    void create_ReturnsCreatedCertificateId() throws DaoException {
+    void create_ShouldReturnCreatedCertificate() {
         GiftCertificate certificate = new GiftCertificate();
         certificate.setName("name test 11");
         certificate.setDescription("description test 1");
@@ -40,12 +40,11 @@ class GiftCertificateDaoImplTest {
         certificate.setDuration(5);
         certificate.setCreateDate(LocalDateTime.now());
         giftCertificateDao.create(certificate);
-
         assertTrue(certificate.getId() > 0);
     }
 
     @Test
-    void getAllWithFilterPassed_ShouldReturnAllCertificates() {
+    void getAll_ShouldReturnAllCertificates_whenSearchFilterPassed() {
         SearchFilter searchFilter = SearchFilter.builder()
                 .tagName("tag2")
                 .description("description")
@@ -65,19 +64,19 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void getAll_ReturnsNotEmptyList() {
+    void getAll_ShouldReturnNotEmptyList() {
         List<GiftCertificate> giftCertificateList = giftCertificateDao.getAll();
         assertTrue(giftCertificateList.size() > 0);
     }
 
     @Test
-    void getById_ReturnsCertificateWithId() throws DaoException {
+    void getById_ShouldReturnCertificate() {
         GiftCertificate giftCertificate = giftCertificateDao.getById(1L);
         assertEquals(1L, giftCertificate.getId());
     }
 
     @Test
-    void update_UpdatesOnlyCertificatesName() throws DaoException {
+    void update_ShouldUpdateOnlyCertificatesName() {
         GiftCertificate initialCertificate = new GiftCertificate();
         initialCertificate.setName("updatesOnlyCertificatesName");
         initialCertificate.setDescription("initialDescription");
@@ -98,7 +97,7 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void update_UpdatesAllFields() throws DaoException {
+    void update_ShouldUpdateAllFields() {
         GiftCertificate initialCertificate = new GiftCertificate();
         initialCertificate.setName("UpdatesAllFields");
         initialCertificate.setDescription("initialDescription");
@@ -125,14 +124,14 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void remove_CertificateNotPresent_ThrowsDaoExceptionWithCertificateNotFoundErrorCode() throws DaoException {
+    void remove_shouldThrowException_whenCertificateHasBeenRemoved() {
         GiftCertificate initialCertificate = new GiftCertificate();
         initialCertificate.setName("testDelete");
         initialCertificate.setDescription("testDelete");
         initialCertificate.setPrice(BigDecimal.ONE);
         initialCertificate.setDuration(2);
         initialCertificate.setCreateDate(LocalDateTime.now());
-        Long id = giftCertificateDao.create(initialCertificate).getId();
+        long id = giftCertificateDao.create(initialCertificate).getId();
 
         giftCertificateDao.remove(id);
 

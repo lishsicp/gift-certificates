@@ -29,32 +29,32 @@ class TagDaoImplTest {
     TagDao tagDao;
 
     @Test
-    void create_ReturnsCreatedTagId() throws DaoException {
+    void create_ShouldReturnCreatedTag() {
         Tag tag = new Tag();
         tag.setName("testTagName");
         assertTrue(tagDao.create(tag).getId() > 0);
     }
 
     @Test
-    void getAll_ReturnsMoreThanZero() {
+    void getAll_ShouldReturnNotEmptyList() {
         List<Tag> tags = tagDao.getAll();
         assertTrue(tags.size() > 0);
     }
 
     @Test
-    void getById_ReturnsTagWithId() throws DaoException {
+    void getById_ShouldReturnTag() {
         Tag tag = tagDao.getById(1L);
         assertEquals(1L, tag.getId());
     }
 
     @Test
-    void getByName_ReturnsTagWithName() {
+    void getById_shouldReturnTag_whenTagWithNameExists() {
         Optional<Tag> tagOptional = tagDao.getByName("tag1");
         assertTrue(tagOptional.isPresent());
     }
 
     @Test
-    void remove_TagNotPresent_ThrowsDaoExceptionWithTagNotFoundErrorCode() throws DaoException {
+    void remove_shouldThrowsException_whenTagHasBeenRemoved() {
         Tag testTag = new Tag();
         testTag.setName("testNameDelete");
         Tag tagWithId = tagDao.create(testTag);
@@ -66,7 +66,7 @@ class TagDaoImplTest {
     }
 
     @Test
-    void getTagsForCertificate_ReturnsAssignedTags() {
+    void getTagsForCertificate_ShouldReturnAssignedTags() {
         List<Tag> tagsRefToCertificate = tagDao.getTagsForCertificate(2L);
         List<Long> expectedTagIdList = tagsRefToCertificate.stream()
                 .map(Tag::getId)
@@ -76,20 +76,20 @@ class TagDaoImplTest {
     }
 
     @Test
-    void assignTagToCertificate_NotEmptyTagList() throws DaoException {
+    void assignTagToCertificate_ShouldReturnNotEmptyTagList() {
         Tag tag = new Tag();
         tag.setName("testAssign");
-        Long tagId = tagDao.create(tag).getId();
+        long tagId = tagDao.create(tag).getId();
         tagDao.assignTagToCertificate(1L, tagId);
 
         assertEquals(tagDao.getAll().size(), tagDao.getTagsForCertificate(1L).size());
     }
 
     @Test
-    void detachTagsFromCertificate_EmptyTagList() throws DaoException {
+    void detachTagsFromCertificate_ShouldReturnEmptyTagList() {
         Tag tag = new Tag();
         tag.setName("testDetach");
-        Long tagId = tagDao.create(tag).getId();
+        long tagId = tagDao.create(tag).getId();
         tagDao.assignTagToCertificate(1L, tagId);
         tagDao.detachTagsFromCertificate(1L);
         assertTrue(tagDao.getTagsForCertificate(1L).isEmpty());

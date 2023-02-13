@@ -33,7 +33,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
     }
 
     @Override
-    public Tag getById(long id) throws DaoException {
+    public Tag getById(long id) {
         return jdbcTemplate.query(TagQueries.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
                 .stream()
                 .findAny()
@@ -49,14 +49,14 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
 
     @Override
     @Transactional
-    public void remove(long id) throws DaoException {
+    public void remove(long id) {
         int updatedRows = jdbcTemplate.update(TagQueries.DELETE, id);
         if (updatedRows == 0) throw new DaoException(ErrorCodes.TAG_NOT_FOUND, id);
     }
 
     @Override
     @Transactional
-    public Tag create(Tag tag) throws DaoException {
+    public Tag create(Tag tag) {
         KeyHolder holder = new GeneratedKeyHolder();
         int updatedFields = jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(TagQueries.INSERT, Statement.RETURN_GENERATED_KEYS);

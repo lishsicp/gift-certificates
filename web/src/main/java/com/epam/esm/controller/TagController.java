@@ -48,7 +48,7 @@ public class TagController {
      * @throws DaoException if {@link com.epam.esm.entity.Tag} is not found.
      */
     @GetMapping("/{id}")
-    public Tag tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
+    public Tag tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
         return tagService.findById(id);
     }
 
@@ -60,7 +60,7 @@ public class TagController {
      * @throws DaoException if {@link com.epam.esm.entity.Tag} an error occurred during saving.
      */
     @PostMapping
-    public ResponseEntity<Object> saveTag(@RequestBody @Valid Tag tag) throws DaoException {
+    public ResponseEntity<Object> saveTag(@RequestBody @Valid Tag tag) {
         Tag savedTag = tagService.save(tag);
         URI locationUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -78,7 +78,7 @@ public class TagController {
      * @throws DaoException if {@link com.epam.esm.entity.Tag} entity do not exist.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws DaoException {
+    public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
         tagService.delete(id);
         return ResponseEntity.noContent().build();
     }

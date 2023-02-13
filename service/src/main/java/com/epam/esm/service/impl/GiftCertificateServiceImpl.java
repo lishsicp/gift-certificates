@@ -5,7 +5,6 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.filter.SearchFilter;
-import com.epam.esm.exception.*;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.IncorrectUpdateValueException;
 import com.epam.esm.service.validator.GiftCertificateUpdateValidator;
@@ -53,7 +52,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public GiftCertificate findById(Long id) throws DaoException {
+    public GiftCertificate findById(Long id) {
         GiftCertificate giftCertificate = giftCertificateDao.getById(id);
         List<Tag> tagsForCertificate = tagDao.getTagsForCertificate(id);
         giftCertificate.setTags(tagsForCertificate);
@@ -62,7 +61,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public GiftCertificate save(GiftCertificate giftCertificate) throws DaoException {
+    public GiftCertificate save(GiftCertificate giftCertificate) {
         LocalDateTime localDateTime = LocalDateTime.now(zoneId);
         giftCertificate.setCreateDate(localDateTime);
         giftCertificate.setLastUpdateDate(localDateTime);
@@ -79,13 +78,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public void delete(Long id) throws DaoException {
+    public void delete(Long id) {
         giftCertificateDao.remove(id);
     }
 
     @Override
     @Transactional
-    public void update(GiftCertificate giftCertificate) throws DaoException, IncorrectUpdateValueException {
+    public void update(GiftCertificate giftCertificate) throws IncorrectUpdateValueException {
         GiftCertificateUpdateValidator.validate(giftCertificate);
         long certificateId = giftCertificate.getId();
         if (giftCertificate.getTags() != null) {
@@ -115,7 +114,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return tagsWithIds;
     }
 
-    private void saveNewTags(GiftCertificate giftCertificate) throws DaoException {
+    private void saveNewTags(GiftCertificate giftCertificate) {
         List<Tag> newTags = giftCertificate.getTags();
         if (newTags == null || newTags.isEmpty())
             return;

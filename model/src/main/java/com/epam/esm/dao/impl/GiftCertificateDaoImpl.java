@@ -43,7 +43,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     }
 
     @Override
-    public GiftCertificate getById(long id) throws DaoException {
+    public GiftCertificate getById(long id) {
         return jdbcTemplate.query(CertificateQueries.GET_BY_ID, new BeanPropertyRowMapper<>(GiftCertificate.class), id)
                 .stream()
                 .findAny()
@@ -57,7 +57,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     }
 
     @Override
-    public GiftCertificate create(GiftCertificate giftCertificate) throws DaoException {
+    public GiftCertificate create(GiftCertificate giftCertificate) {
         KeyHolder holder = new GeneratedKeyHolder();
         int updatedFields = jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(CertificateQueries.INSERT, Statement.RETURN_GENERATED_KEYS);
@@ -79,7 +79,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     }
 
     @Override
-    public void update(GiftCertificate giftCertificate) throws DaoException {
+    public void update(GiftCertificate giftCertificate) {
         Map<String, String> updateParams = getUpdateParams(giftCertificate);
         String updateQuery = queryBuilder.buildUpdateQuery(CertificateQueries.UPDATE, updateParams);
         int updatedRows = jdbcTemplate.update(updateQuery);

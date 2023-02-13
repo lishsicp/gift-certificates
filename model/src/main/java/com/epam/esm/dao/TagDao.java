@@ -9,9 +9,9 @@ public interface TagDao extends CRDDao<Tag> {
 
     Optional<Tag> getByName(String name);
 
-    List<Tag> getTagsForCertificate(Long certificateId);
+    List<Tag> getTagsForCertificate(long certificateId);
 
-    void assignTagToCertificate(Long certificateId, Long tagId);
+    void assignTagToCertificate(long certificateId, long tagId);
 
-    void detachTagsFromCertificate(Long certificateId);
+    void detachTagsFromCertificate(long certificateId);
 }

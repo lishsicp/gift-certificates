@@ -33,7 +33,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
     }
 
     @Override
-    public Tag getById(Long id) throws DaoException {
+    public Tag getById(long id) throws DaoException {
         return jdbcTemplate.query(TagQueries.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
                 .stream()
                 .findAny()
@@ -49,7 +49,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
 
     @Override
     @Transactional
-    public void remove(Long id) throws DaoException {
+    public void remove(long id) throws DaoException {
         int updatedRows = jdbcTemplate.update(TagQueries.DELETE, id);
         if (updatedRows == 0) throw new DaoException(ErrorCodes.TAG_NOT_FOUND, id);
     }
@@ -71,17 +71,17 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
     }
 
     @Override
-    public List<Tag> getTagsForCertificate(Long certificateId) {
+    public List<Tag> getTagsForCertificate(long certificateId) {
         return jdbcTemplate.query(TagQueries.GET_TAGS_FOR_CERTIFICATE, new BeanPropertyRowMapper<>(Tag.class), certificateId);
     }
 
     @Override
-    public void assignTagToCertificate(Long certificateId, Long tagId) {
+    public void assignTagToCertificate(long certificateId, long tagId) {
         jdbcTemplate.update(TagQueries.ADD_TAG_TO_CERTIFICATE, certificateId, tagId);
     }
 
     @Override
-    public void detachTagsFromCertificate(Long certificateId) {
+    public void detachTagsFromCertificate(long certificateId) {
         jdbcTemplate.update(TagQueries.DELETE_TAGS_FROM_CERTIFICATE, certificateId);
     }
 

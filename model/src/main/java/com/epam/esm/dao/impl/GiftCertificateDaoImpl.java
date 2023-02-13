@@ -43,7 +43,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     }
 
     @Override
-    public GiftCertificate getById(Long id) throws DaoException {
+    public GiftCertificate getById(long id) throws DaoException {
         return jdbcTemplate.query(CertificateQueries.GET_BY_ID, new BeanPropertyRowMapper<>(GiftCertificate.class), id)
                 .stream()
                 .findAny()
@@ -51,7 +51,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
     }
 
     @Override
-    public void remove(Long id) throws DaoException {
+    public void remove(long id) throws DaoException {
         int updatedRows = jdbcTemplate.update(CertificateQueries.DELETE_BY_ID, id);
         if (updatedRows == 0) throw new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, id);
     }

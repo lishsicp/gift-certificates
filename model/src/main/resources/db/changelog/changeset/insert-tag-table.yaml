@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: tag-data
+      author: Yaroslav Lobur
+      changes:
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "birthday"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "happy"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "celebration"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "christmas"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "food"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "presents"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "gym"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "health"
+        - insert:
+            tableName: tag
+            columns:
+              - column:
+                  name: name
+                  value: "swimming pool"

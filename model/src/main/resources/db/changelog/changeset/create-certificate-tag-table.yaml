@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-certificate-tag
+      author: Yaroslav Lobur
+      changes:
+        - createTable:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    foreignKeyName: gc
+              - column:
+                  name: tag_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    foreignKeyName: tg

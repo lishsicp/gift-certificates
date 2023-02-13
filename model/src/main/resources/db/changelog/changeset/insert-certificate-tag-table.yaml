@@ -1,0 +1,104 @@
+databaseChangeLog:
+  - changeSet:
+      id: certificate-tag-data
+      author: Yaroslav Lobur
+      changes:
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 1
+              - column:
+                  name: tag_id
+                  value: 2
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 1
+              - column:
+                  name: tag_id
+                  value: 3
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 1
+              - column:
+                  name: tag_id
+                  value: 4
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 1
+              - column:
+                  name: tag_id
+                  value: 6
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 2
+              - column:
+                  name: tag_id
+                  value: 1
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 2
+              - column:
+                  name: tag_id
+                  value: 2
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 2
+              - column:
+                  name: tag_id
+                  value: 3
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 2
+              - column:
+                  name: tag_id
+                  value: 5
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 3
+              - column:
+                  name: tag_id
+                  value: 7
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 3
+              - column:
+                  name: tag_id
+                  value: 8
+        - insert:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  value: 3
+              - column:
+                  name: tag_id
+                  value: 9

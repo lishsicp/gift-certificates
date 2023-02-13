@@ -20,6 +20,7 @@
         <postgresql.version>42.5.1</postgresql.version>
         <commons.version>2.6</commons.version>
         <h2.version>2.1.212</h2.version>
+        <liquibase.version>4.19.0</liquibase.version>
     </properties>
 
     <dependencies>
@@ -42,6 +43,11 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>${commons.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
 
         <dependency>

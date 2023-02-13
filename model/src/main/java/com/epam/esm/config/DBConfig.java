@@ -1,6 +1,7 @@
 package com.epam.esm.config;
 
 import com.zaxxer.hikari.HikariDataSource;
+import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import com.zaxxer.hikari.HikariConfig;
@@ -51,4 +52,11 @@ public class DBConfig {
         return new DataSourceTransactionManager(dataSource);
     }
 
+    @Bean
+    public SpringLiquibase liquibase(DataSource dataSource)  {
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setDataSource(dataSource);
+        liquibase.setChangeLog("classpath:db/changelog/db.changelog-master.yaml");
+        return liquibase;
+    }
 }

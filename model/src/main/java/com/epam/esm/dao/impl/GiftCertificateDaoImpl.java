@@ -2,7 +2,7 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.GenericDao;
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.QueryBuilder;
+import com.epam.esm.dao.querybuilder.QueryBuilder;
 import com.epam.esm.dao.queries.CertificateQueries;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.filter.SearchFilter;

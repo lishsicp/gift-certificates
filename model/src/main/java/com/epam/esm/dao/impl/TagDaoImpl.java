@@ -5,7 +5,7 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.queries.TagQueries;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.DaoExceptionErrorCode;
+import com.epam.esm.exception.ErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,7 +37,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
         return jdbcTemplate.query(TagQueries.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
                 .stream()
                 .findAny()
-                .orElseThrow( ()-> new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND, id));
+                .orElseThrow( ()-> new DaoException(ErrorCodes.TAG_NOT_FOUND, id));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
     @Transactional
     public void remove(Long id) throws DaoException {
         int updatedRows = jdbcTemplate.update(TagQueries.DELETE, id);
-        if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.TAG_NOT_FOUND, id);
+        if (updatedRows == 0) throw new DaoException(ErrorCodes.TAG_NOT_FOUND, id);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
             tag.setId(((Number) holder.getKeys().get("id")).longValue());
             return tag;
         }
-        throw new DaoException(DaoExceptionErrorCode.SAVE_FAILURE);
+        throw new DaoException(ErrorCodes.SAVE_FAILURE);
     }
 
     @Override

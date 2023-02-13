@@ -6,12 +6,10 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.filter.SearchFilter;
 import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.DaoExceptionErrorCode;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.IncorrectUpdateValueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

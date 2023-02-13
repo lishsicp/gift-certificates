@@ -7,7 +7,7 @@ import com.epam.esm.dao.queries.CertificateQueries;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.filter.SearchFilter;
 import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.DaoExceptionErrorCode;
+import com.epam.esm.exception.ErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,13 +47,13 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
         return jdbcTemplate.query(CertificateQueries.GET_BY_ID, new BeanPropertyRowMapper<>(GiftCertificate.class), id)
                 .stream()
                 .findAny()
-                .orElseThrow(() -> new DaoException(DaoExceptionErrorCode.CERTIFICATE_NOT_FOUND, id));
+                .orElseThrow(() -> new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, id));
     }
 
     @Override
     public void remove(Long id) throws DaoException {
         int updatedRows = jdbcTemplate.update(CertificateQueries.DELETE_BY_ID, id);
-        if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.CERTIFICATE_NOT_FOUND, id);
+        if (updatedRows == 0) throw new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, id);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
             giftCertificate.setId(((Number) holder.getKeys().get("id")).longValue());
             return giftCertificate;
         }
-        throw new DaoException(DaoExceptionErrorCode.SAVE_FAILURE);
+        throw new DaoException(ErrorCodes.SAVE_FAILURE);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
         Map<String, String> updateParams = getUpdateParams(giftCertificate);
         String updateQuery = queryBuilder.buildUpdateQuery(CertificateQueries.UPDATE, updateParams);
         int updatedRows = jdbcTemplate.update(updateQuery);
-        if (updatedRows == 0) throw new DaoException(DaoExceptionErrorCode.CERTIFICATE_NOT_FOUND, giftCertificate.getId());
+        if (updatedRows == 0) throw new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, giftCertificate.getId());
     }
 
     private Map<String, String> getUpdateParams(GiftCertificate giftCertificate) {

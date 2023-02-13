@@ -1,8 +1,9 @@
 package com.epam.esm.exception;
 
-public class DaoExceptionErrorCode {
+import lombok.experimental.UtilityClass;
 
-    private DaoExceptionErrorCode() {}
+@UtilityClass
+public class ErrorCodes {
 
     public static final int TAG_NOT_FOUND = 40401;
 

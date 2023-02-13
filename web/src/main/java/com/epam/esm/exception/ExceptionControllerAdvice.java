@@ -82,7 +82,7 @@ public class ExceptionControllerAdvice {
             errorBody.setErrorMessage(errorMessage);
         } else {
             errorBody.setErrorMessage(String.format("%s - %s", errorField, errorMessage));
-            errorBody.setErrorCode(DaoExceptionErrorCode.VALIDATION_ERROR);
+            errorBody.setErrorCode(ErrorCodes.VALIDATION_ERROR);
         }
         return errorBody;
     }

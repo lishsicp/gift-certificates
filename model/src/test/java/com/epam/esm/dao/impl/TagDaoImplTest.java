@@ -4,7 +4,7 @@ import com.epam.esm.config.H2Config;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.DaoExceptionErrorCode;
+import com.epam.esm.exception.ErrorCodes;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -62,7 +62,7 @@ class TagDaoImplTest {
         tagDao.remove(tagWithId.getId());
         Executable getByIdExec = () -> tagDao.getById(tagWithId.getId());
         DaoException ex = assertThrows(DaoException.class, getByIdExec);
-        assertEquals(DaoExceptionErrorCode.TAG_NOT_FOUND, ex.getErrorCode());
+        assertEquals(ErrorCodes.TAG_NOT_FOUND, ex.getErrorCode());
     }
 
     @Test

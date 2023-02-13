@@ -5,7 +5,7 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.filter.SearchFilter;
 import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.DaoExceptionErrorCode;
+import com.epam.esm.exception.ErrorCodes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -139,6 +139,6 @@ class GiftCertificateDaoImplTest {
         Executable getByIdExec = () -> giftCertificateDao.getById(id);
         DaoException ex = assertThrows(DaoException.class, getByIdExec);
         assertThrows(DaoException.class,() -> giftCertificateDao.getById(id));
-        assertEquals(DaoExceptionErrorCode.CERTIFICATE_NOT_FOUND, ex.getErrorCode());
+        assertEquals(ErrorCodes.CERTIFICATE_NOT_FOUND, ex.getErrorCode());
     }
 }

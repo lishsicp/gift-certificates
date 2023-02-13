@@ -3,7 +3,7 @@ package com.epam.esm.dao.queries;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class TagQuery {
+public class TagQueries {
     public static final String GET_ALL = "SELECT * FROM tag";
     public static final String GET_BY_ID = "SELECT * FROM tag WHERE id = ?";
     public static final String GET_BY_NAME = "SELECT * FROM tag WHERE name = ?";

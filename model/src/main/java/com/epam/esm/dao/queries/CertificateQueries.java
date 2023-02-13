@@ -3,7 +3,7 @@ package com.epam.esm.dao.queries;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class GiftCertificateQuery {
+public class CertificateQueries {
     public static final String GET_ALL = "SELECT * FROM gift_certificate";
     public static final String GET_BY_ID = "SELECT * FROM gift_certificate WHERE id = ?";
     public static final String DELETE_BY_ID = "DELETE FROM gift_certificate WHERE id = ?";

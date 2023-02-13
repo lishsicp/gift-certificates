@@ -30,7 +30,11 @@ class GiftCertificateServiceImplTest {
     Tag tag;
     GiftCertificate giftCertificate;
 
-    {
+    @BeforeEach
+    public void setUp() {
+        giftCertificateDao = mock(GiftCertificateDao.class);
+        tagDao = mock(TagDao.class);
+        giftCertificateService = new GiftCertificateServiceImpl(tagDao, giftCertificateDao);
         tag = new Tag();
         tag.setId(1L);
         tag.setName("tagTestName");
@@ -46,39 +50,35 @@ class GiftCertificateServiceImplTest {
         giftCertificate.setTags(List.of(tag));
     }
 
-    @BeforeEach
-    public void setUp() {
-        giftCertificateDao = mock(GiftCertificateDao.class);
-        tagDao = mock(TagDao.class);
-        giftCertificateService = new GiftCertificateServiceImpl(tagDao, giftCertificateDao);
-    }
-
     @Test
-    void findAll_giftCertificateDaoInvoke() {
+    void findAll_shouldReturnListOfCertificates() {
         when(giftCertificateDao.getAll()).thenReturn(List.of(giftCertificate));
-        giftCertificateService.findAll();
+        var actual = giftCertificateService.findAll();
+        assertEquals(List.of(giftCertificate), actual);
         verify(tagDao).getTagsForCertificate(anyLong());
         verify(giftCertificateDao).getAll();
     }
 
     @Test
-    void findAllCertificatesWithFilter_giftCertificateDaoInvoked_WithFilterMock() {
+    void findAllCertificatesWithFilter_shouldReturnListOfCertificates() {
         SearchFilter searchFilterMock = mock(SearchFilter.class);
         when(giftCertificateDao.getAll(searchFilterMock)).thenReturn(List.of(giftCertificate));
-        giftCertificateService.findAllCertificatesWithFilter(searchFilterMock);
+        var actual = giftCertificateService.findAllCertificatesWithFilter(searchFilterMock);
+        assertEquals(List.of(giftCertificate), actual);
         verify(tagDao).getTagsForCertificate(anyLong());
         verify(giftCertificateDao).getAll(searchFilterMock);
     }
 
     @Test
-    void findById_ReturnsCertificate() throws DaoException {
+    void findById_shouldReturnCertificate() throws DaoException {
         when(giftCertificateDao.getById(giftCertificate.getId())).thenReturn(giftCertificate);
         GiftCertificate actual = giftCertificateService.findById(giftCertificate.getId());
         assertEquals(giftCertificate, actual);
+        verify(giftCertificateDao).getById(anyLong());
     }
 
     @Test
-    void save_CorrectCertificate() throws DaoException {
+    void save_shouldSaveCertificate() {
         when(giftCertificateDao.create(any())).thenReturn(giftCertificate);
         when(tagDao.getAll()).thenReturn(giftCertificate.getTags());
         when(tagDao.getByName(any())).thenReturn(Optional.of(tag));
@@ -89,19 +89,19 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void update_EmptyCertificate_ThrowsException() {
+    void update_shouldThrowException_whenUpdateEmptyCertificate() {
         var ex = assertThrows(IncorrectUpdateValueException.class, () -> giftCertificateService.update(new GiftCertificate()));
         assertEquals(EMPTY_CERTIFICATE_ERROR, ex.getErrorCode());
     }
 
     @Test
-    void delete_giftCertificateDaoRemoveInvoke() throws DaoException {
+    void delete_shouldDeleteCertificate() {
         giftCertificateService.delete(1L);
-        verify(giftCertificateDao).remove(1L);
+        verify(giftCertificateDao).remove(anyLong());
     }
 
     @Test
-    void update_UpdatesCertificate() throws DaoException, IncorrectUpdateValueException {
+    void update_shouldUpdateCertificate() throws IncorrectUpdateValueException {
         when(tagDao.getByName(any())).thenReturn(Optional.of(tag));
         giftCertificateService.update(giftCertificate);
         verify(tagDao).detachTagsFromCertificate(anyLong());

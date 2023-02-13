@@ -44,8 +44,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
 
     @Override
     public GiftCertificate getById(long id) {
-        return jdbcTemplate.query(CertificateQueries.GET_BY_ID, new BeanPropertyRowMapper<>(GiftCertificate.class), id)
-                .stream()
+        return jdbcTemplate.queryForStream(CertificateQueries.GET_BY_ID, new BeanPropertyRowMapper<>(GiftCertificate.class), id)
                 .findAny()
                 .orElseThrow(() -> new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, id));
     }
@@ -72,7 +71,8 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
             return ps;
         }, holder);
         if (updatedFields > 0) {
-            giftCertificate.setId(((Number) holder.getKeys().get("id")).longValue());
+            long id = getGeneratedId(holder);
+            giftCertificate.setId(id);
             return giftCertificate;
         }
         throw new DaoException(ErrorCodes.SAVE_FAILURE);

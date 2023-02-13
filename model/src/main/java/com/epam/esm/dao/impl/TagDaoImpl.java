@@ -34,16 +34,14 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
 
     @Override
     public Tag getById(long id) {
-        return jdbcTemplate.query(TagQueries.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
-                .stream()
+        return jdbcTemplate.queryForStream(TagQueries.GET_BY_ID, new BeanPropertyRowMapper<>(Tag.class), id)
                 .findAny()
                 .orElseThrow( ()-> new DaoException(ErrorCodes.TAG_NOT_FOUND, id));
     }
 
     @Override
     public Optional<Tag> getByName(String name) {
-        return jdbcTemplate.query(TagQueries.GET_BY_NAME, new BeanPropertyRowMapper<>(Tag.class), name)
-                .stream()
+        return jdbcTemplate.queryForStream(TagQueries.GET_BY_NAME, new BeanPropertyRowMapper<>(Tag.class), name)
                 .findAny();
     }
 
@@ -64,7 +62,8 @@ public class TagDaoImpl extends GenericDao<Tag> implements TagDao {
             return ps;
         }, holder);
         if (updatedFields > 0) {
-            tag.setId(((Number) holder.getKeys().get("id")).longValue());
+            long id = getGeneratedId(holder);
+            tag.setId(id);
             return tag;
         }
         throw new DaoException(ErrorCodes.SAVE_FAILURE);

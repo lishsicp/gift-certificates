@@ -109,7 +109,7 @@ public class GiftCertificateController {
      * @throws IncorrectUpdateValueException if the {@link GiftCertificate} entity contains invalid values.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody GiftCertificate giftCertificate) throws IncorrectUpdateValueException {
+    public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody GiftCertificate giftCertificate) {
         giftCertificate.setId(id);
         giftCertificateService.update(giftCertificate);
         return ResponseEntity.status(HttpStatus.CREATED).body("Success");

@@ -20,7 +20,7 @@ public class GiftCertificateUpdateValidator {
     private static final int BAD_CERTIFICATE_DURATION = 40006;
     private static final int BAD_CERTIFICATE_EMPTY = 40009;
 
-    public static void validate(GiftCertificate giftCertificate) throws IncorrectUpdateValueException {
+    public static void validate(GiftCertificate giftCertificate) {
         checkIfEmpty(giftCertificate);
         if (giftCertificate.getId() <= 0) {
             throw new IncorrectUpdateValueException(40001);
@@ -40,32 +40,32 @@ public class GiftCertificateUpdateValidator {
         validateListOfTags(giftCertificate.getTags());
     }
 
-    private static void checkDuration(int duration) throws IncorrectUpdateValueException {
+    private static void checkDuration(int duration) {
         if (duration < 1 || duration > 365) {
             throw new IncorrectUpdateValueException(BAD_CERTIFICATE_DURATION);
         }
     }
 
-    private static void checkPrice(BigDecimal price) throws IncorrectUpdateValueException {
+    private static void checkPrice(BigDecimal price) {
         if (price != null && (price.scale() > MAX_SCALE
                 || price.compareTo(MIN_PRICE) < 0 || price.compareTo(MAX_PRICE) > 0)) {
             throw new IncorrectUpdateValueException(BAD_CERTIFICATE_PRICE);
         }
     }
 
-    private static void checkDescription(String description) throws IncorrectUpdateValueException {
+    private static void checkDescription(String description) {
         if (description != null && (description.isBlank() || !Pattern.compile("[\\w\\s]{2,512}").matcher(description).matches())) {
             throw new IncorrectUpdateValueException(BAD_CERTIFICATE_DESCRIPTION);
         }
     }
 
-    private static void checkName(String name) throws IncorrectUpdateValueException {
+    private static void checkName(String name) {
         if (name != null && (name.isBlank() || !Pattern.compile("[\\w\\s]{2,128}").matcher(name).matches())) {
             throw new IncorrectUpdateValueException(BAD_CERTIFICATE_NAME);
         }
     }
 
-    private static void checkIfEmpty(GiftCertificate item) throws IncorrectUpdateValueException {
+    private static void checkIfEmpty(GiftCertificate item) {
         if (item.getName() == null
                 && item.getDescription() == null
                 && item.getPrice() == null
@@ -75,7 +75,7 @@ public class GiftCertificateUpdateValidator {
         }
     }
 
-    private static void validateListOfTags(List<Tag> tags) throws IncorrectUpdateValueException {
+    private static void validateListOfTags(List<Tag> tags) {
         if (tags == null || tags.isEmpty()) return;
         for (Tag tag : tags) {
             if (tag.getName().isBlank() || !Pattern.compile("[\\w\\s]{2,128}").matcher(tag.getName()).matches()) {

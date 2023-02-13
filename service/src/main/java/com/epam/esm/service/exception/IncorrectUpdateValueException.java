@@ -1,6 +1,7 @@
 package com.epam.esm.service.exception;
 
-public class IncorrectUpdateValueException extends Exception {
+public class IncorrectUpdateValueException extends RuntimeException {
+
     final int errorCode;
 
     public IncorrectUpdateValueException(int errorCode) {

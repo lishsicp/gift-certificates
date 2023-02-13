@@ -84,7 +84,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public void update(GiftCertificate giftCertificate) throws IncorrectUpdateValueException {
+    public void update(GiftCertificate giftCertificate) {
         GiftCertificateUpdateValidator.validate(giftCertificate);
         long certificateId = giftCertificate.getId();
         if (giftCertificate.getTags() != null) {

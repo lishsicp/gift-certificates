@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface CRDService<T> {
     List<T> findAll();
-    T findById(Long id);
+    T findById(long id);
     T save(T t);
-    void delete(Long id);
+    void delete(long id);
 }

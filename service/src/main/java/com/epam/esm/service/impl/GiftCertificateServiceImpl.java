@@ -52,7 +52,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public GiftCertificate findById(Long id) {
+    public GiftCertificate findById(long id) {
         GiftCertificate giftCertificate = giftCertificateDao.getById(id);
         List<Tag> tagsForCertificate = tagDao.getTagsForCertificate(id);
         giftCertificate.setTags(tagsForCertificate);
@@ -78,7 +78,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(long id) {
         giftCertificateDao.remove(id);
     }
 

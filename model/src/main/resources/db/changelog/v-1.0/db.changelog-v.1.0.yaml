@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include: 
+      file: 01-changeset-create-tag-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 01-changeset-create-certificate-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 01-changeset-create-certificate-tag-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 01-changeset-init-data.yaml
+      relativeToChangelogFile: true

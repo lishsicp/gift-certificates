@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: create-tag
+      id: "1"
       author: Yaroslav Lobur
       changes:
         - createTable:

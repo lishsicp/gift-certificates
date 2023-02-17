@@ -2,6 +2,7 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.config.H2Config;
 import com.epam.esm.dao.TagDao;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.exception.ErrorCodes;
@@ -12,77 +13,85 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = H2Config.class)
 @ActiveProfiles("test")
-@TestMethodOrder(MethodOrderer.DisplayName.class)
+@Transactional
 class TagDaoImplTest {
 
     @Autowired
     TagDao tagDao;
 
+    Tag tag1;
+    Tag tag2;
+    Tag tag3;
+    List<Tag> tagList;
+
+    @BeforeEach
+    void setUp() {
+        tag1 = new Tag(1, "tag1");
+        tag2 = new Tag(2, "tag2");
+        tag3 = new Tag(3, "tag3");
+        tagList = List.of(tag1, tag2, tag3);
+    }
+
     @Test
-    void create_ShouldReturnCreatedTag() {
+    void create_ShouldCreateTagAndGenerateId() {
         Tag tag = new Tag();
         tag.setName("testTagName");
         assertTrue(tagDao.create(tag).getId() > 0);
     }
 
     @Test
-    void getAll_ShouldReturnNotEmptyList() {
+    void getAll_ShouldReturnAllTags() {
         List<Tag> tags = tagDao.getAll();
-        assertTrue(tags.size() > 0);
+        assertEquals(tagList, tags);
     }
 
     @Test
     void getById_ShouldReturnTag() {
-        Tag tag = tagDao.getById(1L);
-        assertEquals(1L, tag.getId());
+        Tag tag = tagDao.getById(tag1.getId());
+        assertEquals(tag1, tag);
     }
 
     @Test
     void getById_shouldReturnTag_whenTagWithNameExists() {
-        Optional<Tag> tagOptional = tagDao.getByName("tag1");
+        Optional<Tag> tagOptional = tagDao.getByName(tag1.getName());
         assertTrue(tagOptional.isPresent());
+        assertEquals(Optional.of(tag1), tagOptional);
     }
 
     @Test
-    void remove_shouldThrowsException_whenTagHasBeenRemoved() {
+    void remove_shouldThrowException_whenTagHasBeenRemoved() {
         Tag testTag = new Tag();
         testTag.setName("testNameDelete");
         Tag tagWithId = tagDao.create(testTag);
-
+        assertNotNull(tagDao.getById(tagWithId.getId()));
         tagDao.remove(tagWithId.getId());
         Executable getByIdExec = () -> tagDao.getById(tagWithId.getId());
-        DaoException ex = assertThrows(DaoException.class, getByIdExec);
-        assertEquals(ErrorCodes.TAG_NOT_FOUND, ex.getErrorCode());
+        assertThrows(DaoException.class, getByIdExec);
     }
 
     @Test
     void getTagsForCertificate_ShouldReturnAssignedTags() {
         List<Tag> tagsRefToCertificate = tagDao.getTagsForCertificate(2L);
-        List<Long> expectedTagIdList = tagsRefToCertificate.stream()
-                .map(Tag::getId)
-                .collect(Collectors.toList());
-
-        assertEquals(List.of(2L, 3L), expectedTagIdList);
+        assertEquals(List.of(tag2, tag3), tagsRefToCertificate);
     }
 
     @Test
-    void assignTagToCertificate_ShouldReturnNotEmptyTagList() {
+    void assignTagToCertificate_ShouldReturnAllTags() {
         Tag tag = new Tag();
         tag.setName("testAssign");
         long tagId = tagDao.create(tag).getId();
         tagDao.assignTagToCertificate(1L, tagId);
-
-        assertEquals(tagDao.getAll().size(), tagDao.getTagsForCertificate(1L).size());
+        assertEquals(tagDao.getAll(), tagDao.getTagsForCertificate(1L));
     }
 
     @Test

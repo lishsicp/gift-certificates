@@ -3,9 +3,11 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.config.H2Config;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.filter.SearchFilter;
 import com.epam.esm.exception.DaoException;
 import com.epam.esm.exception.ErrorCodes;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = H2Config.class)
 @ActiveProfiles("test")
+@Transactional
 class GiftCertificateDaoImplTest {
 
     @Autowired
@@ -30,6 +34,32 @@ class GiftCertificateDaoImplTest {
 
     @Autowired
     TagDao tagDao;
+
+    GiftCertificate giftCertificate1;
+    GiftCertificate giftCertificate2;
+    List<GiftCertificate> giftCertificateList;
+
+    @BeforeEach
+    void setUp() {
+        Tag tag1 = new Tag(1, "tag1");
+        Tag tag2 = new Tag(2, "tag2");
+        Tag tag3 = new Tag(3, "tag3");
+        giftCertificate1 = GiftCertificate.builder()
+                .id(1L).name("gift1").description("description")
+                .tags(List.of(tag1, tag2, tag3))
+                .price(BigDecimal.valueOf(99.99)).duration(30)
+                .createDate(LocalDateTime.parse("2023-02-17T10:48:40.303950"))
+                .lastUpdateDate(LocalDateTime.parse("2023-02-17T10:48:40.303950"))
+                .build();
+        giftCertificate2 = GiftCertificate.builder()
+                .id(2L).name("gift2").description("description2")
+                .tags(List.of(tag2, tag3))
+                .price(BigDecimal.valueOf(22.22)).duration(90)
+                .createDate(LocalDateTime.parse("2023-02-17T10:48:40.303950"))
+                .lastUpdateDate(LocalDateTime.parse("2023-02-17T10:48:40.303950"))
+                .build();
+        giftCertificateList = List.of(giftCertificate1, giftCertificate2);
+    }
 
     @Test
     void create_ShouldReturnCreatedCertificate() {
@@ -39,8 +69,8 @@ class GiftCertificateDaoImplTest {
         certificate.setPrice(new BigDecimal(100));
         certificate.setDuration(5);
         certificate.setCreateDate(LocalDateTime.now());
-        giftCertificateDao.create(certificate);
-        assertTrue(certificate.getId() > 0);
+        GiftCertificate createdCertificate = giftCertificateDao.create(certificate);
+        assertTrue(createdCertificate.getId() > 0);
     }
 
     @Test
@@ -49,30 +79,33 @@ class GiftCertificateDaoImplTest {
                 .tagName("tag2")
                 .description("description")
                 .name("gift")
-                .sortByType("DESC")
+                .sortByType("ASC")
                 .sortBy("NAME")
                 .build();
-        List<GiftCertificate> giftCertificateList = giftCertificateDao.getAll(searchFilter);
-        giftCertificateList.forEach(c -> c.setTags(tagDao.getTagsForCertificate(c.getId())));
+        List<GiftCertificate> giftCertificateListFiltered = giftCertificateDao.getAll(searchFilter);
+        giftCertificateListFiltered.forEach(c -> c.setTags(tagDao.getTagsForCertificate(c.getId())));
         long actualAmount = giftCertificateList.size();
-        long checkedAmount = giftCertificateList.stream()
+        long checkedAmount = giftCertificateListFiltered.stream()
                 .filter(c -> c.getName().contains("gift"))
                 .filter(c -> c.getDescription().contains("description"))
                 .filter(c -> c.getTags().stream().anyMatch(tag -> tag.getName().contains("tag2")))
                 .count();
         assertEquals(checkedAmount, actualAmount);
+        assertEquals(giftCertificateList, giftCertificateListFiltered);
     }
 
     @Test
-    void getAll_ShouldReturnNotEmptyList() {
-        List<GiftCertificate> giftCertificateList = giftCertificateDao.getAll();
-        assertTrue(giftCertificateList.size() > 0);
+    void getAll_ShouldReturnAllCertificates() {
+        List<GiftCertificate> giftCertificates= giftCertificateDao.getAll();
+        giftCertificates.forEach(g -> g.setTags(tagDao.getTagsForCertificate(g.getId())));
+        assertEquals(giftCertificateList, giftCertificates);
     }
 
     @Test
     void getById_ShouldReturnCertificate() {
-        GiftCertificate giftCertificate = giftCertificateDao.getById(1L);
-        assertEquals(1L, giftCertificate.getId());
+        GiftCertificate giftCertificate = giftCertificateDao.getById(giftCertificate1.getId());
+        giftCertificate.setTags(tagDao.getTagsForCertificate(giftCertificate1.getId()));
+        assertEquals(giftCertificate1, giftCertificate);
     }
 
     @Test
@@ -84,7 +117,6 @@ class GiftCertificateDaoImplTest {
         initialCertificate.setDuration(2);
         initialCertificate.setCreateDate(LocalDateTime.now());
         long id = giftCertificateDao.create(initialCertificate).getId();
-
         GiftCertificate update = new GiftCertificate();
         update.setId(id);
         update.setName("updatedName");
@@ -92,7 +124,6 @@ class GiftCertificateDaoImplTest {
         giftCertificateDao.update(update);
 
         initialCertificate = giftCertificateDao.getById(id);
-        giftCertificateDao.remove(id);
         assertEquals(update.getName(), initialCertificate.getName());
     }
 

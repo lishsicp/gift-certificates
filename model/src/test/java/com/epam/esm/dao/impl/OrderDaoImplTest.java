@@ -79,29 +79,28 @@ class OrderDaoImplTest {
             .purchaseDate(LocalDateTime.parse("2023-01-29T10:42:20.57"))
             .cost(new BigDecimal("300.00")).giftCertificate(CERTIFICATE_3).user(USER_1).build();
 
-
     @Test
-    void testFindByIdAShouldReturnOne() {
+    void findById_shouldReturnOne_whenOrderExists() {
         Optional<Order> order = orderDao.findById(ORDER_1.getId());
         assertTrue(order.isPresent());
         assertEquals(ORDER_1, order.get());
     }
 
     @Test
-    void testFindByIdAShouldBeEmpty() {
+    void findById_shouldBeEmpty_whenOrderDoesNotExist() {
         Optional<Order> order = orderDao.findById(NON_EXISTED_ORDER_ID);
         assertTrue(order.isEmpty());
     }
 
     @Test
-    void testSaveShouldSaveAndGenerateId() {
+    void save_shouldSaveAndGenerateId() {
         ORDER_1.setId(null);
         Order savedOrder = orderDao.save(ORDER_1);
         assertTrue(savedOrder.getId() > 0);
     }
 
     @Test
-    void testOrderCostShouldNotBeChangedIfThePriceOfTheGiftCertificateIsChanged() {
+    void update_shouldNotUpdateOrderCost_whenPriceOfTheGiftCertificateIsChanged() {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(CERTIFICATE_1.getId());
         optionalGiftCertificate.ifPresent((a) -> a.setPrice(new BigDecimal("1000")));
         assertTrue(optionalGiftCertificate.isPresent());
@@ -112,9 +111,10 @@ class OrderDaoImplTest {
     }
 
     @Test
-    void findOrdersByUserIdShouldReturnThree() {
+    void findOrdersByUserId_shouldReturnThree() {
         List<Order> actual = orderDao.findOrdersByUserId(USER_1.getId(), PAGE_REQUEST);
         List<Order> expected = Arrays.asList(ORDER_1, ORDER_2, ORDER_3);
         assertEquals(expected, actual);
     }
+
 }

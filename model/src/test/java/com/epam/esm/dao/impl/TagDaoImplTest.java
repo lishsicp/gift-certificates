@@ -41,38 +41,38 @@ class TagDaoImplTest {
     private TagDao tagDao;
 
     @Test
-    void testFindAllShouldReturnAll() {
+    void findAll_shouldReturnAll_whenValidPageRequest() {
         List<Tag> tags = tagDao.findAll(PAGE_REQUEST);
         List<Tag> expected = Arrays.asList(TAG_1,TAG_2,TAG_3,TAG_4,TAG_5);
         assertEquals(expected, tags);
     }
 
     @Test
-    void testFindByIdAShouldReturnOne() {
+    void findById_shouldReturnOne_whenExistingId() {
         Optional<Tag> tag = tagDao.findById(TAG_1.getId());
         assertTrue(tag.isPresent());
         assertEquals(TAG_1, tag.get());
     }
 
     @Test
-    void testFindByIdAShouldBeEmpty() {
+    void findById_shouldReturnEmptyOptional_whenNonexistentId() {
         Optional<Tag> tag = tagDao.findById(NON_EXISTED_TAG_ID);
         assertTrue(tag.isEmpty());
     }
 
     @Test
-    void testFindByNameShouldBePresent() {
+    void findByName_shouldReturnOptionalOfTag_whenExistingName() {
         Optional<Tag> tagOptional = tagDao.findByName(TAG_1.getName());
         assertTrue(tagOptional.isPresent());
     }
 
     @Test
-    void testFindByNameShouldBeEmpty() {
+    void findByName_shouldReturnEmptyOptional_whenNonexistentName() {
         assertTrue(tagDao.findByName(TAG_1.getName() + "POSTFIX").isEmpty());
     }
 
     @Test
-    void testDeleteShouldBeEmpty() {
+    void delete_shouldDeleteTag_whenExistingId() {
         Tag testTag = new Tag();
         testTag.setName("testNameDelete");
         Tag tagWithId = tagDao.save(testTag);
@@ -81,7 +81,7 @@ class TagDaoImplTest {
     }
 
     @Test
-    void testSaveShouldSaveAndGenerateId() {
+    void save_shouldSaveAndGenerateId() {
         Tag tag = new Tag();
         tag.setName("testTagName");
         Tag savedTag = tagDao.save(tag);
@@ -91,7 +91,7 @@ class TagDaoImplTest {
     }
 
     @Test
-    void testFindMostWidelyUsedTagWithHighestCostOfAllOrdersShouldMostPopular() {
+    void findMostWidelyUsedTagWithHighestCostOfAllOrders_shouldReturnMostPopularTag() {
         Optional<Tag> expected = Optional.of(MOST_POPULAR_TAG);
         Optional<Tag> actual = tagDao.findMostWidelyUsedTagWithHighestCostOfAllOrders();
         assertEquals(expected, actual);

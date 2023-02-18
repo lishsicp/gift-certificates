@@ -76,33 +76,31 @@ class GiftCertificateDaoImplTest {
     private static final String WRONG_FILTER_KEY = "Wrong key";
     private static final String WRONG_FILTER_VALUE = "Wrong value";
 
-
     @Autowired
     GiftCertificateDao giftCertificateDao;
 
-
     @Test
-    void testFindAllShouldReturnAll() {
+    void findAll_shouldReturnAll_whenValidPageRequest() {
         List<GiftCertificate> giftCertificates = giftCertificateDao.findAll(PAGE_REQUEST);
-        List<GiftCertificate> expected = Arrays.asList(CERTIFICATE_1,CERTIFICATE_2,CERTIFICATE_3);
+        List<GiftCertificate> expected = Arrays.asList(CERTIFICATE_1, CERTIFICATE_2, CERTIFICATE_3);
         assertIterableEquals(expected, giftCertificates);
     }
 
     @Test
-    void testFindByIdAShouldReturnOne() {
+    void findById_shouldReturnOne_whenExistingId() {
         Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(CERTIFICATE_1.getId());
         assertTrue(giftCertificateOptional.isPresent());
         assertEquals(CERTIFICATE_1, giftCertificateOptional.get());
     }
 
     @Test
-    void testFindByIdAShouldBeEmpty() {
+    void findById_shouldBeEmpty_whenNonexistentId() {
         Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(NON_EXISTENT_CERT_ID);
         assertTrue(giftCertificateOptional.isEmpty());
     }
 
     @Test
-    void testDeleteShouldBeEmpty() {
+    void delete_shouldRemoveCertificate_whenExistingId() {
         GiftCertificate testCert = GiftCertificate.builder()
                 .name("TestDelete").description("TestDelete")
                 .price(new BigDecimal("200.00")).duration(1L)
@@ -116,12 +114,12 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void testDeleteShouldThrowException() {
-        assertThrows(Exception.class, ()-> giftCertificateDao.delete(NON_EXISTENT_CERT_ID));
+    void delete_shouldThrowException_whenNonexistentId() {
+        assertThrows(Exception.class, () -> giftCertificateDao.delete(NON_EXISTENT_CERT_ID));
     }
 
     @Test
-    void testSaveShouldSaveAndGenerateId() {
+    void save_shouldSaveAndGenerateId_whenValidCertificate() {
         GiftCertificate testCert = GiftCertificate.builder()
                 .name("TestSave").description("TestSave")
                 .price(new BigDecimal("200.00")).duration(1L)
@@ -137,7 +135,7 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void testUpdateShouldUpdateName() {
+    void update_shouldUpdateName_whenExistingCertificate() {
         Optional<GiftCertificate> certificateToUpdate = giftCertificateDao.findById(1L);
         String oldName;
         String updatedName = "updatedName";
@@ -152,7 +150,7 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void testFindAllWithValidFilterShouldReturnTwo() {
+    void findAllWithValidFilter_shouldReturnTwoGiftCertificates_whenValidFilterProvided() {
         MultiValueMap<String, String> filterParams = new LinkedMultiValueMap<>();
         filterParams.add(FILTER_NAME_KEY, FILTER_NAME_VALUE);
         filterParams.add(FILTER_DESCRIPTION_KEY, FILTER_DESCRIPTION_VALUE);
@@ -168,7 +166,7 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void testFindAllWithInvalidFilterShouldReturnAll() {
+    void findAllWithInvalidFilter_shouldReturnAllGiftCertificates_whenInvalidFilterProvided() {
         MultiValueMap<String, String> filterParams = new LinkedMultiValueMap<>();
         filterParams.add(WRONG_FILTER_KEY, WRONG_FILTER_VALUE);
 
@@ -179,12 +177,13 @@ class GiftCertificateDaoImplTest {
     }
 
     @Test
-    void testFindByNameShouldBePresent() {
+    void findByName_shouldReturnPresent_whenGiftCertificateExists() {
         assertTrue(giftCertificateDao.findByName(CERTIFICATE_1.getName()).isPresent());
     }
 
     @Test
-    void testFindByNameShouldBeEmpty() {
+    void findByName_shouldReturnEmpty_whenGiftCertificateDoesNotExist() {
         assertTrue(giftCertificateDao.findByName(CERTIFICATE_1.getName() + "POSTFIX").isEmpty());
     }
+
 }

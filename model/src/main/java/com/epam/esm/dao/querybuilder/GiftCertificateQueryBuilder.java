@@ -4,52 +4,52 @@ import com.epam.esm.entity.filter.SearchFilter;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class GiftCertificateQueryBuilder implements QueryBuilder {
 
-    private StringBuilder query;
-
     public String buildFilteredSelectQuery(String selectQuery, SearchFilter searchFilter) {
-        query = new StringBuilder(selectQuery);
-        addPartParameter("tag.name", searchFilter.getTagName());
-        addPartParameter("gc.name", searchFilter.getName());
-        addPartParameter("gc.description", searchFilter.getDescription());
-        addSortParameter(searchFilter.getSortBy(), searchFilter.getSortByType());
+        var query = new StringBuilder(selectQuery);
+        addPartParameter(query, "tag.name", searchFilter.getTagName());
+        addPartParameter(query, "gc.name", searchFilter.getName());
+        addPartParameter(query, "gc.description", searchFilter.getDescription());
+        addSortParameter(query, searchFilter.getSortBy(), searchFilter.getSortByType());
         return query.toString();
     }
 
     public String buildUpdateQuery(String query, Map<String, String> updateParams) {
+        Map<String, String> paramsCopy = new HashMap<>(updateParams);
+        String id = paramsCopy.remove("id");
         var updateQuery = new StringBuilder(query);
-        String id = updateParams.get("id");
-        updateParams.remove("id");
-        for (Map.Entry<String, String> entry : updateParams.entrySet()) {
-            updateQuery
-                    .append(entry.getKey())
-                    .append("=")
-                    .append('\'').append(entry.getValue()).append('\'')
-                    .append(", ");
+        for (Map.Entry<String, String> entry : paramsCopy.entrySet()) {
+            updateQuery.append(String.format(" %s = '%s',", entry.getKey(), entry.getValue()));
         }
-        updateQuery.deleteCharAt(updateQuery.length() - 2);
-        updateQuery.append("WHERE id=").append(id);
+        updateQuery.deleteCharAt(updateQuery.length() - 1);
+        updateQuery.append(String.format(" WHERE id = %s", id));
         return updateQuery.toString();
     }
 
-    public void addPartParameter(String column, String value) {
-        if (StringUtils.isEmpty(value)) return;
+    public void addPartParameter(StringBuilder query, String column, String value) {
+        if (StringUtils.isEmpty(value)) {
+            return;
+        }
 
         if (query.toString().contains("WHERE")) {
             query.append(" AND ");
         } else {
             query.append(" WHERE ");
         }
-        query.append(column).append(" ilike ").append("'%").append(value).append("%'");
+        query.append(String.format("%s ilike '%%%s%%'", column, value));
     }
 
-    public void addSortParameter(String column, String value) {
-        if (StringUtils.isEmpty(column)) return;
-        query.append(" order by ").append("gc.").append(column.toLowerCase());
-        query.append(" ").append(value == null ? "" : value);
+    public void addSortParameter(StringBuilder query, String column, String value) {
+        if (StringUtils.isEmpty(column)) {
+            return;
+        }
+        query.append(String.format(" order by gc.%s %s",
+                column.toLowerCase(), value == null ? "" : value));
     }
 }
+

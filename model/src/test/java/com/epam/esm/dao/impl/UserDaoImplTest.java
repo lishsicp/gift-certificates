@@ -35,21 +35,21 @@ class UserDaoImplTest {
     private static final User USER_3 = User.builder().id(3L).name("User3").build();
 
     @Test
-    void testFindAllShouldReturnAll() {
+    void findAllS_shouldReturnAll_whenValidPageRequest() {
         List<User> users = userDao.findAll(PAGE_REQUEST);
         List<User> expected = Arrays.asList(USER_1,USER_2,USER_3);
         assertEquals(expected, users);
     }
 
     @Test
-    void testFindByIdAShouldReturnOne() {
+    void findById_shouldReturnOne_whenExistingId() {
         Optional<User> user = userDao.findById(USER_1.getId());
         assertTrue(user.isPresent());
         assertEquals(USER_1, user.get());
     }
 
     @Test
-    void testFindByIdAShouldBeEmpty() {
+    void findById_shouldReturnEmptyOptional_whenNonexistentName() {
         Optional<User> user = userDao.findById(NON_EXISTED_USER_ID);
         assertTrue(user.isEmpty());
     }

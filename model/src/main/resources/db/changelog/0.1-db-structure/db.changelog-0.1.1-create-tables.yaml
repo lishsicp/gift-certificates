@@ -1,0 +1,207 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-tag
+      author: Yaroslav Lobur
+      changes:
+        - createSequence:
+            sequenceName: tag_id_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: tag
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueComputed: nextval('tag_id_seq')
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    unique: true
+                    nullable: false
+
+  - changeSet:
+      id: create-certificate
+      author: Yaroslav Lobur
+      changes:
+        - createSequence:
+            sequenceName: gift_certificate_id_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: gift_certificate
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueComputed: nextval('gift_certificate_id_seq')
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: number
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duration
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: create_date
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_update_date
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: create-certificate-tag
+      author: Yaroslav Lobur
+      changes:
+        - createTable:
+            tableName: gift_certificate_tag
+            columns:
+              - column:
+                  name: gift_certificate_id
+                  type: bigint
+              - column:
+                  name: tag_id
+                  type: bigint
+        - addForeignKeyConstraint:
+            baseColumnNames: gift_certificate_id
+            baseTableName: gift_certificate_tag
+            constraintName: gift_certificate_has_tags_certificate_fk
+            referencedColumnNames: id
+            referencedTableName: gift_certificate
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseColumnNames: tag_id
+            baseTableName: gift_certificate_tag
+            constraintName: gift_certificate_has_tags_tag_fk
+            referencedColumnNames: id
+            referencedTableName: tag
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - createIndex:
+            indexName: gift_certificate_id_fk_idx
+            tableName: gift_certificate_tag
+            column:
+              name: gift_certificate_id
+        - createIndex:
+            indexName: tag_id_fk_idx
+            tableName: gift_certificate_tag
+            column:
+              name: tag_id
+
+  - changeSet:
+      id: create-user
+      author: Yaroslav Lobur
+      changes:
+        - createSequence:
+            sequenceName: user_id_seq
+        - createTable:
+            tableName: user_
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueComputed: nextval('user_id_seq')
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    unique: true
+                    nullable: false
+
+  - changeSet:
+      id: create-order
+      author: Yaroslav Lobur
+      changes:
+        - createSequence:
+            sequenceName: order_id_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: order_
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueComputed: nextval('order_id_seq')
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: cost
+                  type: number
+                  constraints:
+                    nullable: false
+              - column:
+                  name: purchase_date
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gift_certificate_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: gift_certificate_id
+            baseTableName: order_
+            constraintName: order_has_certificate_fk
+            referencedColumnNames: id
+            referencedTableName: gift_certificate
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: order_
+            constraintName: order_has_user_fk
+            referencedColumnNames: id
+            referencedTableName: user_
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - createIndex:
+            indexName: order_gift_certificate_id_fk_idx
+            tableName: order_
+            column:
+              name: gift_certificate_id
+        - createIndex:
+            indexName: order_user_id_fk_idx
+            tableName: order_
+            column:
+              name: user_id

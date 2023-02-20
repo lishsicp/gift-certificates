@@ -12,13 +12,11 @@ import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.constraints.Min;
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,18 +87,14 @@ public class OrderController {
      * Creates a new {@link Order} entity in database.
      *
      * @param orderDto must be valid according to {@link OrderDto} entity.
-     * @return ResponseEntity with created {@link Order}. Response code 201.
+     * @return created {@link Order}. Response code 201.
      * @throws PersistentException if {@link Order} an error occurred.
      */
     @PostMapping()
-    public ResponseEntity<Object> makeOrder(@RequestBody MakeOrderDto orderDto) throws PersistentException {
+    @ResponseStatus(HttpStatus.CREATED)
+    public OrderDto makeOrder(@RequestBody MakeOrderDto orderDto) throws PersistentException {
         Order savedOrder = orderService.save(orderConverter.toEntity(orderDto));
-        URI locationUri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedOrder.getId())
-                .toUri();
         OrderDto savedOrderDto = orderConverter.toDto(savedOrder);
-        return ResponseEntity.created(locationUri).body(orderAssembler.toModel(savedOrderDto));
+        return orderAssembler.toModel(savedOrderDto);
     }
 }

@@ -16,11 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -128,19 +126,15 @@ public class GiftCertificateController {
      * {@link List} of {@link Tag} entities.
      * If new {@link Tag} entities are passed during creation – they will be created in the database.
      * @param giftCertificateDto must be valid according to {@link GiftCertificateDto} entity.
-     * @return ResponseEntity with saved {@link GiftCertificate}. Response code 201.
+     * @return Saved {@link GiftCertificate}. Response code 201.
      * @throws PersistentException if {@link GiftCertificate} an error occurred during saving.
      */
     @PostMapping
-    public ResponseEntity<Object> saveGiftCertificate(@RequestBody @Validated(OnPersist.class) GiftCertificateDto giftCertificateDto) throws PersistentException {
+    @ResponseStatus(HttpStatus.CREATED)
+    public GiftCertificateDto saveGiftCertificate(@RequestBody @Validated(OnPersist.class) GiftCertificateDto giftCertificateDto) throws PersistentException {
         GiftCertificate savedCert = giftCertificateService.save(giftCertificateDtoConverter.toEntity(giftCertificateDto));
-        URI locationUri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedCert.getId())
-                .toUri();
         GiftCertificateDto savedCertDto = giftCertificateDtoConverter.toDto(savedCert);
-        return ResponseEntity.created(locationUri).body(giftCertificateAssembler.toModel(savedCertDto));
+        return giftCertificateAssembler.toModel(savedCertDto);
     }
 
     /**
@@ -148,13 +142,14 @@ public class GiftCertificateController {
      * @param id a {@link GiftCertificate} id.
      * @param giftCertificateDto a {@link GiftCertificateDto} that contains information for updating.
      * Updates only fields, that are passed in request body.
-     * @return ResponseEntity with message. Response code 203.
+     * @return Updated {@link GiftCertificate}. Response code 201.
      * @throws PersistentException if the {@link GiftCertificate} entity do not exist.
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody @Valid GiftCertificateDto giftCertificateDto) throws PersistentException {
-        giftCertificateService.update(id, giftCertificateDtoConverter.toEntity(giftCertificateDto));
-        return ResponseEntity.status(HttpStatus.CREATED).body("Success");
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public GiftCertificateDto updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody @Valid GiftCertificateDto giftCertificateDto) throws PersistentException {
+        GiftCertificate updated = giftCertificateService.update(id, giftCertificateDtoConverter.toEntity(giftCertificateDto));
+        return giftCertificateAssembler.toModel(giftCertificateDtoConverter.toDto(updated));
     }
 
     /**

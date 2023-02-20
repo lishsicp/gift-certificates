@@ -12,14 +12,13 @@ import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,19 +94,15 @@ public class TagController {
      * Creates a new {@link Tag} entity in database.
      *
      * @param tagDto must be valid according to {@link Tag} entity.
-     * @return ResponseEntity with saved {@link Tag}. Response code 201.
+     * @return Saved {@link Tag}. Response code 201.
      * @throws PersistentException if {@link Tag} an error occurred during saving.
      */
     @PostMapping
-    public ResponseEntity<Object> saveTag(@RequestBody @Validated(OnPersist.class) TagDto tagDto) throws PersistentException {
+    @ResponseStatus(HttpStatus.CREATED)
+    public TagDto saveTag(@RequestBody @Validated(OnPersist.class) TagDto tagDto) throws PersistentException {
         Tag savedTag = tagService.save(tagConverter.toEntity(tagDto));
-        URI locationUri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedTag.getId())
-                .toUri();
         TagDto savedTagDto = tagConverter.toDto(savedTag);
-        return ResponseEntity.created(locationUri).body(tagModelAssembler.toModel(savedTagDto));
+        return tagModelAssembler.toModel(savedTagDto);
     }
 
     /**

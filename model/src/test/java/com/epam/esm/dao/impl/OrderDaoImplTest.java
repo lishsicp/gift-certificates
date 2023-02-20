@@ -8,6 +8,7 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
+import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
@@ -94,8 +95,12 @@ class OrderDaoImplTest {
 
     @Test
     void save_shouldSaveAndGenerateId() {
-        ORDER_1.setId(null);
-        Order savedOrder = orderDao.save(ORDER_1);
+        Order order = Order.builder()
+                .giftCertificate(CERTIFICATE_2)
+                .user(USER_1)
+                .cost(new BigDecimal(2))
+                .purchaseDate(LocalDateTime.now()).build();
+        Order savedOrder = orderDao.save(order);
         assertTrue(savedOrder.getId() > 0);
     }
 

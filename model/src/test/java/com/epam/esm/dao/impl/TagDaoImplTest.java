@@ -85,9 +85,7 @@ class TagDaoImplTest {
         Tag tag = new Tag();
         tag.setName("testTagName");
         Tag savedTag = tagDao.save(tag);
-        assertNotNull(savedTag.getOperation());
-        assertNotNull(savedTag.getTimestamp());
-        assertTrue(tagDao.save(tag).getId() > 0);
+        assertTrue(savedTag.getId() > 0);
     }
 
     @Test

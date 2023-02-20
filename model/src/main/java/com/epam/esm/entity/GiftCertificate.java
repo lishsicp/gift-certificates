@@ -1,20 +1,27 @@
 package com.epam.esm.entity;
 
+
 import lombok.*;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "gift_certificate")
 @NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@Builder
 public class GiftCertificate extends BaseEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gift_certificate_seq")
+  @SequenceGenerator(name = "gift_certificate_seq", sequenceName = "gift_certificate_id_seq", allocationSize = 1)
+  private long id;
 
   @Column(name = "name", nullable = false)
   private String name;
@@ -42,51 +49,6 @@ public class GiftCertificate extends BaseEntity {
   )
   private List<Tag> tags;
 
-  @Builder
-  public GiftCertificate(Long id, String name, String description, BigDecimal price, Long duration, LocalDateTime createDate, LocalDateTime lastUpdateDate, List<Tag> tags) {
-    super(id);
-    this.name = name;
-    this.description = description;
-    this.price = price;
-    this.duration = duration;
-    this.createDate = createDate;
-    this.lastUpdateDate = lastUpdateDate;
-    this.tags = tags;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-
-    if (!(o instanceof GiftCertificate)) return false;
-
-    GiftCertificate that = (GiftCertificate) o;
-
-    return new EqualsBuilder()
-            .appendSuper(super.equals(o))
-            .append(name, that.name)
-            .append(description, that.description)
-            .append(price, that.price)
-            .append(duration, that.duration)
-            .append(createDate, that.createDate)
-            .append(lastUpdateDate, that.lastUpdateDate)
-            .append(tags, that.tags)
-            .isEquals();
-  }
-
-  @Override
-  public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-            .appendSuper(super.hashCode())
-            .append(name)
-            .append(description)
-            .append(price)
-            .append(duration)
-            .append(createDate)
-            .append(lastUpdateDate)
-            .append(tags)
-            .toHashCode();
-  }
   @Override
   public String toString() {
     return "GiftCertificate{" +
@@ -99,5 +61,18 @@ public class GiftCertificate extends BaseEntity {
             ", lastUpdateDate=" + lastUpdateDate +
             ", tags=" + tags +
             '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    GiftCertificate that = (GiftCertificate) o;
+    return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(price, that.price) && Objects.equals(duration, that.duration) && Objects.equals(createDate, that.createDate) && Objects.equals(lastUpdateDate, that.lastUpdateDate) && Objects.equals(tags, that.tags);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, name, description, price, duration, createDate, lastUpdateDate, tags);
   }
 }

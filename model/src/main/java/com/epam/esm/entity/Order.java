@@ -2,23 +2,31 @@ package com.epam.esm.entity;
 
 
 import lombok.*;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
-@Table(name = "`order`")
+@Table(name = "order_")
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Order extends BaseEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_seq")
+    @SequenceGenerator(name = "order_seq", sequenceName = "order_id_seq", allocationSize = 1)
+    private long id;
+
+    @Column(name = "cost", nullable = false)
     private BigDecimal cost;
 
+    @Column(name = "purchase_date", nullable = false)
     private LocalDateTime purchaseDate;
 
     @ManyToOne
@@ -29,41 +37,16 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Builder
-    public Order(Long id, BigDecimal cost, LocalDateTime purchaseDate, GiftCertificate giftCertificate, User user) {
-        super(id);
-        this.cost = cost;
-        this.purchaseDate = purchaseDate;
-        this.giftCertificate = giftCertificate;
-        this.user = user;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-
-        if (!(o instanceof Order)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(cost, order.cost)
-                .append(purchaseDate, order.purchaseDate)
-                .append(giftCertificate, order.giftCertificate)
-                .append(user, order.user)
-                .isEquals();
+        return Objects.equals(id, order.id) && Objects.equals(cost, order.cost) && Objects.equals(purchaseDate, order.purchaseDate) && Objects.equals(giftCertificate, order.giftCertificate) && Objects.equals(user, order.user);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(cost)
-                .append(purchaseDate)
-                .append(giftCertificate)
-                .append(user)
-                .toHashCode();
+        return Objects.hash(id, cost, purchaseDate, giftCertificate, user);
     }
 }

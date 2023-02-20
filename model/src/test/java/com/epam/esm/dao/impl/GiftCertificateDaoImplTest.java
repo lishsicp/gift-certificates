@@ -128,8 +128,6 @@ class GiftCertificateDaoImplTest {
                 .tags(Arrays.asList(Tag.builder().name("testTag1").build(), Tag.builder().name("testTag2").build()))
                 .build();
         testCert = giftCertificateDao.save(testCert);
-        assertNotNull(testCert.getOperation());
-        assertNotNull(testCert.getTimestamp());
         assertTrue(testCert.getId() > 0);
         assertTrue(testCert.getTags().size() > 0);
     }

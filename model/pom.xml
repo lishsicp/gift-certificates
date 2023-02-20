@@ -15,13 +15,14 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <h2.version>2.1.214</h2.version>
+        <liquibase.version>4.19.0</liquibase.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>2.7.7</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -32,10 +33,15 @@
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-            <version>2.1.214</version>
+            <scope>test</scope>
+            <version>${h2.version}</version>
         </dependency>
     </dependencies>
     

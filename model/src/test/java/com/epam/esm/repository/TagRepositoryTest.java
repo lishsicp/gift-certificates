@@ -1,30 +1,25 @@
-package com.epam.esm.dao.impl;
-
+package com.epam.esm.repository;
 import com.epam.esm.config.TestDaoConfig;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
 import javax.transaction.Transactional;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = TestDaoConfig.class)
-@ContextConfiguration(initializers = ConfigDataApplicationContextInitializer.class)
-@ActiveProfiles("test")
 @Transactional
-class TagDaoImplTest {
+@ActiveProfiles("test")
+@SpringBootTest(classes = { TestDaoConfig.class })
+class TagRepositoryTest {
 
     private static final Tag TAG_1 = Tag.builder().id(1L).name("tag1").build();
     private static final Tag TAG_2 = Tag.builder().id(2L).name("tag2").build();
@@ -38,60 +33,60 @@ class TagDaoImplTest {
     private static final Long NON_EXISTED_TAG_ID = 999L;
 
     @Autowired
-    private TagDao tagDao;
+    private TagRepository repository;
 
     @Test
     void findAll_shouldReturnAll_whenValidPageRequest() {
-        List<Tag> tags = tagDao.findAll(PAGE_REQUEST);
+        Page<Tag> tags = repository.findAll(PAGE_REQUEST);
         List<Tag> expected = Arrays.asList(TAG_1,TAG_2,TAG_3,TAG_4,TAG_5);
-        assertEquals(expected, tags);
+        assertEquals(expected, tags.getContent());
     }
 
     @Test
     void findById_shouldReturnOne_whenExistingId() {
-        Optional<Tag> tag = tagDao.findById(TAG_1.getId());
+        Optional<Tag> tag = repository.findById(TAG_1.getId());
         assertTrue(tag.isPresent());
         assertEquals(TAG_1, tag.get());
     }
 
     @Test
     void findById_shouldReturnEmptyOptional_whenNonexistentId() {
-        Optional<Tag> tag = tagDao.findById(NON_EXISTED_TAG_ID);
+        Optional<Tag> tag = repository.findById(NON_EXISTED_TAG_ID);
         assertTrue(tag.isEmpty());
     }
 
     @Test
     void findByName_shouldReturnOptionalOfTag_whenExistingName() {
-        Optional<Tag> tagOptional = tagDao.findByName(TAG_1.getName());
+        Optional<Tag> tagOptional = repository.findTagByName(TAG_1.getName());
         assertTrue(tagOptional.isPresent());
     }
 
     @Test
     void findByName_shouldReturnEmptyOptional_whenNonexistentName() {
-        assertTrue(tagDao.findByName(TAG_1.getName() + "POSTFIX").isEmpty());
+        assertTrue(repository.findTagByName(TAG_1.getName() + "POSTFIX").isEmpty());
     }
 
     @Test
     void delete_shouldDeleteTag_whenExistingId() {
         Tag testTag = new Tag();
         testTag.setName("testNameDelete");
-        Tag tagWithId = tagDao.save(testTag);
-        tagDao.delete(tagWithId.getId());
-        assertTrue(tagDao.findById(tagWithId.getId()).isEmpty());
+        Tag tagWithId = repository.save(testTag);
+        repository.delete(tagWithId);
+        assertTrue(repository.findById(tagWithId.getId()).isEmpty());
     }
 
     @Test
     void save_shouldSaveAndGenerateId() {
         Tag tag = new Tag();
         tag.setName("testTagName");
-        Tag savedTag = tagDao.save(tag);
+        Tag savedTag = repository.save(tag);
         assertTrue(savedTag.getId() > 0);
     }
 
     @Test
     void findMostWidelyUsedTagWithHighestCostOfAllOrders_shouldReturnMostPopularTag() {
         Optional<Tag> expected = Optional.of(MOST_POPULAR_TAG);
-        Optional<Tag> actual = tagDao.findMostWidelyUsedTagWithHighestCostOfAllOrders();
+        Optional<Tag> actual = repository.findMostWidelyUsedTagWithHighestCostOfAllOrders();
         assertEquals(expected, actual);
     }
 }

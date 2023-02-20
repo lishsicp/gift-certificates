@@ -1,9 +1,9 @@
 package com.epam.esm.service.impl;
 
 
-import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.OrderDao;
-import com.epam.esm.dao.UserDao;
+import com.epam.esm.repository.GiftCertificateRepository;
+import com.epam.esm.repository.OrderRepository;
+import com.epam.esm.repository.UserRepository;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
@@ -28,11 +28,11 @@ import static org.mockito.Mockito.*;
 class OrderServiceImplTest {
 
     @Mock
-    private OrderDao orderDao;
+    private OrderRepository orderDao;
     @Mock
-    private UserDao userDao;
+    private UserRepository userDao;
     @Mock
-    private GiftCertificateDao giftCertificateDao;
+    private GiftCertificateRepository giftCertificateDao;
 
     @InjectMocks
     private OrderServiceImpl service;

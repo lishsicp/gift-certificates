@@ -1,6 +1,6 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.UserDao;
+import com.epam.esm.repository.UserRepository;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.exception.PersistentException;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +25,7 @@ import static org.mockito.Mockito.*;
 class UserServiceImplTest {
 
     @Mock
-    private static UserDao userDao;
+    private static UserRepository userDao;
 
     @InjectMocks
     private UserServiceImpl service;
@@ -42,10 +45,10 @@ class UserServiceImplTest {
     void testGetAll_ShouldReturnTwoUsers() {
         int PAGE = 1;
         int SIZE = 5;
-        when(userDao.findAll(any())).thenReturn(expectedUserList);
-        List<User> actual = service.getAll(PAGE, SIZE);
-        assertEquals(expectedUserList, actual);
-        verify(userDao).findAll(any());
+        when(userDao.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(expectedUserList));
+        Page<User> actual = service.getAll(PAGE, SIZE);
+        assertEquals(expectedUserList, actual.getContent());
+        verify(userDao).findAll(any(Pageable.class));
     }
 
     @Test

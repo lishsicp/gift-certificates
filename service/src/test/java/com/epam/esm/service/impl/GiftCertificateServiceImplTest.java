@@ -1,7 +1,7 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.TagDao;
+import com.epam.esm.repository.GiftCertificateRepository;
+import com.epam.esm.repository.TagRepository;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.exception.PersistentException;
@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 
@@ -29,9 +31,9 @@ import static org.mockito.Mockito.times;
 class GiftCertificateServiceImplTest {
 
     @Mock
-    private GiftCertificateDao giftCertificateDao;
+    private GiftCertificateRepository giftCertificateDao;
     @Mock
-    private TagDao tagDao;
+    private TagRepository tagDao;
 
     @InjectMocks
     private GiftCertificateServiceImpl service;
@@ -63,14 +65,6 @@ class GiftCertificateServiceImplTest {
                 .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
                 .tags(TAG_LIST)
                 .build();
-    }
-
-    @Test
-    void testFindAll_ShouldReturnTwoGiftCertificates() {
-        List<GiftCertificate> expected = Arrays.asList(GIFT_CERTIFICATE_1, GIFT_CERTIFICATE_2);
-        when(giftCertificateDao.findAll(any())).thenReturn(expected);
-        List<GiftCertificate> actual = service.getAll(1, 5);
-        assertEquals(expected, actual);
     }
 
     @Test
@@ -123,7 +117,7 @@ class GiftCertificateServiceImplTest {
 
         @Test
         void testSave_ShouldSave() {
-            when(giftCertificateDao.findByName(anyString())).thenReturn(Optional.empty());
+            when(giftCertificateDao.findGiftCertificateByName(anyString())).thenReturn(Optional.empty());
             when(giftCertificateDao.save(any())).thenReturn(GIFT_CERTIFICATE_1);
             GiftCertificate actual = service.save(GIFT_CERTIFICATE_TO_SAVE);
             assertEquals(GIFT_CERTIFICATE_1, actual);
@@ -131,7 +125,7 @@ class GiftCertificateServiceImplTest {
 
         @Test
         void testSave_ShouldThrowException() {
-            when(giftCertificateDao.findByName(anyString())).thenReturn(Optional.of(GIFT_CERTIFICATE_2));
+            when(giftCertificateDao.findGiftCertificateByName(anyString())).thenReturn(Optional.of(GIFT_CERTIFICATE_2));
             assertThrows(PersistentException.class, () -> service.save(GIFT_CERTIFICATE_TO_SAVE));
         }
     }
@@ -170,7 +164,7 @@ class GiftCertificateServiceImplTest {
         @Test
         void testUpdate() {
             when(giftCertificateDao.findById(any())).thenReturn(Optional.of(BEFORE_UPDATE));
-            when(giftCertificateDao.update(any())).thenReturn(AFTER_UPDATE);
+            when(giftCertificateDao.save(any())).thenReturn(AFTER_UPDATE);
             GiftCertificate updatedCertificate = service.update(BEFORE_UPDATE.getId(), UPDATABLE_DATA);
             assertEquals(AFTER_UPDATE, updatedCertificate);
             assertNotSame(BEFORE_UPDATE, updatedCertificate);
@@ -194,9 +188,9 @@ class GiftCertificateServiceImplTest {
             List<GiftCertificate> expected = Arrays.asList(GIFT_CERTIFICATE_1, GIFT_CERTIFICATE_2);
             int PAGE = 37;
             int SIZE = 56;
-            when(giftCertificateDao.findAllWithFilter(PageRequest.of(PAGE - 1, SIZE), params)).thenReturn(expected);
-            List<GiftCertificate> actual = service.getAllWithFilter(PAGE, SIZE, params);
-            assertEquals(expected, actual);
+            when(giftCertificateDao.findAllWithParameters(params, PageRequest.of(PAGE - 1, SIZE))).thenReturn(new PageImpl<>(expected));
+            Page<GiftCertificate> actual = service.getAllWithFilter(PAGE, SIZE, params);
+            assertEquals(expected, actual.getContent());
         }
     }
 
@@ -218,9 +212,9 @@ class GiftCertificateServiceImplTest {
 
         @Test
         void testUpdateTagList() {
-            when(tagDao.findByName(TAG_TO_UPDATE_1.getName())).thenReturn(Optional.of(TAG_TO_UPDATE_1));
-            when(tagDao.findByName(TAG_TO_UPDATE_2.getName())).thenReturn(Optional.of(TAG_TO_UPDATE_2));
-            when(tagDao.findByName(TAG_TO_UPDATE_NEW.getName())).thenReturn(Optional.empty());
+            when(tagDao.findTagByName(TAG_TO_UPDATE_1.getName())).thenReturn(Optional.of(TAG_TO_UPDATE_1));
+            when(tagDao.findTagByName(TAG_TO_UPDATE_2.getName())).thenReturn(Optional.of(TAG_TO_UPDATE_2));
+            when(tagDao.findTagByName(TAG_TO_UPDATE_NEW.getName())).thenReturn(Optional.empty());
             List<Tag> actual = service.updateTagList(LIST);
             List<Tag> empty = service.updateTagList(new ArrayList<>());
             assertTrue(empty.size() <= 0);

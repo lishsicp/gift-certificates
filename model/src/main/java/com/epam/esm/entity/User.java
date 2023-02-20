@@ -2,46 +2,39 @@ package com.epam.esm.entity;
 
 
 import lombok.*;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
-@Table(name = "`user`")
+@Table(name = "user_")
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User extends BaseEntity {
 
-    private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @SequenceGenerator(name = "user_seq", sequenceName = "user_id_seq", allocationSize = 1)
+    private long id;
 
-    @Builder
-    public User(Long id, String name) {
-        super(id);
-        this.name = name;
-    }
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-
-        if (!(o instanceof User)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(name, user.name)
-                .isEquals();
+        return Objects.equals(id, user.id) && Objects.equals(name, user.name);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(name)
-                .toHashCode();
+        return Objects.hash(id, name);
     }
 }

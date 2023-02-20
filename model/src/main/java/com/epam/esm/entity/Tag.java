@@ -1,11 +1,9 @@
 package com.epam.esm.entity;
 
 import lombok.*;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tag")
@@ -13,29 +11,28 @@ import javax.persistence.Table;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Tag extends BaseEntity {
 
-  private String name;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tag_seq")
+  @SequenceGenerator(name = "tag_seq", sequenceName = "tag_id_seq", allocationSize = 1)
+  private long id;
 
-  @Builder
-  public Tag(Long id, String name) {
-    super(id);
-    this.name = name;
-  }
+  @Column(name = "name", nullable = false)
+  private String name;
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-
-    if (!(o instanceof Tag)) return false;
-
+    if (o == null || getClass() != o.getClass()) return false;
     Tag tag = (Tag) o;
-
-    return new EqualsBuilder().appendSuper(super.equals(o)).append(name, tag.name).isEquals();
+    return Objects.equals(id, tag.id) && Objects.equals(name, tag.name);
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37).appendSuper(super.hashCode()).append(name).toHashCode();
+    return Objects.hash(id, name);
   }
 }

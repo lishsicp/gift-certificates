@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,10 +20,12 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity implements Serializable {
 
+    @JsonIgnore
     @CreatedDate
     @Column(name = "created_at")
     private String createdDate;
 
+    @JsonIgnore
     @LastModifiedDate
     @Column(name = "updated_at")
     private Long lastModifiedDate;

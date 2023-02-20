@@ -1,24 +1,19 @@
-package com.epam.esm.dao.impl;
+package com.epam.esm.repository;
 
 import com.epam.esm.config.TestDaoConfig;
-import com.epam.esm.dao.GenericDao;
-import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import javax.transaction.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -28,11 +23,10 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = TestDaoConfig.class)
-@ContextConfiguration(initializers = ConfigDataApplicationContextInitializer.class)
-@ActiveProfiles("test")
 @Transactional
-class GiftCertificateDaoImplTest {
+@ActiveProfiles("test")
+@SpringBootTest(classes = TestDaoConfig.class)
+class GiftCertificateRepositoryTest {
 
     private static final GiftCertificate CERTIFICATE_1 = GiftCertificate.builder()
             .id(1L).name("GiftCertificate1").description("Description")
@@ -68,8 +62,8 @@ class GiftCertificateDaoImplTest {
     private static final String FILTER_DESCRIPTION_VALUE = "Desc";
     private static final String FILTER_DATE_SORT_KEY = "date_sort";
     private static final String FILTER_NAME_SORT_KEY = "name_sort";
-    private static final String FILTER_DATE_SORT_VALUE = "asc";
-    private static final String FILTER_NAME_SORT_VALUE = "desc";
+    private static final String ASC = "asc";
+    private static final String DESC = "desc";
     private static final String FILTER_TAGS_KEY = "tags";
     private static final String FILTER_TAGS_VALUE_1 = "tag2";
     private static final String FILTER_TAGS_VALUE_2 = "tag4";
@@ -77,25 +71,25 @@ class GiftCertificateDaoImplTest {
     private static final String WRONG_FILTER_VALUE = "Wrong value";
 
     @Autowired
-    GiftCertificateDao giftCertificateDao;
+    GiftCertificateRepository repository;
 
     @Test
     void findAll_shouldReturnAll_whenValidPageRequest() {
-        List<GiftCertificate> giftCertificates = giftCertificateDao.findAll(PAGE_REQUEST);
+        Page<GiftCertificate> giftCertificates = repository.findAll(PAGE_REQUEST);
         List<GiftCertificate> expected = Arrays.asList(CERTIFICATE_1, CERTIFICATE_2, CERTIFICATE_3);
-        assertIterableEquals(expected, giftCertificates);
+        assertIterableEquals(expected, giftCertificates.getContent());
     }
 
     @Test
     void findById_shouldReturnOne_whenExistingId() {
-        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(CERTIFICATE_1.getId());
+        Optional<GiftCertificate> giftCertificateOptional = repository.findById(CERTIFICATE_1.getId());
         assertTrue(giftCertificateOptional.isPresent());
         assertEquals(CERTIFICATE_1, giftCertificateOptional.get());
     }
 
     @Test
     void findById_shouldBeEmpty_whenNonexistentId() {
-        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(NON_EXISTENT_CERT_ID);
+        Optional<GiftCertificate> giftCertificateOptional = repository.findById(NON_EXISTENT_CERT_ID);
         assertTrue(giftCertificateOptional.isEmpty());
     }
 
@@ -108,14 +102,9 @@ class GiftCertificateDaoImplTest {
                 .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
                 .tags(Arrays.asList(Tag.builder().name("testTag1").build(), Tag.builder().name("testTag2").build()))
                 .build();
-        GiftCertificate testCertWithId = giftCertificateDao.save(testCert);
-        giftCertificateDao.delete(testCertWithId.getId());
-        assertTrue(giftCertificateDao.findById(testCertWithId.getId()).isEmpty());
-    }
-
-    @Test
-    void delete_shouldThrowException_whenNonexistentId() {
-        assertThrows(Exception.class, () -> giftCertificateDao.delete(NON_EXISTENT_CERT_ID));
+        GiftCertificate testCertWithId = repository.save(testCert);
+        repository.delete(testCertWithId);
+        assertTrue(repository.findById(testCertWithId.getId()).isEmpty());
     }
 
     @Test
@@ -127,23 +116,23 @@ class GiftCertificateDaoImplTest {
                 .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
                 .tags(Arrays.asList(Tag.builder().name("testTag1").build(), Tag.builder().name("testTag2").build()))
                 .build();
-        testCert = giftCertificateDao.save(testCert);
+        testCert = repository.save(testCert);
         assertTrue(testCert.getId() > 0);
         assertTrue(testCert.getTags().size() > 0);
     }
 
     @Test
     void update_shouldUpdateName_whenExistingCertificate() {
-        Optional<GiftCertificate> certificateToUpdate = giftCertificateDao.findById(1L);
+        Optional<GiftCertificate> certificateToUpdate = repository.findById(1L);
         String oldName;
         String updatedName = "updatedName";
         if (certificateToUpdate.isPresent()) {
             oldName = certificateToUpdate.get().getName();
             certificateToUpdate.get().setName(updatedName);
             certificateToUpdate.get().setLastUpdateDate(LocalDateTime.now());
-            GiftCertificate updated = giftCertificateDao.update(certificateToUpdate.get());
+            GiftCertificate updated = repository.save(certificateToUpdate.get());
             assertNotSame(oldName, updated.getName());
-            assertTrue(giftCertificateDao.findByName(updatedName).isPresent());
+            assertTrue(repository.findGiftCertificateByName(updatedName).isPresent());
         }
     }
 
@@ -154,13 +143,13 @@ class GiftCertificateDaoImplTest {
         filterParams.add(FILTER_DESCRIPTION_KEY, FILTER_DESCRIPTION_VALUE);
         filterParams.add(FILTER_TAGS_KEY, FILTER_TAGS_VALUE_1);
         filterParams.add(FILTER_TAGS_KEY, FILTER_TAGS_VALUE_2);
-        filterParams.add(FILTER_DATE_SORT_KEY, FILTER_DATE_SORT_VALUE);
-        filterParams.add(FILTER_NAME_SORT_KEY, FILTER_NAME_SORT_VALUE);
+        filterParams.add(FILTER_DATE_SORT_KEY, ASC);
+        filterParams.add(FILTER_NAME_SORT_KEY, ASC);
 
         List<GiftCertificate> expected = Arrays.asList(CERTIFICATE_2, CERTIFICATE_3);
-        List<GiftCertificate> actual = giftCertificateDao.findAllWithFilter(PAGE_REQUEST, filterParams);
+        Page<GiftCertificate> actual = repository.findAllWithParameters(filterParams, PAGE_REQUEST);
 
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getContent());
     }
 
     @Test
@@ -169,19 +158,19 @@ class GiftCertificateDaoImplTest {
         filterParams.add(WRONG_FILTER_KEY, WRONG_FILTER_VALUE);
 
         List<GiftCertificate> expected = Arrays.asList(CERTIFICATE_1, CERTIFICATE_2, CERTIFICATE_3);
-        List<GiftCertificate> actual = giftCertificateDao.findAllWithFilter(PAGE_REQUEST, filterParams);
+        Page<GiftCertificate> actual = repository.findAllWithParameters(filterParams, PAGE_REQUEST);
 
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getContent());
     }
 
     @Test
     void findByName_shouldReturnPresent_whenGiftCertificateExists() {
-        assertTrue(giftCertificateDao.findByName(CERTIFICATE_1.getName()).isPresent());
+        assertTrue(repository.findGiftCertificateByName(CERTIFICATE_1.getName()).isPresent());
     }
 
     @Test
     void findByName_shouldReturnEmpty_whenGiftCertificateDoesNotExist() {
-        assertTrue(giftCertificateDao.findByName(CERTIFICATE_1.getName() + "POSTFIX").isEmpty());
+        assertTrue(repository.findGiftCertificateByName(CERTIFICATE_1.getName() + "POSTFIX").isEmpty());
     }
 
 }

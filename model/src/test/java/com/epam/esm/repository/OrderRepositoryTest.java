@@ -1,22 +1,17 @@
-package com.epam.esm.dao.impl;
+package com.epam.esm.repository;
 
 import com.epam.esm.config.TestDaoConfig;
-import com.epam.esm.dao.GenericDao;
-import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.OrderDao;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+
 
 import javax.transaction.Transactional;
 
@@ -30,16 +25,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SpringBootTest(classes = TestDaoConfig.class)
-@ContextConfiguration(initializers = ConfigDataApplicationContextInitializer.class)
-@ActiveProfiles("test")
 @Transactional
-class OrderDaoImplTest {
+@ActiveProfiles("test")
+@SpringBootTest(classes = TestDaoConfig.class)
+class OrderRepositoryTest {
 
     @Autowired
-    private OrderDao orderDao;
+    private OrderRepository orderDao;
     @Autowired
-    private GiftCertificateDao giftCertificateDao;
+    private GiftCertificateRepository giftCertificateDao;
 
     private static final Pageable PAGE_REQUEST = PageRequest.of(0, 10);
     private static final Long NON_EXISTED_ORDER_ID = 999L;
@@ -109,7 +103,7 @@ class OrderDaoImplTest {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(CERTIFICATE_1.getId());
         optionalGiftCertificate.ifPresent((a) -> a.setPrice(new BigDecimal("1000")));
         assertTrue(optionalGiftCertificate.isPresent());
-        giftCertificateDao.update(optionalGiftCertificate.get());
+        giftCertificateDao.save(optionalGiftCertificate.get());
         Optional<Order> order = orderDao.findById(ORDER_1.getId());
         assertTrue(order.isPresent());
         assertEquals(order.get().getCost(), ORDER_1.getCost());

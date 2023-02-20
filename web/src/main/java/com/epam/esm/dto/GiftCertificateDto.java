@@ -2,8 +2,10 @@ package com.epam.esm.dto;
 
 
 import com.epam.esm.dto.group.OnPersist;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.Valid;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
 

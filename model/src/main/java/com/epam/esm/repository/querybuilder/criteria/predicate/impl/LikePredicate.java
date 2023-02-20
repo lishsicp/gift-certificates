@@ -1,6 +1,6 @@
-package com.epam.esm.dao.querybuilder.criteria.predicate.impl;
+package com.epam.esm.repository.querybuilder.criteria.predicate.impl;
 
-import com.epam.esm.dao.querybuilder.criteria.predicate.PredicateBuilder;
+import com.epam.esm.repository.querybuilder.criteria.predicate.PredicateBuilder;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;

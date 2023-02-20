@@ -1,6 +1,6 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.TagDao;
+import com.epam.esm.repository.TagRepository;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.exception.PersistentException;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
 class TagServiceImplTest {
 
     @Mock
-    private static TagDao tagDao;
+    private static TagRepository tagDao;
 
     @InjectMocks
     private TagServiceImpl tagService;
@@ -38,7 +39,7 @@ class TagServiceImplTest {
         int PAGE = 1;
         int SIZE = 5;
         tagService.getAll(PAGE, SIZE);
-        verify(tagDao).findAll(any());
+        verify(tagDao).findAll(any(Pageable.class));
     }
 
     @Test
@@ -72,7 +73,7 @@ class TagServiceImplTest {
 
         @Test
         void testSave_ShouldInvokeTagDaoSave() {
-            when(tagDao.findByName(anyString())).thenReturn(Optional.empty());
+            when(tagDao.findTagByName(anyString())).thenReturn(Optional.empty());
             when(tagDao.save(any())).thenReturn(tag);
             Tag savedTag = tagService.save(tag);
             assertEquals(tag, savedTag);
@@ -81,7 +82,7 @@ class TagServiceImplTest {
 
         @Test
         void testSave_ShouldThrowException() {
-            when(tagDao.findByName(anyString())).thenReturn(Optional.of(tag));
+            when(tagDao.findTagByName(anyString())).thenReturn(Optional.of(tag));
             assertThrows(PersistentException.class, () -> tagService.save(tag));
         }
     }

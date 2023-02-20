@@ -1,12 +1,13 @@
 package com.epam.esm.entity;
 
-import com.epam.esm.listener.AuditListener;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.EntityListeners;
+import javax.persistence.Column;
 import java.io.Serializable;
 
 @MappedSuperclass
@@ -15,42 +16,14 @@ import java.io.Serializable;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditListener.class)
+@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long id;
+    @CreatedDate
+    @Column(name = "created_at")
+    private String createdDate;
 
-    @JsonIgnore
-    @Column(name = "operation", nullable = false)
-    private String operation;
-
-    @JsonIgnore
-    @Column(name = "timestamp", nullable = false)
-    private Long timestamp;
-
-    protected BaseEntity(Long id) {
-        this.id = id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (!(o instanceof BaseEntity)) return false;
-
-        BaseEntity that = (BaseEntity) o;
-
-        return new EqualsBuilder()
-                .append(id, that.id)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(id)
-                .toHashCode();
-    }
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private Long lastModifiedDate;
 }

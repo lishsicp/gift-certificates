@@ -7,6 +7,8 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.OrderService;
+import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.converter.OrderConverter;
 import com.epam.esm.service.exception.ExceptionErrorCode;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,51 +29,58 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderDao;
     private final UserRepository userDao;
     private final GiftCertificateRepository giftCertificateDao;
+    private final OrderConverter orderConverter;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderDao, UserRepository userDao, GiftCertificateRepository giftCertificateDao) {
+    public OrderServiceImpl(OrderRepository orderDao,
+                            UserRepository userDao,
+                            GiftCertificateRepository giftCertificateDao,
+                            OrderConverter orderConverter) {
         this.orderDao = orderDao;
         this.userDao = userDao;
         this.giftCertificateDao = giftCertificateDao;
+        this.orderConverter = orderConverter;
     }
 
     @Override
-    public Order save(Order order) throws PersistentException {
-        Long certificateId = order.getGiftCertificate().getId();
+    public OrderDto save(OrderDto orderDto) throws PersistentException {
+        Long certificateId = orderDto.getGiftCertificate().getId();
         Optional<GiftCertificate> certificateOptional = giftCertificateDao.findById(certificateId);
         if (certificateOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, certificateId);
 
-        Long userId = order.getUser().getId();
+        Long userId = orderDto.getUser().getId();
         Optional<User> userOptional = userDao.findById(userId);
         if (userOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, userId);
-
+        Order order = orderConverter.toEntity(orderDto);
         order.setUser(userOptional.get());
         order.setGiftCertificate(certificateOptional.get());
         order.setCost(certificateOptional.get().getPrice());
         order.setPurchaseDate(LocalDateTime.now(zoneId));
 
-        return orderDao.save(order);
+        return orderConverter.toDto(orderDao.save(order));
     }
 
     @Override
-    public List<Order> getOrdersByUserId(Long id, int page, int size) throws PersistentException {
+    public Page<OrderDto> getOrdersByUserId(Long id, int page, int size) throws PersistentException {
         Optional<User> userOptional = userDao.findById(id);
         if (userOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
         Pageable pageable = PageRequest.of(page - 1, size);
-        return orderDao.findOrdersByUserId(id, pageable);
+        Page<Order> ordersByUserId = orderDao.findOrdersByUserId(id, pageable);
+        return ordersByUserId.map(orderConverter::toDto);
     }
 
     @Override
-    public Page<Order> getAll(int page, int size) {
+    public Page<OrderDto> getAll(int page, int size) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Order getById(Long id) throws PersistentException {
-        return orderDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
+    public OrderDto getById(Long id) throws PersistentException {
+        Order order = orderDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
+        return orderConverter.toDto(order);
     }
 
     @Override

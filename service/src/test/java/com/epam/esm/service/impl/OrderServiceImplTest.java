@@ -7,6 +7,10 @@ import com.epam.esm.repository.UserRepository;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
+import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.UserDto;
+import com.epam.esm.service.dto.converter.OrderConverter;
 import com.epam.esm.service.exception.PersistentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 
 import java.math.BigDecimal;
@@ -28,40 +34,43 @@ import static org.mockito.Mockito.*;
 class OrderServiceImplTest {
 
     @Mock
-    private OrderRepository orderDao;
+    private OrderRepository orderRepository;
     @Mock
-    private UserRepository userDao;
+    private UserRepository userRepository;
     @Mock
-    private GiftCertificateRepository giftCertificateDao;
+    private GiftCertificateRepository certificateRepository;
+    @Mock
+    private OrderConverter orderConverter;
 
     @InjectMocks
     private OrderServiceImpl service;
 
     private Order order;
+    private OrderDto orderDto;
 
     @BeforeEach
     void setUp() {
-        User user = new User();
-        user.setId(1L);
-        user.setName("User Name");
+        User user = User.builder().id(1).name("User Name").build();
+        UserDto userDto = UserDto.builder().id(1L).name("User Name").build();
+        GiftCertificate certificate = GiftCertificate.builder().id(1).build();
+        GiftCertificateDto certificateDto = GiftCertificateDto.builder().id(1L).build();
+        order = Order.builder().id(1).user(user)
+                .giftCertificate(certificate)
+                .purchaseDate(LocalDateTime.now())
+                .cost(BigDecimal.TEN).build();
 
-        GiftCertificate certificate = new GiftCertificate();
-        certificate.setId(1L);
-
-        order = new Order();
-        order.setId(1L);
-        order.setUser(user);
-        order.setCost(BigDecimal.TEN);
-        order.setPurchaseDate(LocalDateTime.now());
-        order.setGiftCertificate(certificate);
-        order.setUser(user);
+        orderDto = OrderDto.builder().id(1L).user(userDto)
+                .giftCertificate(certificateDto)
+                .purchaseDate(LocalDateTime.now())
+                .cost(BigDecimal.TEN).build();
     }
 
     @Test
     void testFindById_ShouldReturnOrder() {
-        when(orderDao.findById(anyLong())).thenReturn(Optional.ofNullable(order));
-        Order actual = service.getById(anyLong());
-        assertEquals(order, actual);
+        when(orderRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order));
+        when(orderConverter.toDto(any())).thenReturn(orderDto);
+        OrderDto actual = service.getById(anyLong());
+        assertEquals(orderDto, actual);
     }
 
     @Test
@@ -75,21 +84,23 @@ class OrderServiceImplTest {
 
         @Test
         void testSave_ShouldThrowExceptionIfCertificateIsEmpty() {
-            assertThrows(PersistentException.class, () -> service.save(order));
+            assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
         @Test
         void testSave_ShouldThrowExceptionIfUserIsEmpty() {
-            assertThrows(PersistentException.class, () -> service.save(order));
+            assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
         @Test
         void testSave_ShouldSave() {
-            when(giftCertificateDao.findById(anyLong())).thenReturn(Optional.ofNullable(order.getGiftCertificate()));
-            when(userDao.findById(anyLong())).thenReturn(Optional.ofNullable(order.getUser()));
-            when(orderDao.save(order)).thenReturn(order);
-            Order actual = service.save(order);
-            assertEquals(order, actual);
+            when(certificateRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order.getGiftCertificate()));
+            when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order.getUser()));
+            when(orderConverter.toEntity(any())).thenReturn(order);
+            when(orderRepository.save(order)).thenReturn(order);
+            when(orderConverter.toDto(any())).thenReturn(orderDto);
+            OrderDto actual = service.save(orderDto);
+            assertEquals(orderDto, actual);
         }
     }
 
@@ -100,10 +111,11 @@ class OrderServiceImplTest {
 
         @Test
         void testGetOrdersByUserId_ShouldReturnOrderList() {
-            when(userDao.findById(anyLong())).thenReturn(Optional.ofNullable(order.getUser()));
-            when(orderDao.findOrdersByUserId(anyLong(), any())).thenReturn(Collections.singletonList(order));
-            List<Order> actual = service.getOrdersByUserId(anyLong(), PAGE, SIZE);
-            assertEquals(Collections.singletonList(order), actual);
+            when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order.getUser()));
+            when(orderRepository.findOrdersByUserId(anyLong(), any())).thenReturn(new PageImpl<>(Collections.singletonList(order)));
+            when(orderConverter.toDto(any())).thenReturn(orderDto);
+            Page<OrderDto> actual = service.getOrdersByUserId(anyLong(), PAGE, SIZE);
+            assertEquals(Collections.singletonList(orderDto), actual.getContent());
         }
 
         @Test

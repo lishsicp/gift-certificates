@@ -3,6 +3,8 @@ package com.epam.esm.service.impl;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.UserService;
+import com.epam.esm.service.dto.UserDto;
+import com.epam.esm.service.dto.converter.UserConverter;
 import com.epam.esm.service.exception.ExceptionErrorCode;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,29 +16,34 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userDao;
+    private final UserRepository userRepository;
+
+    private final UserConverter userConverter;
 
     @Autowired
-    public UserServiceImpl(UserRepository userDao) {
-        this.userDao = userDao;
+    public UserServiceImpl(UserRepository userRepository, UserConverter userConverter) {
+        this.userRepository = userRepository;
+        this.userConverter = userConverter;
     }
 
 
     @Override
-    public Page<User> getAll(int page, int size) {
+    public Page<UserDto> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        return userDao.findAll(pageable);
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(userConverter::toDto);
     }
 
     @Override
-    public User getById(Long id) throws PersistentException {
-        return userDao.findById(id).orElseThrow(() ->
+    public UserDto getById(Long id) throws PersistentException {
+        User user = userRepository.findById(id).orElseThrow(() ->
                 new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id)
         );
+        return userConverter.toDto(user);
     }
 
     @Override
-    public User save(User user) {
+    public UserDto save(UserDto userDto) {
         throw new UnsupportedOperationException();
     }
 

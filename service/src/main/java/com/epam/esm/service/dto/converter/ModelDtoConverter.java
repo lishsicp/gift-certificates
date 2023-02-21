@@ -1,4 +1,4 @@
-package com.epam.esm.dto.converter;
+package com.epam.esm.service.dto.converter;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

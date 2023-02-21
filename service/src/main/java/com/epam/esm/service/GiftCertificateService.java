@@ -1,9 +1,9 @@
 package com.epam.esm.service;
 
-import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.service.dto.GiftCertificateDto;
 import org.springframework.data.domain.Page;
 import org.springframework.util.MultiValueMap;
 
-public interface GiftCertificateService extends CRUDService<GiftCertificate> {
-    Page<GiftCertificate> getAllWithFilter(int page, int size, MultiValueMap<String, String> params);
+public interface GiftCertificateService extends CRUDService<GiftCertificateDto> {
+    Page<GiftCertificateDto> getAllWithFilter(int page, int size, MultiValueMap<String, String> params);
 }

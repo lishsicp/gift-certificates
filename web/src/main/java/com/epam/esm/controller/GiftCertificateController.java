@@ -2,10 +2,10 @@ package com.epam.esm.controller;
 
 import com.epam.esm.assembler.GiftCertificateAssembler;
 import com.epam.esm.controller.constraint.FilterConstraint;
-import com.epam.esm.dto.GiftCertificateDto;
-import com.epam.esm.dto.converter.GiftCertificateConverter;
-import com.epam.esm.dto.group.OnPersist;
-import com.epam.esm.entity.*;
+import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
+import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.group.OnPersist;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +34,11 @@ public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
 
-    private final GiftCertificateConverter giftCertificateDtoConverter;
-
     private final GiftCertificateAssembler giftCertificateAssembler;
 
-
     @Autowired
-    public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateConverter giftCertificateDtoConverter, GiftCertificateAssembler giftCertificateAssembler) {
+    public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateAssembler giftCertificateAssembler) {
         this.giftCertificateService = giftCertificateService;
-        this.giftCertificateDtoConverter = giftCertificateDtoConverter;
         this.giftCertificateAssembler = giftCertificateAssembler;
     }
 
@@ -59,11 +55,11 @@ public class GiftCertificateController {
      * @param filterParams is a {@link MultiValueMap} collection that contains {@link String} as
      *                     key and {@link String} as value.
      *                     <pre><ul>
-     *                                         <li>name as {@link GiftCertificate} name</li>
-     *                                         <li>description as {@link GiftCertificate} description</li>
-     *                                         <li>tags as {@link Tag} name (multiple times)</li>
-     *                                         <li>name_sort as {@link  String} for sorting certificates by name (asc/desc)</li>
-     *                                         <li>date_sort as {@link  String} for sorting certificates by create date (asc/desc)</li>
+     *                                                <li>name as {@link GiftCertificate} name</li>
+     *                                                             <li>description as {@link GiftCertificate} description</li>
+     *                                                             <li>tags as {@link Tag} name (multiple times)</li>
+     *                                                             <li>name_sort as {@link  String} for sorting certificates by name (asc/desc)</li>
+     *                                                             <li>date_sort as {@link  String} for sorting certificates by create date (asc/desc)</li>
      *                                         </ul></pre>
      * @return a {@link List} of found {@link GiftCertificate} entities with specified parameters. Response code 200.
      */
@@ -73,8 +69,7 @@ public class GiftCertificateController {
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
             @RequestParam @FilterConstraint MultiValueMap<String, String> filterParams
     ) {
-        Page<GiftCertificate> giftCertificates = giftCertificateService.getAllWithFilter(page, size, filterParams);
-        Page<GiftCertificateDto> giftCertificateDtos = giftCertificates.map(giftCertificateDtoConverter::toDto);
+        Page<GiftCertificateDto> giftCertificateDtos = giftCertificateService.getAllWithFilter(page, size, filterParams);
         return giftCertificateAssembler.toCollectionModel(giftCertificateDtos, page, size, filterParams);
     }
 
@@ -87,8 +82,7 @@ public class GiftCertificateController {
      */
     @GetMapping("/{id}")
     public GiftCertificateDto giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        GiftCertificate giftCertificate = giftCertificateService.getById(id);
-        GiftCertificateDto giftCertificateDto = giftCertificateDtoConverter.toDto(giftCertificate);
+        GiftCertificateDto giftCertificateDto = giftCertificateService.getById(id);
         return giftCertificateAssembler.toModel(giftCertificateDto);
     }
 
@@ -104,9 +98,8 @@ public class GiftCertificateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GiftCertificateDto saveGiftCertificate(@RequestBody @Validated(OnPersist.class) GiftCertificateDto giftCertificateDto) throws PersistentException {
-        GiftCertificate savedCert = giftCertificateService.save(giftCertificateDtoConverter.toEntity(giftCertificateDto));
-        GiftCertificateDto savedCertDto = giftCertificateDtoConverter.toDto(savedCert);
-        return giftCertificateAssembler.toModel(savedCertDto);
+        GiftCertificateDto savedCert = giftCertificateService.save(giftCertificateDto);
+        return giftCertificateAssembler.toModel(savedCert);
     }
 
     /**
@@ -121,8 +114,8 @@ public class GiftCertificateController {
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public GiftCertificateDto updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody @Valid GiftCertificateDto giftCertificateDto) throws PersistentException {
-        GiftCertificate updated = giftCertificateService.update(id, giftCertificateDtoConverter.toEntity(giftCertificateDto));
-        return giftCertificateAssembler.toModel(giftCertificateDtoConverter.toDto(updated));
+        GiftCertificateDto updated = giftCertificateService.update(id, giftCertificateDto);
+        return giftCertificateAssembler.toModel(updated);
     }
 
     /**

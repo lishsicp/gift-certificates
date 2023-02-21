@@ -1,6 +1,6 @@
-package com.epam.esm.dto.converter;
+package com.epam.esm.service.dto.converter;
 
-import com.epam.esm.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.entity.GiftCertificate;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

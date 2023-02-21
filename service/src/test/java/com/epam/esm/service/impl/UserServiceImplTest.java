@@ -2,6 +2,8 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.entity.User;
+import com.epam.esm.service.dto.UserDto;
+import com.epam.esm.service.dto.converter.UserConverter;
 import com.epam.esm.service.exception.PersistentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,9 @@ class UserServiceImplTest {
     @Mock
     private static UserRepository userDao;
 
+    @Mock
+    private static UserConverter userConverter;
+
     @InjectMocks
     private UserServiceImpl service;
 
@@ -34,11 +39,19 @@ class UserServiceImplTest {
     private User USER_2;
     private List<User> expectedUserList;
 
+    private UserDto USER_DTO_1;
+    private UserDto USER_DTO_2;
+    private List<UserDto> expectedUserDtoList;
+
     @BeforeEach
     void setUp() {
         USER_1 = User.builder().id(1L).name("User1").build();
         USER_2 = User.builder().id(1L).name("User2").build();
         expectedUserList = Arrays.asList(USER_1, USER_2);
+
+        USER_DTO_1 = UserDto.builder().id(1L).name("User1").build();
+        USER_DTO_2 = UserDto.builder().id(1L).name("User2").build();
+        expectedUserDtoList = Arrays.asList(USER_DTO_1, USER_DTO_2);
     }
 
     @Test
@@ -46,8 +59,9 @@ class UserServiceImplTest {
         int PAGE = 1;
         int SIZE = 5;
         when(userDao.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(expectedUserList));
-        Page<User> actual = service.getAll(PAGE, SIZE);
-        assertEquals(expectedUserList, actual.getContent());
+        when(userConverter.toDto(any())).thenReturn(USER_DTO_1, USER_DTO_2);
+        Page<UserDto> actual = service.getAll(PAGE, SIZE);
+        assertEquals(expectedUserDtoList, actual.getContent());
         verify(userDao).findAll(any(Pageable.class));
     }
 
@@ -61,7 +75,8 @@ class UserServiceImplTest {
     @Test
     void testFindById_ShouldReturnUser() {
         when(userDao.findById(any())).thenReturn(Optional.ofNullable(USER_1));
-        User userById = service.getById(anyLong());
-        assertEquals(USER_1, userById);
+        when(userConverter.toDto(any())).thenReturn(USER_DTO_1);
+        UserDto userById = service.getById(anyLong());
+        assertEquals(USER_DTO_1, userById);
     }
 }

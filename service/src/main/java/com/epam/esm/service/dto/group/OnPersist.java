@@ -1,4 +1,4 @@
-package com.epam.esm.dto.group;
+package com.epam.esm.service.dto.group;
 
 import javax.validation.groups.Default;
 

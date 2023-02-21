@@ -8,6 +8,7 @@ import com.epam.esm.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
@@ -111,9 +112,9 @@ class OrderRepositoryTest {
 
     @Test
     void findOrdersByUserId_shouldReturnThree() {
-        List<Order> actual = orderDao.findOrdersByUserId(USER_1.getId(), PAGE_REQUEST);
+        Page<Order> actual = orderDao.findOrdersByUserId(USER_1.getId(), PAGE_REQUEST);
         List<Order> expected = Arrays.asList(ORDER_1, ORDER_2, ORDER_3);
-        assertEquals(expected, actual);
+        assertEquals(expected, actual.getContent());
     }
 
 }

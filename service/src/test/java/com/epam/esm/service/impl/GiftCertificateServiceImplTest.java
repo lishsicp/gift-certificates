@@ -4,6 +4,9 @@ import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.dto.converter.GiftCertificateConverter;
 import com.epam.esm.service.exception.PersistentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -34,6 +37,8 @@ class GiftCertificateServiceImplTest {
     private GiftCertificateRepository giftCertificateDao;
     @Mock
     private TagRepository tagDao;
+    @Mock
+    private GiftCertificateConverter giftCertificateConverter;
 
     @InjectMocks
     private GiftCertificateServiceImpl service;
@@ -41,7 +46,12 @@ class GiftCertificateServiceImplTest {
     private GiftCertificate GIFT_CERTIFICATE_1;
     private GiftCertificate GIFT_CERTIFICATE_2;
 
+    private GiftCertificateDto GIFT_CERTIFICATE_DTO_1;
+    private GiftCertificateDto GIFT_CERTIFICATE_DTO_2;
+
     private List<Tag> TAG_LIST;
+
+    private List<TagDto> TAG_DTO_LIST;
 
     @BeforeEach
     void setUp() {
@@ -49,6 +59,12 @@ class GiftCertificateServiceImplTest {
                 Tag.builder().id(1L).name("tag1").build(),
                 Tag.builder().id(2L).name("tag2").build(),
                 Tag.builder().id(3L).name("tag3").build()
+        );
+
+        TAG_DTO_LIST = Arrays.asList(
+                TagDto.builder().id(1L).name("tag1").build(),
+                TagDto.builder().id(2L).name("tag2").build(),
+                TagDto.builder().id(3L).name("tag3").build()
         );
 
         GIFT_CERTIFICATE_1 = GiftCertificate.builder()
@@ -65,13 +81,29 @@ class GiftCertificateServiceImplTest {
                 .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
                 .tags(TAG_LIST)
                 .build();
+
+        GIFT_CERTIFICATE_DTO_1 = GiftCertificateDto.builder()
+                .id(1L).name("GiftCertificate1").description("Description")
+                .price(new BigDecimal("500.00")).duration(60L)
+                .createDate(LocalDateTime.parse("2022-12-15T11:43:33"))
+                .lastUpdateDate((LocalDateTime.parse("2022-12-15T11:43:33")))
+                .tags(TAG_DTO_LIST)
+                .build();
+        GIFT_CERTIFICATE_DTO_2 = GiftCertificateDto.builder()
+                .id(2L).name("GiftCertificate2").description("Description")
+                .price(new BigDecimal("200.00")).duration(1L)
+                .createDate(LocalDateTime.parse("2023-01-25T13:56:30"))
+                .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
+                .tags(TAG_DTO_LIST)
+                .build();
     }
 
     @Test
     void testFindById_ShouldReturnGiftCertificate() {
         when(giftCertificateDao.findById(any())).thenReturn(Optional.ofNullable(GIFT_CERTIFICATE_1));
-        GiftCertificate certificateById = service.getById(GIFT_CERTIFICATE_1.getId());
-        assertEquals(GIFT_CERTIFICATE_1, certificateById);
+        when(giftCertificateConverter.toDto(any())).thenReturn(GIFT_CERTIFICATE_DTO_1);
+        GiftCertificateDto certificateById = service.getById(GIFT_CERTIFICATE_1.getId());
+        assertEquals(GIFT_CERTIFICATE_DTO_1, certificateById);
     }
 
     @Test
@@ -104,10 +136,18 @@ class GiftCertificateServiceImplTest {
     class WhenSaving {
 
         @Mock
+        private GiftCertificateDto GIFT_CERTIFICATE_DTO_TO_SAVE;
+
+        @Mock
         private GiftCertificate GIFT_CERTIFICATE_TO_SAVE;
 
         @BeforeEach
         void setup() {
+            GIFT_CERTIFICATE_DTO_TO_SAVE = GiftCertificateDto.builder()
+                    .name("GiftCertificate1").description("Description")
+                    .price(new BigDecimal("500.00")).duration(60L)
+                    .tags(Arrays.asList(TagDto.builder().name("tag1").build(), TagDto.builder().name("tag2").build(), TagDto.builder().name("tag3").build()))
+                    .build();
             GIFT_CERTIFICATE_TO_SAVE = GiftCertificate.builder()
                     .name("GiftCertificate1").description("Description")
                     .price(new BigDecimal("500.00")).duration(60L)
@@ -118,15 +158,17 @@ class GiftCertificateServiceImplTest {
         @Test
         void testSave_ShouldSave() {
             when(giftCertificateDao.findGiftCertificateByName(anyString())).thenReturn(Optional.empty());
+            when(giftCertificateConverter.toEntity(any())).thenReturn(GIFT_CERTIFICATE_TO_SAVE);
             when(giftCertificateDao.save(any())).thenReturn(GIFT_CERTIFICATE_1);
-            GiftCertificate actual = service.save(GIFT_CERTIFICATE_TO_SAVE);
-            assertEquals(GIFT_CERTIFICATE_1, actual);
+            when(giftCertificateConverter.toDto(any())).thenReturn(GIFT_CERTIFICATE_DTO_1);
+            GiftCertificateDto actual = service.save(GIFT_CERTIFICATE_DTO_TO_SAVE);
+            assertEquals(GIFT_CERTIFICATE_DTO_1, actual);
         }
 
         @Test
         void testSave_ShouldThrowException() {
             when(giftCertificateDao.findGiftCertificateByName(anyString())).thenReturn(Optional.of(GIFT_CERTIFICATE_2));
-            assertThrows(PersistentException.class, () -> service.save(GIFT_CERTIFICATE_TO_SAVE));
+            assertThrows(PersistentException.class, () -> service.save(GIFT_CERTIFICATE_DTO_TO_SAVE));
         }
     }
 
@@ -135,9 +177,13 @@ class GiftCertificateServiceImplTest {
 
         private GiftCertificate BEFORE_UPDATE;
 
-        private GiftCertificate UPDATABLE_DATA;
+        private GiftCertificateDto BEFORE_UPDATE_DTO;
+
+        private GiftCertificateDto UPDATABLE_DATA;
 
         private GiftCertificate AFTER_UPDATE;
+
+        private GiftCertificateDto AFTER_UPDATE_DTO;
 
         @BeforeEach
         void setup() {
@@ -148,9 +194,16 @@ class GiftCertificateServiceImplTest {
                     .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
                     .tags(TAG_LIST)
                     .build();
-            UPDATABLE_DATA = GiftCertificate.builder()
+            BEFORE_UPDATE_DTO = GiftCertificateDto.builder()
+                    .id(2L).name("GiftCertificate2").description("Description")
+                    .price(new BigDecimal("200.00")).duration(1L)
+                    .createDate(LocalDateTime.parse("2023-01-25T13:56:30"))
+                    .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
+                    .tags(TAG_DTO_LIST)
+                    .build();
+            UPDATABLE_DATA = GiftCertificateDto.builder()
                     .id(2L).name("updateName")
-                    .tags(Collections.singletonList(Tag.builder().id(1L).name("tag1").build()))
+                    .tags(Collections.singletonList(TagDto.builder().id(1L).name("tag1").build()))
                     .build();
             AFTER_UPDATE = GiftCertificate.builder()
                     .id(2L).name("updateName").description("Description")
@@ -159,21 +212,30 @@ class GiftCertificateServiceImplTest {
                     .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
                     .tags(Collections.singletonList(Tag.builder().id(1L).name("tag1").build()))
                     .build();
+            AFTER_UPDATE_DTO = GiftCertificateDto.builder()
+                    .id(2L).name("updateName").description("Description")
+                    .price(new BigDecimal("200.00")).duration(1L)
+                    .createDate(LocalDateTime.parse("2023-01-25T13:56:30"))
+                    .lastUpdateDate((LocalDateTime.parse("2023-01-25T13:56:30")))
+                    .tags(Collections.singletonList(TagDto.builder().id(1L).name("tag1").build()))
+                    .build();
         }
 
         @Test
         void testUpdate() {
             when(giftCertificateDao.findById(any())).thenReturn(Optional.of(BEFORE_UPDATE));
             when(giftCertificateDao.save(any())).thenReturn(AFTER_UPDATE);
-            GiftCertificate updatedCertificate = service.update(BEFORE_UPDATE.getId(), UPDATABLE_DATA);
-            assertEquals(AFTER_UPDATE, updatedCertificate);
-            assertNotSame(BEFORE_UPDATE, updatedCertificate);
+            when(giftCertificateConverter.toEntity(any())).thenReturn(BEFORE_UPDATE);
+            when(giftCertificateConverter.toDto(any())).thenReturn(AFTER_UPDATE_DTO);
+            GiftCertificateDto updatedCertificate = service.update(BEFORE_UPDATE.getId(), UPDATABLE_DATA);
+            assertEquals(AFTER_UPDATE_DTO, updatedCertificate);
+            assertNotSame(BEFORE_UPDATE_DTO, updatedCertificate);
         }
 
         @Test
         void updateNotExistedEntity_thenThrowEx() {
             Long certId = GIFT_CERTIFICATE_1.getId();
-            assertThrows(PersistentException.class, () -> service.update(certId, GIFT_CERTIFICATE_1));
+            assertThrows(PersistentException.class, () -> service.update(certId, GIFT_CERTIFICATE_DTO_1));
         }
     }
 
@@ -185,12 +247,14 @@ class GiftCertificateServiceImplTest {
 
         @Test
         void testFindAllWithFilter_ShouldReturnTwoGiftCertificates() {
+            List<GiftCertificateDto> expectedDto = Arrays.asList(GIFT_CERTIFICATE_DTO_1, GIFT_CERTIFICATE_DTO_2);
             List<GiftCertificate> expected = Arrays.asList(GIFT_CERTIFICATE_1, GIFT_CERTIFICATE_2);
             int PAGE = 37;
             int SIZE = 56;
             when(giftCertificateDao.findAllWithParameters(params, PageRequest.of(PAGE - 1, SIZE))).thenReturn(new PageImpl<>(expected));
-            Page<GiftCertificate> actual = service.getAllWithFilter(PAGE, SIZE, params);
-            assertEquals(expected, actual.getContent());
+            when(giftCertificateConverter.toDto(any())).thenReturn(GIFT_CERTIFICATE_DTO_1, GIFT_CERTIFICATE_DTO_2);
+            Page<GiftCertificateDto> actual = service.getAllWithFilter(PAGE, SIZE, params);
+            assertEquals(expectedDto, actual.getContent());
         }
     }
 

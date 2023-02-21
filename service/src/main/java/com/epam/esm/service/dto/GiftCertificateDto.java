@@ -1,11 +1,8 @@
-package com.epam.esm.dto;
+package com.epam.esm.service.dto;
 
 
-import com.epam.esm.dto.group.OnPersist;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.epam.esm.service.dto.group.OnPersist;
+import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.Valid;
@@ -17,6 +14,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @EqualsAndHashCode(callSuper = true)
 public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
 

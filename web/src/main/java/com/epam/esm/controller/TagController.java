@@ -1,17 +1,16 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.assembler.TagModelAssembler;
-import com.epam.esm.dto.TagDto;
-import com.epam.esm.dto.converter.TagConverter;
-import com.epam.esm.dto.group.OnPersist;
+import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.dto.group.OnPersist;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
+import org.springframework.data.domain.Page;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,10 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * This class is an endpoint of the API which allows to perform CRD operations
@@ -37,13 +32,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class TagController {
 
     private final TagService tagService;
-    private final TagConverter tagConverter;
     private final TagModelAssembler tagModelAssembler;
 
     @Autowired
-    public TagController(TagService tagService, TagConverter tagDtoTagController, TagModelAssembler tagModelAssembler) {
+    public TagController(TagService tagService, TagModelAssembler tagModelAssembler) {
         this.tagService = tagService;
-        this.tagConverter = tagDtoTagController;
         this.tagModelAssembler = tagModelAssembler;
     }
 
@@ -52,17 +45,11 @@ public class TagController {
      * @return a {@link List} of {@link Tag} entities. Response code 200.
      */
     @GetMapping()
-    public CollectionModel<TagDto> allTags(
+    public PagedModel<TagDto> allTags(
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
-        List<TagDto> tags = tagService
-                .getAll(page, size)
-                .stream()
-                .map(tagConverter::toDto)
-                .map(tagModelAssembler::toModel)
-                .collect(Collectors.toList());
-        Link selfRel = linkTo(methodOn(this.getClass()).allTags(page, size)).withSelfRel();
-        return CollectionModel.of(tags, selfRel);
+        Page<TagDto> tagDtos = tagService.getAll(page, size);
+        return tagModelAssembler.toCollectionModel(tagDtos, page, size);
     }
 
     /**
@@ -73,8 +60,7 @@ public class TagController {
      */
     @GetMapping("/{id}")
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        Tag tagById = tagService.getById(id);
-        TagDto tagDto = tagConverter.toDto(tagById);
+        TagDto tagDto = tagService.getById(id);
         return tagModelAssembler.toModel(tagDto);
     }
 
@@ -85,8 +71,7 @@ public class TagController {
      */
     @GetMapping("/popular")
     public TagDto popularTag() throws PersistentException {
-        Tag popularTag = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
-        TagDto tagDto = tagConverter.toDto(popularTag);
+        TagDto tagDto = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
         return tagModelAssembler.toModel(tagDto);
     }
 
@@ -100,8 +85,7 @@ public class TagController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto saveTag(@RequestBody @Validated(OnPersist.class) TagDto tagDto) throws PersistentException {
-        Tag savedTag = tagService.save(tagConverter.toEntity(tagDto));
-        TagDto savedTagDto = tagConverter.toDto(savedTag);
+        TagDto savedTagDto = tagService.save(tagDto);
         return tagModelAssembler.toModel(savedTagDto);
     }
 

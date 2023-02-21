@@ -1,7 +1,7 @@
 package com.epam.esm.assembler;
 
 import com.epam.esm.controller.GiftCertificateController;
-import com.epam.esm.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.GiftCertificateDto;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

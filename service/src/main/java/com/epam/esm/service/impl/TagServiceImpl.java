@@ -3,6 +3,8 @@ package com.epam.esm.service.impl;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
+import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.dto.converter.TagConverter;
 import com.epam.esm.service.exception.ExceptionErrorCode;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,46 +18,53 @@ import java.util.Optional;
 @Service
 public class TagServiceImpl implements TagService {
 
-    private final TagRepository tagDao;
+    private final TagRepository tagRepository;
+
+    private final TagConverter tagConverter;
 
     @Autowired
-    public TagServiceImpl(TagRepository tagDao) {
-        this.tagDao = tagDao;
+    public TagServiceImpl(TagRepository tagRepository, TagConverter tagConverter) {
+        this.tagRepository = tagRepository;
+        this.tagConverter = tagConverter;
     }
 
     @Override
-    public Page<Tag> getAll(int page, int size) {
+    public Page<TagDto> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        return tagDao.findAll(pageable);
+        Page<Tag> tags = tagRepository.findAll(pageable);
+        return tags.map(tagConverter::toDto);
     }
 
     @Override
-    public Tag getById(Long id) throws PersistentException {
-        return tagDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
+    public TagDto getById(Long id) throws PersistentException {
+        Tag tag = tagRepository.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
+        return tagConverter.toDto(tag);
     }
 
     @Override
-    public Tag save(Tag tag) throws PersistentException {
-        Optional<Tag> optionalTag = tagDao.findTagByName(tag.getName());
+    public TagDto save(TagDto tagDto) throws PersistentException {
+        Optional<Tag> optionalTag = tagRepository.findTagByName(tagDto.getName());
         if (optionalTag.isPresent())
-            throw new PersistentException(ExceptionErrorCode.DUPLICATED_TAG, tag.getName());
-        return tagDao.save(tag);
+            throw new PersistentException(ExceptionErrorCode.DUPLICATED_TAG, tagDto.getName());
+        Tag save = tagRepository.save(tagConverter.toEntity(tagDto));
+        return tagConverter.toDto(save);
     }
 
     @Override
     public void delete(Long id) throws PersistentException {
-        Optional<Tag> tagOptional = tagDao.findById(id);
+        Optional<Tag> tagOptional = tagRepository.findById(id);
         if (tagOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
-        tagDao.delete(tagOptional.get());
+        tagRepository.delete(tagOptional.get());
     }
 
     @Override
-    public Tag getMostWidelyUsedTagWithHighestCostOfAllOrders() {
-        return tagDao
+    public TagDto getMostWidelyUsedTagWithHighestCostOfAllOrders() {
+        Tag tag = tagRepository
                 .findMostWidelyUsedTagWithHighestCostOfAllOrders()
                 .orElseThrow(
                         () -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, "id")
                 );
+        return tagConverter.toDto(tag);
     }
 }

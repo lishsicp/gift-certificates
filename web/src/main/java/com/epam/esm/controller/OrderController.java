@@ -1,27 +1,23 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.assembler.OrderAssembler;
-import com.epam.esm.dto.MakeOrderDto;
-import com.epam.esm.dto.OrderDto;
-import com.epam.esm.dto.converter.OrderConverter;
+import com.epam.esm.service.dto.MakeOrderDto;
+import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
+import org.springframework.data.domain.Page;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Min;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * This class is an endpoint of the API which allows to perform CREATE and READ operations
@@ -36,15 +32,12 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    private final OrderConverter orderConverter;
-
     private final OrderAssembler orderAssembler;
 
 
     @Autowired
-    public OrderController(OrderService orderService, OrderConverter orderConverter, OrderAssembler orderAssembler) {
+    public OrderController(OrderService orderService, OrderAssembler orderAssembler) {
         this.orderService = orderService;
-        this.orderConverter = orderConverter;
         this.orderAssembler = orderAssembler;
     }
 
@@ -57,8 +50,7 @@ public class OrderController {
     @GetMapping("/{id}")
     public OrderDto orderById(
             @PathVariable @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        Order order = orderService.getById(id);
-        OrderDto orderDto = orderConverter.toDto(order);
+        OrderDto orderDto = orderService.getById(id);
         return orderAssembler.toModel(orderDto);
     }
 
@@ -70,17 +62,12 @@ public class OrderController {
      * @return a {@link List} of found {@link GiftCertificate} entities with specified parameters.
      */
     @GetMapping("/users/{id}")
-    public CollectionModel<OrderDto> ordersByUserId(
+    public PagedModel<OrderDto> ordersByUserId(
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
             @PathVariable @Min(value = 1, message = "40001") Long id) throws PersistentException {
-        List<OrderDto> orders = orderService
-                .getOrdersByUserId(id, page, size)
-                .stream().map(orderConverter::toDto)
-                .map(orderAssembler::toModel)
-                .collect(Collectors.toList());
-        Link selfRel = linkTo(methodOn(this.getClass()).ordersByUserId(page, size, id)).withSelfRel();
-        return CollectionModel.of(orders, selfRel);
+        Page<OrderDto> orderDtos = orderService.getOrdersByUserId(id, page, size);
+        return orderAssembler.toCollectionModel(orderDtos, page, size, id);
     }
 
     /**
@@ -93,8 +80,7 @@ public class OrderController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDto makeOrder(@RequestBody MakeOrderDto orderDto) throws PersistentException {
-        Order savedOrder = orderService.save(orderConverter.toEntity(orderDto));
-        OrderDto savedOrderDto = orderConverter.toDto(savedOrder);
+        OrderDto savedOrderDto = orderService.save(orderDto);
         return orderAssembler.toModel(savedOrderDto);
     }
 }

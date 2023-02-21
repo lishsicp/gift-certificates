@@ -1,10 +1,10 @@
 package com.epam.esm.service;
 
-import com.epam.esm.entity.Order;
+import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.exception.PersistentException;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
 
-public interface OrderService extends CRDService<Order> {
-    List<Order> getOrdersByUserId(Long id, int page, int size) throws PersistentException;
+public interface OrderService extends CRDService<OrderDto> {
+    Page<OrderDto> getOrdersByUserId(Long id, int page, int size) throws PersistentException;
 }

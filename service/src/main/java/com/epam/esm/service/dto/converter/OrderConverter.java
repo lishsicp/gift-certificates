@@ -1,7 +1,7 @@
-package com.epam.esm.dto.converter;
+package com.epam.esm.service.dto.converter;
 
-import com.epam.esm.dto.MakeOrderDto;
-import com.epam.esm.dto.OrderDto;
+import com.epam.esm.service.dto.MakeOrderDto;
+import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;

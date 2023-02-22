@@ -19,15 +19,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
     @Mock
-    private static UserRepository userDao;
+    private static UserRepository repository;
 
     @Mock
     private static UserConverter userConverter;
@@ -55,28 +57,43 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetAll_ShouldReturnTwoUsers() {
+    void getAll_shouldReturnTwoUsers() {
+        // Given
         int PAGE = 1;
         int SIZE = 5;
-        when(userDao.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(expectedUserList));
-        when(userConverter.toDto(any())).thenReturn(USER_DTO_1, USER_DTO_2);
+        given(repository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(expectedUserList));
+        given(userConverter.toDto(any())).willReturn(USER_DTO_1, USER_DTO_2);
+
+        // When
         Page<UserDto> actual = service.getAll(PAGE, SIZE);
-        assertEquals(expectedUserDtoList, actual.getContent());
-        verify(userDao).findAll(any(Pageable.class));
+
+        // Then
+        assertThat(actual.getContent()).isEqualTo(expectedUserDtoList);
+        then(repository).should().findAll(any(Pageable.class));
     }
 
     @Test
-    void testFindById_ShouldThrowException() {
+    void getById_shouldThrowException_whenUserNonexistent() {
         Long userId = USER_2.getId();
-        when(userDao.findById(userId)).thenReturn(Optional.empty());
+        given(repository.findById(userId)).willReturn(Optional.empty());
+
+        // Then
         assertThrows(PersistentException.class, () -> service.getById(userId));
+        then(repository).should().findById(userId);
     }
 
     @Test
-    void testFindById_ShouldReturnUser() {
-        when(userDao.findById(any())).thenReturn(Optional.ofNullable(USER_1));
-        when(userConverter.toDto(any())).thenReturn(USER_DTO_1);
-        UserDto userById = service.getById(anyLong());
-        assertEquals(USER_DTO_1, userById);
+    void getById_shouldReturnUser() {
+        // Given
+        Long userId = USER_1.getId();
+        given(repository.findById(userId)).willReturn(Optional.ofNullable(USER_1));
+        given(userConverter.toDto(any())).willReturn(USER_DTO_1);
+
+        // When
+        UserDto userById = service.getById(userId);
+
+        // Then
+        assertThat(userById).isEqualTo(USER_DTO_1);
+        then(repository).should().findById(userId);
     }
 }

@@ -22,21 +22,31 @@ import org.springframework.util.MultiValueMap;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class GiftCertificateServiceImplTest {
 
     @Mock
-    private GiftCertificateRepository giftCertificateDao;
+    private GiftCertificateRepository certificateRepository;
     @Mock
-    private TagRepository tagDao;
+    private TagRepository tagRepository;
     @Mock
     private GiftCertificateConverter giftCertificateConverter;
 
@@ -99,16 +109,19 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void testFindById_ShouldReturnGiftCertificate() {
-        when(giftCertificateDao.findById(any())).thenReturn(Optional.ofNullable(GIFT_CERTIFICATE_1));
-        when(giftCertificateConverter.toDto(any())).thenReturn(GIFT_CERTIFICATE_DTO_1);
+    void getById_shouldReturnGiftCertificate() {
+        given(certificateRepository.findById(any())).willReturn(Optional.ofNullable(GIFT_CERTIFICATE_1));
+        given(giftCertificateConverter.toDto(any())).willReturn(GIFT_CERTIFICATE_DTO_1);
+
         GiftCertificateDto certificateById = service.getById(GIFT_CERTIFICATE_1.getId());
+
         assertEquals(GIFT_CERTIFICATE_DTO_1, certificateById);
     }
 
     @Test
-    void testFindById_ShouldThrowException() {
+    void getById_shouldThrowException() {
         Long certId = GIFT_CERTIFICATE_1.getId();
+
         assertThrows(PersistentException.class, () -> service.getById(certId));
     }
 
@@ -119,15 +132,17 @@ class GiftCertificateServiceImplTest {
         private GiftCertificate giftCertificate;
 
         @Test
-        void testDelete_ShouldInvokeGiftCertificateDaoDelete() {
-            when(giftCertificateDao.findById(anyLong())).thenReturn(Optional.of(giftCertificate));
-            doNothing().when(giftCertificateDao).delete(any());
+        void delete_shouldInvokeDelete() {
+            given(certificateRepository.findById(anyLong())).willReturn(Optional.of(giftCertificate));
+            willDoNothing().given(certificateRepository).delete(any());
+
             service.delete(1L);
-            verify(giftCertificateDao, times(1)).delete(any());
+
+            then(certificateRepository).should(times(1)).delete(any());
         }
 
         @Test
-        void testDelete_ShouldThrowException() {
+        void delete_shouldThrowException_whenNonexistentId() {
             assertThrows(PersistentException.class, () -> service.delete(1L));
         }
     }
@@ -156,18 +171,21 @@ class GiftCertificateServiceImplTest {
         }
 
         @Test
-        void testSave_ShouldSave() {
-            when(giftCertificateDao.findGiftCertificateByName(anyString())).thenReturn(Optional.empty());
-            when(giftCertificateConverter.toEntity(any())).thenReturn(GIFT_CERTIFICATE_TO_SAVE);
-            when(giftCertificateDao.save(any())).thenReturn(GIFT_CERTIFICATE_1);
-            when(giftCertificateConverter.toDto(any())).thenReturn(GIFT_CERTIFICATE_DTO_1);
+        void save_shouldReturnCertificate() {
+            given(certificateRepository.findGiftCertificateByName(anyString())).willReturn(Optional.empty());
+            given(giftCertificateConverter.toEntity(any())).willReturn(GIFT_CERTIFICATE_TO_SAVE);
+            given(certificateRepository.save(any())).willReturn(GIFT_CERTIFICATE_1);
+            given(giftCertificateConverter.toDto(any())).willReturn(GIFT_CERTIFICATE_DTO_1);
+
             GiftCertificateDto actual = service.save(GIFT_CERTIFICATE_DTO_TO_SAVE);
+
             assertEquals(GIFT_CERTIFICATE_DTO_1, actual);
         }
 
         @Test
-        void testSave_ShouldThrowException() {
-            when(giftCertificateDao.findGiftCertificateByName(anyString())).thenReturn(Optional.of(GIFT_CERTIFICATE_2));
+        void save_shouldThrowException_whenCertificateWithNameExists() {
+            given(certificateRepository.findGiftCertificateByName(anyString())).willReturn(Optional.of(GIFT_CERTIFICATE_2));
+
             assertThrows(PersistentException.class, () -> service.save(GIFT_CERTIFICATE_DTO_TO_SAVE));
         }
     }
@@ -222,19 +240,22 @@ class GiftCertificateServiceImplTest {
         }
 
         @Test
-        void testUpdate() {
-            when(giftCertificateDao.findById(any())).thenReturn(Optional.of(BEFORE_UPDATE));
-            when(giftCertificateDao.save(any())).thenReturn(AFTER_UPDATE);
-            when(giftCertificateConverter.toEntity(any())).thenReturn(BEFORE_UPDATE);
-            when(giftCertificateConverter.toDto(any())).thenReturn(AFTER_UPDATE_DTO);
+        void update_shouldUpdate() {
+            given(certificateRepository.findById(any())).willReturn(Optional.of(BEFORE_UPDATE));
+            given(certificateRepository.save(any())).willReturn(AFTER_UPDATE);
+            given(giftCertificateConverter.toEntity(any())).willReturn(BEFORE_UPDATE);
+            given(giftCertificateConverter.toDto(any())).willReturn(AFTER_UPDATE_DTO);
+
             GiftCertificateDto updatedCertificate = service.update(BEFORE_UPDATE.getId(), UPDATABLE_DATA);
+
             assertEquals(AFTER_UPDATE_DTO, updatedCertificate);
             assertNotSame(BEFORE_UPDATE_DTO, updatedCertificate);
         }
 
         @Test
-        void updateNotExistedEntity_thenThrowEx() {
+        void update_shouldThrowException_whenNotExistedEntity() {
             Long certId = GIFT_CERTIFICATE_1.getId();
+
             assertThrows(PersistentException.class, () -> service.update(certId, GIFT_CERTIFICATE_DTO_1));
         }
     }
@@ -246,14 +267,18 @@ class GiftCertificateServiceImplTest {
         private MultiValueMap<String, String> params;
 
         @Test
-        void testFindAllWithFilter_ShouldReturnTwoGiftCertificates() {
+        void getAllWithFilter_shouldReturnTwoGiftCertificates() {
             List<GiftCertificateDto> expectedDto = Arrays.asList(GIFT_CERTIFICATE_DTO_1, GIFT_CERTIFICATE_DTO_2);
             List<GiftCertificate> expected = Arrays.asList(GIFT_CERTIFICATE_1, GIFT_CERTIFICATE_2);
             int PAGE = 37;
             int SIZE = 56;
-            when(giftCertificateDao.findAllWithParameters(params, PageRequest.of(PAGE - 1, SIZE))).thenReturn(new PageImpl<>(expected));
-            when(giftCertificateConverter.toDto(any())).thenReturn(GIFT_CERTIFICATE_DTO_1, GIFT_CERTIFICATE_DTO_2);
+            given(certificateRepository.findAllWithParameters(params, PageRequest.of(PAGE - 1, SIZE)))
+                    .willReturn(new PageImpl<>(expected));
+            given(giftCertificateConverter.toDto(any()))
+                    .willReturn(GIFT_CERTIFICATE_DTO_1, GIFT_CERTIFICATE_DTO_2);
+
             Page<GiftCertificateDto> actual = service.getAllWithFilter(PAGE, SIZE, params);
+
             assertEquals(expectedDto, actual.getContent());
         }
     }
@@ -275,12 +300,14 @@ class GiftCertificateServiceImplTest {
         }
 
         @Test
-        void testUpdateTagList() {
-            when(tagDao.findTagByName(TAG_TO_UPDATE_1.getName())).thenReturn(Optional.of(TAG_TO_UPDATE_1));
-            when(tagDao.findTagByName(TAG_TO_UPDATE_2.getName())).thenReturn(Optional.of(TAG_TO_UPDATE_2));
-            when(tagDao.findTagByName(TAG_TO_UPDATE_NEW.getName())).thenReturn(Optional.empty());
+        void updateTagList_shouldReturnTagsWithIds() {
+            given(tagRepository.findTagByName(TAG_TO_UPDATE_1.getName())).willReturn(Optional.of(TAG_TO_UPDATE_1));
+            given(tagRepository.findTagByName(TAG_TO_UPDATE_2.getName())).willReturn(Optional.of(TAG_TO_UPDATE_2));
+            given(tagRepository.findTagByName(TAG_TO_UPDATE_NEW.getName())).willReturn(Optional.empty());
+
             List<Tag> actual = service.updateTagList(LIST);
             List<Tag> empty = service.updateTagList(new ArrayList<>());
+
             assertTrue(empty.size() <= 0);
             assertEquals(LIST, actual);
         }

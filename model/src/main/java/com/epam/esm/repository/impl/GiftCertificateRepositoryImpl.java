@@ -13,7 +13,6 @@ import org.springframework.util.MultiValueMap;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class GiftCertificateRepositoryImpl implements CustomGiftCertificateRepos
 
     @Override
     public Page<GiftCertificate> findAllWithParameters(MultiValueMap<String, String> params, Pageable pageable) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        var criteriaBuilder = entityManager.getCriteriaBuilder();
         GiftCertificateQueryBuilder queryBuilder = new GiftCertificateQueryBuilder(criteriaBuilder);
         CriteriaQuery<GiftCertificate> criteriaQuery = queryBuilder.buildQuery(params);
         TypedQuery<GiftCertificate> query = entityManager.createQuery(criteriaQuery);

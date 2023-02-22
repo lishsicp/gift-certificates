@@ -6,7 +6,10 @@ import com.epam.esm.repository.querybuilder.criteria.order.impl.DescOrder;
 import com.epam.esm.repository.querybuilder.criteria.predicate.PredicateBuilder;
 import com.epam.esm.repository.querybuilder.criteria.predicate.impl.LikePredicate;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.stream.Collectors;

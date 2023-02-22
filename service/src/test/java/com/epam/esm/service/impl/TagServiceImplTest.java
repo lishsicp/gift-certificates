@@ -18,18 +18,24 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class TagServiceImplTest {
 
     @Mock
-    private static TagRepository repository;
+    private TagRepository repository;
 
     @Mock
-    private static TagConverter tagConverter;
+    private TagConverter tagConverter;
 
     @InjectMocks
     private TagServiceImpl tagService;
@@ -44,39 +50,50 @@ class TagServiceImplTest {
     }
 
     @Test
-    void testFindAll_ShouldInvokeTagDaoFindAll() {
+    void getAll_shouldInvokeFindAll() {
+        // given
         int PAGE = 1;
         int SIZE = 5;
-        when(tagConverter.toDto(any())).thenReturn(tagDto);
-        when(repository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(tag)));
+        given(tagConverter.toDto(any())).willReturn(tagDto);
+        given(repository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(List.of(tag)));
+
         tagService.getAll(PAGE, SIZE);
-        verify(repository).findAll(any(Pageable.class));
+
+        then(repository).should().findAll(any(Pageable.class));
     }
 
     @Test
-    void testFindById_ShouldReturnTag() {
-        when(repository.findById(any())).thenReturn(Optional.ofNullable(tag));
-        when(tagConverter.toDto(any())).thenReturn(tagDto);
+    void getById_shouldReturnTag() {
+        given(repository.findById(any())).willReturn(Optional.ofNullable(tag));
+        given(tagConverter.toDto(any())).willReturn(tagDto);
+
         TagDto tagById = tagService.getById(1L);
+
         assertTrue(tagById.getId() > 0);
         assertEquals("tagTestName", tagById.getName());
     }
 
     @Test
-    void testFindById_ShouldThrowException() {
+    void getById_shouldThrowException_whenNonexistentId() {
+        given(repository.findById(any())).willReturn(Optional.empty());
+
         assertThrows(PersistentException.class, () -> tagService.getById(1L));
     }
 
     @Test
-    void testDelete_ShouldInvokeTagDaoDelete() {
-        when(repository.findById(1L)).thenReturn(Optional.ofNullable(tag));
-        doNothing().when(repository).delete(any());
+    void delete_shouldInvokeTagDaoDelete() {
+        given(repository.findById(1L)).willReturn(Optional.ofNullable(tag));
+        willDoNothing().given(repository).delete(any());
+
         tagService.delete(1L);
-        verify(repository, times(1)).delete(any());
+
+        then(repository).should(times(1)).delete(any());
     }
 
     @Test
-    void testDelete_ShouldThrowException() {
+    void delete_shouldThrowException_whenNonexistentId() {
+        given(repository.findById(any())).willReturn(Optional.empty());
+
         assertThrows(PersistentException.class, () -> tagService.delete(1L));
     }
 
@@ -84,19 +101,22 @@ class TagServiceImplTest {
     class WhenSaving {
 
         @Test
-        void testSave_ShouldInvokeTagDaoSave() {
-            when(repository.findTagByName(anyString())).thenReturn(Optional.empty());
-            when(repository.save(any())).thenReturn(tag);
-            when(tagConverter.toEntity(any())).thenReturn(tag);
-            when(tagConverter.toDto(any())).thenReturn(tagDto);
+        void save_shouldInvokeTagDaoSave() {
+            given(repository.findTagByName(anyString())).willReturn(Optional.empty());
+            given(repository.save(any())).willReturn(tag);
+            given(tagConverter.toEntity(any())).willReturn(tag);
+            given(tagConverter.toDto(any())).willReturn(tagDto);
+
             TagDto savedTag = tagService.save(tagDto);
+
             assertEquals(tagDto, savedTag);
-            verify(repository, times(1)).save(tag);
+            then(repository).should(times(1)).save(tag);
         }
 
         @Test
-        void testSave_ShouldThrowException() {
-            when(repository.findTagByName(anyString())).thenReturn(Optional.of(tag));
+        void save_shouldThrowException_whenNameAlreadyExist() {
+            given(repository.findTagByName(anyString())).willReturn(Optional.of(tag));
+
             assertThrows(PersistentException.class, () -> tagService.save(tagDto));
         }
     }
@@ -105,17 +125,20 @@ class TagServiceImplTest {
     class WhenGettingMostWidelyUsedTagWithHighestCostOfAllOrders {
 
         @Test
-        void testGetMostWidelyUsedTagWithHighestCostOfAllOrders_ShouldReturnTag() {
-            when(repository.findMostWidelyUsedTagWithHighestCostOfAllOrders()).thenReturn(Optional.of(tag));
-            when(tagConverter.toDto(any())).thenReturn(tagDto);
+        void getMostWidelyUsedTagWithHighestCostOfAllOrders_shouldReturnTag() {
+            given(repository.findMostWidelyUsedTagWithHighestCostOfAllOrders()).willReturn(Optional.of(tag));
+            given(tagConverter.toDto(any())).willReturn(tagDto);
+
             TagDto popularTag = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
+
             assertTrue(popularTag.getId() > 0);
             assertEquals("tagTestName", popularTag.getName());
         }
 
         @Test
-        void testGetMostWidelyUsedTagWithHighestCostOfAllOrders_ShouldThrowException() {
-            when(repository.findMostWidelyUsedTagWithHighestCostOfAllOrders()).thenReturn(Optional.empty());
+        void getMostWidelyUsedTagWithHighestCostOfAllOrders_shouldThrowException_whenOptionalEmpty() {
+            given(repository.findMostWidelyUsedTagWithHighestCostOfAllOrders()).willReturn(Optional.empty());
+
             assertThrows(PersistentException.class, () -> tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders());
         }
 

@@ -25,10 +25,15 @@ import org.springframework.data.domain.PageImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -66,16 +71,19 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void testFindById_ShouldReturnOrder() {
-        when(orderRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order));
-        when(orderConverter.toDto(any())).thenReturn(orderDto);
+    void findById_shouldReturnOrder() {
+        given(orderRepository.findById(anyLong())).willReturn(Optional.ofNullable(order));
+        given(orderConverter.toDto(any())).willReturn(orderDto);
+
         OrderDto actual = service.getById(anyLong());
+
         assertEquals(orderDto, actual);
     }
 
     @Test
-    void testFindById_ShouldThrowException() {
+    void findById_shouldThrowException_whenNonExistentId() {
         Long userId = order.getId();
+
         assertThrows(PersistentException.class, () -> service.getById(userId));
     }
 
@@ -83,23 +91,25 @@ class OrderServiceImplTest {
     class WhenSaving {
 
         @Test
-        void testSave_ShouldThrowExceptionIfCertificateIsEmpty() {
+        void save_shouldThrowException_whenCertificateIsEmpty() {
             assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
         @Test
-        void testSave_ShouldThrowExceptionIfUserIsEmpty() {
+        void save_shouldThrowException_whenUserIsEmpty() {
             assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
         @Test
-        void testSave_ShouldSave() {
-            when(certificateRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order.getGiftCertificate()));
-            when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order.getUser()));
-            when(orderConverter.toEntity(any())).thenReturn(order);
-            when(orderRepository.save(order)).thenReturn(order);
-            when(orderConverter.toDto(any())).thenReturn(orderDto);
+        void save_shouldSave() {
+            given(certificateRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getGiftCertificate()));
+            given(userRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getUser()));
+            given(orderConverter.toEntity(any())).willReturn(order);
+            given(orderRepository.save(order)).willReturn(order);
+            given(orderConverter.toDto(any())).willReturn(orderDto);
+
             OrderDto actual = service.save(orderDto);
+
             assertEquals(orderDto, actual);
         }
     }
@@ -110,17 +120,20 @@ class OrderServiceImplTest {
         private final int SIZE = 65;
 
         @Test
-        void testGetOrdersByUserId_ShouldReturnOrderList() {
-            when(userRepository.findById(anyLong())).thenReturn(Optional.ofNullable(order.getUser()));
-            when(orderRepository.findOrdersByUserId(anyLong(), any())).thenReturn(new PageImpl<>(Collections.singletonList(order)));
-            when(orderConverter.toDto(any())).thenReturn(orderDto);
+        void getOrdersByUserId_shouldReturnOrderList() {
+            given(userRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getUser()));
+            given(orderRepository.findOrdersByUserId(anyLong(), any())).willReturn(new PageImpl<>(Collections.singletonList(order)));
+            given(orderConverter.toDto(any())).willReturn(orderDto);
+
             Page<OrderDto> actual = service.getOrdersByUserId(anyLong(), PAGE, SIZE);
+
             assertEquals(Collections.singletonList(orderDto), actual.getContent());
         }
 
         @Test
-        void testGetOrdersByUserId_ShouldThrowException() {
+        void getOrdersByUserId_shouldThrowException() {
             Long id = order.getId();
+
             assertThrows(PersistentException.class, () -> service.getOrdersByUserId(id, PAGE, SIZE));
         }
 

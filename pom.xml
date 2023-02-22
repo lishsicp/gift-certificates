@@ -18,10 +18,10 @@
 	</parent>
 
 	<groupId>com.epam.esm</groupId>
-	<artifactId>gift-certificates-spring-boot</artifactId>
+	<artifactId>gift-certificates</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>gift-certificates-spring-boot</name>
+	<name>gift-certificates</name>
 	<description>Gift Certificates Spring Boot migration</description>
 
 	<properties>
@@ -29,6 +29,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
+		<project.version>0.0.1-SNAPSHOT</project.version>
+		<lombok.version>1.18.24</lombok.version>
+		<commons-lang3.version>3.12.0</commons-lang3.version>
+		<spring.version>2.7.7</spring.version>
 	</properties>
 
 	<dependencies>
@@ -42,12 +46,12 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
-			<version>1.18.24</version>
+			<version>${lombok.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.12.0</version>
+			<version>${commons-lang3.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -70,8 +74,8 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.7.7</version>
 				<configuration>
+					<skip>true</skip>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -82,8 +86,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
-
 
 </project>

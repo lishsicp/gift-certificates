@@ -20,7 +20,7 @@ import javax.validation.constraints.Pattern;
 public class TagDto extends RepresentationModel<TagDto> {
 
     @Min(value = 1, message = "40001")
-    private Long id;
+    private long id;
 
     @Pattern(regexp = "[\\w\\s]{3,64}+", message = "40002")
     @NotEmpty(groups = OnPersist.class)

@@ -36,7 +36,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public TagDto getById(Long id) throws PersistentException {
+    public TagDto getById(long id) throws PersistentException {
         Tag tag = tagRepository.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
         return tagConverter.toDto(tag);
     }
@@ -51,7 +51,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void delete(Long id) throws PersistentException {
+    public void delete(long id) throws PersistentException {
         Optional<Tag> tagOptional = tagRepository.findById(id);
         if (tagOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);

@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles exceptions from controller.
@@ -37,26 +38,29 @@ public class ExceptionControllerAdvice {
      */
     @ExceptionHandler(PersistentException.class)
     ResponseEntity<ErrorBody> handlePersistentException(PersistentException ex) {
+        ErrorBody errorBody = getErrorBody(ex);
+        return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
+    }
+
+    private ErrorBody getErrorBody(PersistentException ex) {
         String errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(ex.getErrorCode()));
         if (ex.getParameter() != null) errorMessage = String.format(errorMessage, ex.getParameter());
-        ErrorBody errorBody = new ErrorBody(errorMessage, ex.getErrorCode());
-        return ResponseEntity.status(HttpStatus.valueOf(errorBody.getErrorCode() / 100)).body(errorBody);
+        return new ErrorBody(errorMessage, ex.getErrorCode());
     }
 
     /**
      * Handles exception from {@link javax.validation.Valid} annotation
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        List<ErrorBody> errors = new LinkedList<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
+    ResponseEntity<List<ErrorBody>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<ErrorBody> errors = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> {
                     String field = Arrays.stream(((FieldError) error).getField().split("\\.")).reduce((first, second) -> second).orElse("Field");
                     String errorMessage = error.getDefaultMessage();
                     Object value = ((FieldError) error).getRejectedValue();
-                    ErrorBody errorBody = errorBodyValidationMessageSetter(errorMessage, field, value);
-                    errors.add(errorBody);
-                }
-        );
+                    return errorBodyValidationMessageSetter(errorMessage, field, value);
+                })
+                .collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
@@ -65,15 +69,15 @@ public class ExceptionControllerAdvice {
      */
     @ExceptionHandler
     public ResponseEntity<List<ErrorBody>> handleConstraintViolationException(ConstraintViolationException ex) {
-        List<ErrorBody> errors = new LinkedList<>();
+        List<ErrorBody> errors = new ArrayList<>();
         ex.getConstraintViolations()
                 .forEach(e -> {
-                    String errorMessage = e.getMessage();
                     String field = e.getPropertyPath().iterator().next().getName();
                     String invalidValue = "";
                     for (Object o : e.getPropertyPath()) {
                         invalidValue = o.toString();
                     }
+                    String errorMessage = e.getMessage();
                     ErrorBody errorBody = errorBodyValidationMessageSetter(errorMessage, field, invalidValue);
                     errors.add(errorBody);
                 });
@@ -88,7 +92,7 @@ public class ExceptionControllerAdvice {
             errorMessage = ExceptionMessageI18n.toLocale(String.valueOf(errorCode));
             errorBody.setErrorMessage(String.format(errorMessage, invalidValue));
         } else {
-            errorBody.setErrorMessage(String.format("%s - %s", errorField, errorMessage));
+            errorBody.setErrorMessage(errorField + " - " + errorMessage);
             errorBody.setErrorCode(ExceptionErrorCode.VALIDATION_ERROR);
         }
         return errorBody;
@@ -103,7 +107,6 @@ public class ExceptionControllerAdvice {
         ErrorBody errorBody = new ErrorBody(errorMessage, HttpStatus.METHOD_NOT_ALLOWED.value());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorBody);
     }
-
     /**
      * Handles {@link MethodArgumentTypeMismatchException}
      */

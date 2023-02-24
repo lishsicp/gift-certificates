@@ -2,13 +2,9 @@ package com.epam.esm.controller;
 
 import com.epam.esm.assembler.GiftCertificateAssembler;
 import com.epam.esm.controller.constraint.FilterConstraint;
-import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
+import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.group.OnPersist;
-import com.epam.esm.service.GiftCertificateService;
-import com.epam.esm.service.exception.PersistentException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -28,13 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.List;
 
 /**
- * This class is an endpoint of the API which allows to perform CRUD operations
- * with {@link com.epam.esm.entity.GiftCertificate} entities accessed through <i>api/certificates</i>.
- * @author Lobur Yaroslav
- * @version 1.0
+ * Controller class to manage {@link GiftCertificateDto Gift Certificates}.
  */
 @RestController
 @RequestMapping("api/certificates")
@@ -45,32 +37,18 @@ public class GiftCertificateController {
 
     private final GiftCertificateAssembler giftCertificateAssembler;
 
-    @Autowired
     public GiftCertificateController(GiftCertificateService giftCertificateService, GiftCertificateAssembler giftCertificateAssembler) {
         this.giftCertificateService = giftCertificateService;
         this.giftCertificateAssembler = giftCertificateAssembler;
     }
 
     /**
-     * Allows to get certificates with tags (all params are optional and can be used in conjunction):
-     * <ul>
-     *  <li>search for gift certificates by several tags</li>
-     *  <li>search by part of name/description</li>
-     *  <li>sort by date or by name ASC/DESC</li>
-     * </ul>
+     * Method to get all {@link GiftCertificateDto Gift Certificates} with Pagination and Filtering options.
      *
-     * @param page         page number.
-     * @param size         number of showed entities on page.
-     * @param filterParams is a {@link MultiValueMap} collection that contains {@link String} as
-     *                     key and {@link String} as value.
-     *                     <pre><ul>
-     *                                                <li>name as {@link GiftCertificate} name</li>
-     *                                                             <li>description as {@link GiftCertificate} description</li>
-     *                                                             <li>tags as {@link Tag} name (multiple times)</li>
-     *                                                             <li>name_sort as {@link  String} for sorting certificates by name (asc/desc)</li>
-     *                                                             <li>date_sort as {@link  String} for sorting certificates by create date (asc/desc)</li>
-     *                                         </ul></pre>
-     * @return a {@link List} of found {@link GiftCertificate} entities with specified parameters. Response code 200.
+     * @param page number of the page
+     * @param size number of items in a page
+     * @param filterParams filter parameters to apply
+     * @return a {@link PagedModel} which contains all the {@link GiftCertificateDto Gift Certificates} with given filter options
      */
     @GetMapping()
     public PagedModel<GiftCertificateDto> findAllCertificatesWithParameters(
@@ -83,59 +61,51 @@ public class GiftCertificateController {
     }
 
     /**
-     * Gets a {@link GiftCertificate} by its <code>id</code> from database.
+     * Method to get a {@link GiftCertificateDto Gift Certificate} by its Id.
      *
-     * @param id for {@link GiftCertificate}
-     * @return requested {@link GiftCertificate} entity. Response code 200.
-     * @throws PersistentException if {@link GiftCertificate} is not found.
+     * @param id the Id of the {@link GiftCertificateDto Gift Certificate}
+     * @return the {@link GiftCertificateDto Gift Certificate}
      */
     @GetMapping("/{id}")
-    public GiftCertificateDto giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
+    public GiftCertificateDto giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         GiftCertificateDto giftCertificateDto = giftCertificateService.getById(id);
         return giftCertificateAssembler.toModel(giftCertificateDto);
     }
 
     /**
-     * Creates a new {@link GiftCertificate} entity with a
-     * {@link List} of {@link Tag} entities.
-     * If new {@link Tag} entities are passed during creation – they will be created in the database.
+     * Method to save a {@link GiftCertificateDto Gift Certificate}.
      *
-     * @param giftCertificateDto must be valid according to {@link GiftCertificateDto} entity.
-     * @return Saved {@link GiftCertificate}. Response code 201.
-     * @throws PersistentException if {@link GiftCertificate} an error occurred during saving.
+     * @param giftCertificateDto the {@link GiftCertificateDto Gift Certificate} to be saved
+     * @return saved {@link GiftCertificateDto Gift Certificate}
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public GiftCertificateDto saveGiftCertificate(@RequestBody @Validated(OnPersist.class) GiftCertificateDto giftCertificateDto) throws PersistentException {
+    public GiftCertificateDto saveGiftCertificate(@RequestBody @Validated(OnPersist.class) GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto savedCert = giftCertificateService.save(giftCertificateDto);
         return giftCertificateAssembler.toModel(savedCert);
     }
 
     /**
-     * Updates a {@link GiftCertificate} by specified <code>id</code>.
+     * Method to update a {@link GiftCertificateDto Gift Certificate}.
      *
-     * @param id                 a {@link GiftCertificate} id.
-     * @param giftCertificateDto a {@link GiftCertificateDto} that contains information for updating.
-     *                           Updates only fields, that are passed in request body.
-     * @return Updated {@link GiftCertificate}. Response code 201.
-     * @throws PersistentException if the {@link GiftCertificate} entity do not exist.
+     * @param id Id of the {@link GiftCertificateDto Gift Certificate} to be updated
+     * @param giftCertificateDto the new fields for the {@link GiftCertificateDto Gift Certificate}
+     * @return the updated {@link GiftCertificateDto Gift Certificate}
      */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public GiftCertificateDto updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody @Valid GiftCertificateDto giftCertificateDto) throws PersistentException {
+    public GiftCertificateDto updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") long id, @RequestBody @Valid GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto updated = giftCertificateService.update(id, giftCertificateDto);
         return giftCertificateAssembler.toModel(updated);
     }
 
     /**
-     * Deletes {@link com.epam.esm.entity.GiftCertificate} entity from database.
+     * Method to delete a {@link GiftCertificateDto Gift Certificate} by its Id.
      *
-     * @param id for {@link com.epam.esm.entity.GiftCertificate} to delete.
-     * @return ResponseEntity with empty body. Response code 204.
-     * @throws PersistentException if {@link com.epam.esm.entity.GiftCertificate} entity do not exist.
+     * @param id the Id of the {@link GiftCertificateDto Gift Certificate} to be deleted
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteGiftCertificate(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
+    public ResponseEntity<Object> deleteGiftCertificate(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
         giftCertificateService.delete(id);
         return ResponseEntity.noContent().build();
     }

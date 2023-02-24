@@ -48,7 +48,7 @@ class OrderControllerTest {
     @Test
     @DisplayName("GET /api/orders/{id} - Success")
     void testGetOrderById() throws Exception {
-        Long orderId = 1L;
+        long orderId = 1;
         OrderDto orderDto = OrderDto.builder()
                 .id(orderId)
                 .cost(BigDecimal.valueOf(10.0))
@@ -63,7 +63,7 @@ class OrderControllerTest {
         ResultActions resultActions = mockMvc.perform(get("/api/orders/{id}", orderId));
         resultActions
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(orderId.intValue())))
+                .andExpect(jsonPath("$.id", is((int) orderId)))
                 .andExpect(jsonPath("$.cost", is(orderDto.getCost().doubleValue())))
                 .andExpect(jsonPath("$.purchaseDate").exists())
                 .andExpect(jsonPath("$.giftCertificate").exists())
@@ -73,7 +73,7 @@ class OrderControllerTest {
     @Test
     @DisplayName("GET /api/orders/users/{id} - Success")
     void testGetOrdersByUserId() throws Exception {
-        Long userId = 1L;
+        long userId = 1;
         int page = 1;
         int size = 5;
         OrderDto orderDto = OrderDto.builder()
@@ -106,11 +106,10 @@ class OrderControllerTest {
     @Test
     @DisplayName("POST /api/orders - Success")
     void testMakeOrder() throws Exception {
-        Long orderId = 1L;
-        OrderDto makeOrderDto = MakeOrderDto.builder()
-                .giftCertificate(GiftCertificateDto.builder().id(1L).build())
-                .user(UserDto.builder().id(1L).build())
-                .build();
+        long orderId = 1;
+        MakeOrderDto makeOrderDto = new MakeOrderDto();
+        makeOrderDto.setGiftCertificateId(1);
+        makeOrderDto.setUserId(1);
         OrderDto orderDto = OrderDto.builder()
                 .id(orderId)
                 .cost(BigDecimal.TEN)

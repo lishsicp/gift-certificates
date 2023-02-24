@@ -82,7 +82,7 @@ class OrderServiceImplTest {
 
     @Test
     void findById_shouldThrowException_whenNonExistentId() {
-        Long userId = order.getId();
+        long userId = order.getId();
 
         assertThrows(PersistentException.class, () -> service.getById(userId));
     }
@@ -92,11 +92,13 @@ class OrderServiceImplTest {
 
         @Test
         void save_shouldThrowException_whenCertificateIsEmpty() {
+            given(orderConverter.toEntity(any())).willReturn(order);
             assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
         @Test
         void save_shouldThrowException_whenUserIsEmpty() {
+            given(orderConverter.toEntity(any())).willReturn(order);
             assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
@@ -132,7 +134,7 @@ class OrderServiceImplTest {
 
         @Test
         void getOrdersByUserId_shouldThrowException() {
-            Long id = order.getId();
+            long id = order.getId();
 
             assertThrows(PersistentException.class, () -> service.getOrdersByUserId(id, PAGE, SIZE));
         }

@@ -44,16 +44,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto save(OrderDto orderDto) throws PersistentException {
-        Long certificateId = orderDto.getGiftCertificate().getId();
+        Order order = orderConverter.toEntity(orderDto);
+        long certificateId = order.getGiftCertificate().getId();
         Optional<GiftCertificate> certificateOptional = giftCertificateDao.findById(certificateId);
         if (certificateOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, certificateId);
 
-        Long userId = orderDto.getUser().getId();
+        long userId = order.getUser().getId();
         Optional<User> userOptional = userDao.findById(userId);
         if (userOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, userId);
-        Order order = orderConverter.toEntity(orderDto);
         order.setUser(userOptional.get());
         order.setGiftCertificate(certificateOptional.get());
         order.setCost(certificateOptional.get().getPrice());
@@ -63,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderDto> getOrdersByUserId(Long id, int page, int size) throws PersistentException {
+    public Page<OrderDto> getOrdersByUserId(long id, int page, int size) throws PersistentException {
         Optional<User> userOptional = userDao.findById(id);
         if (userOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
@@ -78,13 +78,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto getById(Long id) throws PersistentException {
+    public OrderDto getById(long id) throws PersistentException {
         Order order = orderDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
         return orderConverter.toDto(order);
     }
 
     @Override
-    public void delete(Long id) throws PersistentException {
+    public void delete(long id) throws PersistentException {
         throw new UnsupportedOperationException();
     }
 }

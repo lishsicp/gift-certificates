@@ -27,14 +27,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final ZoneId zoneId = ZoneId.systemDefault();
 
-    private final GiftCertificateRepository giftCertificateDao;
-    private final TagRepository tagDao;
+    private final GiftCertificateRepository giftCertificateRepository;
+    private final TagRepository tagRepository;
     private final GiftCertificateConverter giftCertificateConverter;
 
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateDao, TagRepository tagDao, GiftCertificateConverter giftCertificateConverter) {
-        this.giftCertificateDao = giftCertificateDao;
-        this.tagDao = tagDao;
+    public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository, GiftCertificateConverter giftCertificateConverter) {
+        this.giftCertificateRepository = giftCertificateRepository;
+        this.tagRepository = tagRepository;
         this.giftCertificateConverter = giftCertificateConverter;
     }
 
@@ -46,13 +46,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public Page<GiftCertificateDto> getAllWithFilter(int page, int size, MultiValueMap<String, String> params) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<GiftCertificate> allWithParameters = giftCertificateDao.findAllWithParameters(params, pageable);
+        Page<GiftCertificate> allWithParameters = giftCertificateRepository.findAllWithParameters(params, pageable);
         return allWithParameters.map(giftCertificateConverter::toDto);
     }
 
     @Override
-    public GiftCertificateDto getById(Long id) throws PersistentException {
-        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateDao.findById(id);
+    public GiftCertificateDto getById(long id) throws PersistentException {
+        Optional<GiftCertificate> optionalGiftCertificate = giftCertificateRepository.findById(id);
         if (optionalGiftCertificate.isEmpty()) {
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
         }
@@ -61,7 +61,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) throws PersistentException {
-        Optional<GiftCertificate> existed = giftCertificateDao.findGiftCertificateByName(giftCertificateDto.getName());
+        Optional<GiftCertificate> existed = giftCertificateRepository.findGiftCertificateByName(giftCertificateDto.getName());
         if (existed.isPresent())
             throw new PersistentException(ExceptionErrorCode.DUPLICATED_CERTIFICATE, giftCertificateDto.getName());
         LocalDateTime localDateTime = LocalDateTime.now(zoneId);
@@ -69,21 +69,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         giftCertificate.setCreateDate(localDateTime);
         giftCertificate.setLastUpdateDate(localDateTime);
         giftCertificate.setTags(updateTagList(giftCertificate.getTags()));
-        GiftCertificate savedCertificate = giftCertificateDao.save(giftCertificate);
+        GiftCertificate savedCertificate = giftCertificateRepository.save(giftCertificate);
         return giftCertificateConverter.toDto(savedCertificate);
     }
 
     @Override
-    public void delete(Long id) throws PersistentException {
-        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(id);
+    public void delete(long id) throws PersistentException {
+        Optional<GiftCertificate> giftCertificateOptional = giftCertificateRepository.findById(id);
         if (giftCertificateOptional.isEmpty())
             throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
-        giftCertificateDao.delete(giftCertificateOptional.get());
+        giftCertificateRepository.delete(giftCertificateOptional.get());
     }
 
     @Override
-    public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) throws PersistentException {
-        GiftCertificate giftCertificateToUpdate = giftCertificateDao
+    public GiftCertificateDto update(long id, GiftCertificateDto giftCertificateDto) throws PersistentException {
+        GiftCertificate giftCertificateToUpdate = giftCertificateRepository
                 .findById(id)
                 .orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND));
         GiftCertificate updateData = giftCertificateConverter.toEntity(giftCertificateDto);
@@ -95,7 +95,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             giftCertificateToUpdate.setTags(updateTagList(updateData.getTags()));
         }
         giftCertificateToUpdate.setLastUpdateDate(LocalDateTime.now(zoneId));
-        return giftCertificateConverter.toDto(giftCertificateDao.save(giftCertificateToUpdate));
+        return giftCertificateConverter.toDto(giftCertificateRepository.save(giftCertificateToUpdate));
     }
 
     public List<Tag> updateTagList(List<Tag> list) {
@@ -103,7 +103,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             return list;
         List<Tag> tagList = new ArrayList<>();
         for (Tag tagFromRequest : list) {
-            Optional<Tag> tagFromDb = tagDao.findTagByName(tagFromRequest.getName());
+            Optional<Tag> tagFromDb = tagRepository.findTagByName(tagFromRequest.getName());
             if (tagFromDb.isPresent()) {
                 tagList.add(tagFromDb.get());
             } else {

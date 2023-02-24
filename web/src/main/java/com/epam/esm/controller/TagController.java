@@ -1,14 +1,10 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.assembler.TagModelAssembler;
+import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.group.OnPersist;
-import com.epam.esm.entity.Order;
-import com.epam.esm.entity.Tag;
-import com.epam.esm.entity.User;
-import com.epam.esm.service.TagService;
 import com.epam.esm.service.exception.PersistentException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
@@ -26,13 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.List;
 
 /**
- * This class is an endpoint of the API which allows to perform CRD operations
- * with {@link Tag} entities accessed through <i>api/tags</i>.
- * @author Lobur Yaroslav
- * @version 1.0
+ * This class is used to implement controller logic for tags.
  */
 @RestController
 @RequestMapping("api/tags")
@@ -42,15 +34,17 @@ public class TagController {
     private final TagService tagService;
     private final TagModelAssembler tagModelAssembler;
 
-    @Autowired
     public TagController(TagService tagService, TagModelAssembler tagModelAssembler) {
         this.tagService = tagService;
         this.tagModelAssembler = tagModelAssembler;
     }
 
     /**
-     * Gets all {@link Tag} entities from database.
-     * @return a {@link List} of {@link Tag} entities. Response code 200.
+     * Method used to get all tags.
+     *
+     * @param page The page number
+     * @param size The page size
+     * @return All the tags
      */
     @GetMapping()
     public PagedModel<TagDto> allTags(
@@ -61,10 +55,10 @@ public class TagController {
     }
 
     /**
-     * Gets a {@link Tag} by its <code>id</code> from database.
-     * @param id for {@link Tag}
-     * @return {@link Tag} entity. Response code 200.
-     * @throws PersistentException if {@link Tag} is not found.
+     * Method used to get a tag by its id.
+     *
+     * @param id The id of the tag
+     * @return The tag with the given id
      */
     @GetMapping("/{id}")
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
@@ -73,9 +67,9 @@ public class TagController {
     }
 
     /**
-     * Get the most widely used {@link Tag} of a {@link User} with the highest cost of all {@link Order} entities.
-     * @return ResponseEntity with most popular {@link Tag}. Response code 200.
-     * @throws PersistentException if {@link Tag} is not found.
+     * Method used to get the most widely used tag with the highest cost of all orders.
+     *
+     * @return The most widely used tag with the highest cost of all orders.
      */
     @GetMapping("/popular")
     public TagDto popularTag() throws PersistentException {
@@ -84,11 +78,10 @@ public class TagController {
     }
 
     /**
-     * Creates a new {@link Tag} entity in database.
+     * Method used to save a new tag.
      *
-     * @param tagDto must be valid according to {@link Tag} entity.
-     * @return Saved {@link Tag}. Response code 201.
-     * @throws PersistentException if {@link Tag} an error occurred during saving.
+     * @param tagDto The details of the tag to save
+     * @return The newly saved tag
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -98,17 +91,14 @@ public class TagController {
     }
 
     /**
-     * Deletes {@link Tag} entity from database.
+     * Method used to delete an existing tag by its id.
      *
-     * @param id for {@link Tag} to delete.
-     * @return ResponseEntity with empty body. Response code 204.
-     * @throws PersistentException if {@link Tag} entity do not exist.
+     * @param id The id of the tag to delete
+     * @return A response indicating the completion of the delete operation
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) throws PersistentException {
         tagService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-
 }

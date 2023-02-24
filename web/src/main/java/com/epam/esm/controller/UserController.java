@@ -1,11 +1,9 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.assembler.UserAssembler;
-import com.epam.esm.service.dto.UserDto;
-import com.epam.esm.entity.User;
 import com.epam.esm.service.UserService;
+import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.exception.PersistentException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.validation.annotation.Validated;
@@ -16,14 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Min;
-import java.util.List;
 
 
 /**
- * This class is an endpoint of the API which allows to perform READ operations
- * with {@link User} entities accessed through <i>api/users</i>.
- * @author Lobur Yaroslav
- * @version 1.0
+ * This class is used to implement controller logic for users.
  */
 @RestController
 @RequestMapping("api/users")
@@ -33,18 +27,16 @@ public class UserController {
     private final UserService userService;
     private final UserAssembler userAssembler;
 
-    @Autowired
     public UserController(UserService userService, UserAssembler userAssembler) {
         this.userService = userService;
         this.userAssembler = userAssembler;
     }
 
     /**
-     * Gets all {@link User} entities from database.
-     *
-     * @param page         page number.
-     * @param size         number of showed entities on page.
-     * @return a {@link List} of {@link User} entities. Response code 200.
+     * Method used to get all users.
+     * @param page The page number
+     * @param size The page size
+     * @return All the users
      */
     @GetMapping()
     public PagedModel<UserDto> allUsers(
@@ -55,15 +47,13 @@ public class UserController {
     }
 
     /**
-     * Gets a {@link User} by its <code>id</code> from database.
-     * @param id for {@link User}
-     * @return {@link User} entity. Response code 200.
-     * @throws PersistentException if {@link User} is not found.
+     * Method used to get a user by id.
+     * @param id The id of the user
+     * @return The user with the given id
      */
     @GetMapping("/{id}")
-    public UserDto userById(@PathVariable @Min(value = 1, message = "40001") Long id) throws PersistentException {
+    public UserDto userById(@PathVariable @Min(value = 1, message = "40001") long id) throws PersistentException {
         UserDto userDto = userService.getById(id);
         return userAssembler.toModel(userDto);
     }
-
 }

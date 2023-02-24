@@ -16,7 +16,7 @@ import javax.validation.constraints.Min;
 @EqualsAndHashCode(callSuper = false)
 public class MakeOrderDto extends OrderDto {
     @Min(value = 1, message = "40001")
-    private Long giftCertificateId;
+    private long giftCertificateId;
     @Min(value = 1, message = "40001")
-    private Long userId;
+    private long userId;
 }

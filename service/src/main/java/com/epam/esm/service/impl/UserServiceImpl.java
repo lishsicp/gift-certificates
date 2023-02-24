@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getById(Long id) throws PersistentException {
+    public UserDto getById(long id) throws PersistentException {
         User user = userRepository.findById(id).orElseThrow(() ->
                 new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id)
         );
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(Long id) throws PersistentException  {
+    public void delete(long id) throws PersistentException  {
         throw new UnsupportedOperationException();
     }
 }

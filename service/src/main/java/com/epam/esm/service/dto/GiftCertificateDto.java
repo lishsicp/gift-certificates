@@ -29,8 +29,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
 
-    @Min(value = 1, message = "40001")
-    private Long id;
+    //@Min(value = 1, message = "40001")
+    private long id;
 
     @Pattern(regexp = "[\\w\\s]{3,64}+", message = "40003")
     @NotEmpty(groups = OnPersist.class)

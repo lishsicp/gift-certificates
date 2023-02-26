@@ -15,5 +15,5 @@ public interface GiftCertificateService extends CRUDService<GiftCertificate> {
      * @param searchFilter object for search parameters
      * @return {@link List} of found {@link GiftCertificate}.
      */
-    List<GiftCertificate> findAllCertificatesWithFilter(SearchFilter searchFilter);
+    List<GiftCertificate> getAllCertificatesWithFilter(SearchFilter searchFilter);
 }

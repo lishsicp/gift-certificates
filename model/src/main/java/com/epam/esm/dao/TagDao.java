@@ -17,7 +17,7 @@ public interface TagDao extends CRDDao<Tag> {
      * @param name the name of a {@link Tag}
      * @return Found {@link Tag} in an [Optional]
      */
-    Optional<Tag> getByName(String name);
+    Optional<Tag> findByName(String name);
 
     /**
      * Finds {@link Tag} entities assigned for given {@link GiftCertificate}
@@ -25,7 +25,7 @@ public interface TagDao extends CRDDao<Tag> {
      * @param certificateId the {@link GiftCertificate} id
      * @return the {@link List} of {@link Tag} entities
      */
-    List<Tag> getTagsForCertificate(long certificateId);
+    List<Tag> findTagsForCertificate(long certificateId);
 
     /**
      * Assign {@link Tag} to {@link GiftCertificate}.

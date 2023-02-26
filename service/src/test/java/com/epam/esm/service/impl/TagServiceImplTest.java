@@ -2,75 +2,112 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.DaoException;
-import com.epam.esm.service.TagService;
-import org.junit.jupiter.api.BeforeEach;
+import com.epam.esm.service.exception.PersistenceException;
+import com.epam.esm.util.ModelFactory;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.anyLong;
 
+@ExtendWith(MockitoExtension.class)
 class TagServiceImplTest {
 
-    TagService tagService;
+    @Mock
     TagDao tagDao;
-    Tag tag;
 
-    @BeforeEach
-    public void setUp() {
-        tagDao = mock(TagDao.class);
-        tagService = new TagServiceImpl(tagDao);
-        tag = new Tag();
-        tag.setId(1L);
-        tag.setName("tagTestName");
+    @InjectMocks
+    TagServiceImpl tagService;
+
+    @Test
+    void getAll_shouldReturnListOfTags() {
+        var tagList = ModelFactory.createTagList(1, 2, 3);
+        given(tagDao.findAll()).willReturn(tagList);
+
+        var actual = tagService.getAll();
+
+        then(tagDao).should().findAll();
+        assertEquals(tagList, actual);
     }
 
     @Test
-    void save_shouldSaveTag() {
-        when(tagDao.create(any())).thenReturn(tag);
-        Tag actual = tagService.save(tag);
-        verify(tagDao).create(any());
-        assertEquals(tag, actual);
+    void getById_shouldReturnTag() {
+        var tag = ModelFactory.createTag();
+        given(tagDao.findById(anyLong())).willReturn(Optional.of(tag));
+
+        Tag tagById = tagService.getById(tag.getId());
+
+        then(tagDao).should().findById(anyLong());
+        assertEquals(tag, tagById);
     }
 
     @Test
-    void findAll_shouldReturnListOfTags() {
-        when(tagDao.getAll()).thenReturn(List.of(tag));
-        var actual = tagService.findAll();
-        assertEquals(List.of(tag), actual);
-        verify(tagDao).getAll();
+    void getById_shouldThrowException_whenTagNotFound() {
+        given(tagDao.findById(anyLong())).willReturn(Optional.empty());
+
+        assertThrows(PersistenceException.class, () -> tagService.getById(1));
     }
 
-    @Test
-    void findById_shouldReturnTag() {
-        when(tagDao.getById(anyLong())).thenReturn(tag);
-        Tag tagById = tagService.findById(1L);
-        assertTrue(tagById.getId() > 0);
-        assertEquals("tagTestName", tagById.getName());
-        verify(tagDao).getById(anyLong());
+    @Nested
+    class whenSave {
+
+        @Test
+        void save_shouldSaveTag() {
+            var expected = ModelFactory.createTag();
+            given(tagDao.create(any())).willReturn(expected);
+
+            Tag actual = tagService.save(expected);
+
+            then(tagDao).should().create(any());
+            assertEquals(expected, actual);
+        }
+
+        @Test
+        void save_shouldThrowException_whenTagExists() {
+            var expected = ModelFactory.createTag();
+            given(tagDao.findByName(anyString())).willReturn(Optional.of(expected));
+
+            assertThrows(PersistenceException.class, () -> tagService.save(expected));
+        }
+
+        @Test
+        void save_shouldThrowException_whenTagIdIsZero() {
+            var expected = ModelFactory.createTag(0);
+            given(tagDao.create(any(Tag.class))).willReturn(expected);
+
+            assertThrows(PersistenceException.class, () -> tagService.save(expected));
+        }
     }
 
-    @Test
-    void findById_shouldThrowException_whenTagNotFound() {
-        when(tagDao.getById(anyLong())).thenThrow(DaoException.class);
-        assertThrows(DaoException.class, () -> tagService.findById(1L));
-    }
+    @Nested
+    class whenDelete {
 
+        @Test
+        void delete_shouldDeleteTag() {
+            var tag = ModelFactory.createTag();
+            long id = tag.getId();
+            given(tagDao.findById(anyLong())).willReturn(Optional.of(tag));
 
-    @Test
-    void delete_shouldDeleteTag() throws DaoException {
-        when(tagDao.getById(1L)).thenReturn(tag);
-        tagService.delete(1L);
-        verify(tagDao).remove(1L);
-    }
+            tagService.delete(id);
 
-    @Test
-    void delete_shouldThrowException_whenTagNotFound() throws DaoException {
-        doThrow(DaoException.class).when(tagDao).remove(anyLong());
-        assertThrows(DaoException.class, () -> tagService.delete(1L));
+            then(tagDao).should().delete(id);
+        }
+
+        @Test
+        void delete_shouldThrowException_whenTagNotFound() {
+            assertThrows(PersistenceException.class, () -> tagService.delete(1));
+        }
     }
 
 }

@@ -1,17 +1,20 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.DaoException;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -38,18 +41,17 @@ public class TagController {
      */
     @GetMapping()
     public List<Tag> allTags() {
-        return tagService.findAll();
+        return tagService.getAll();
     }
 
     /**
      * Gets a {@link com.epam.esm.entity.Tag} by its <code>id</code> from database.
      * @param id for {@link com.epam.esm.entity.Tag}
      * @return {@link com.epam.esm.entity.Tag} entity. Response code 200.
-     * @throws DaoException if {@link com.epam.esm.entity.Tag} is not found.
      */
     @GetMapping("/{id}")
     public Tag tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
-        return tagService.findById(id);
+        return tagService.getById(id);
     }
 
     /**
@@ -57,17 +59,10 @@ public class TagController {
      *
      * @param tag must be valid according to {@link com.epam.esm.entity.Tag} entity.
      * @return ResponseEntity with saved {@link com.epam.esm.entity.Tag}. Response code 201.
-     * @throws DaoException if {@link com.epam.esm.entity.Tag} an error occurred during saving.
      */
     @PostMapping
-    public ResponseEntity<Object> saveTag(@RequestBody @Valid Tag tag) {
-        Tag savedTag = tagService.save(tag);
-        URI locationUri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedTag.getId())
-                .toUri();
-        return ResponseEntity.created(locationUri).body(savedTag);
+    public Tag saveTag(@RequestBody @Valid Tag tag) {
+        return tagService.save(tag);
     }
 
     /**
@@ -75,7 +70,6 @@ public class TagController {
      *
      * @param id for {@link com.epam.esm.entity.Tag} to delete.
      * @return ResponseEntity with empty body. Response code 204.
-     * @throws DaoException if {@link com.epam.esm.entity.Tag} entity do not exist.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {

@@ -1,11 +1,12 @@
 package com.epam.esm.entity;
 
-import javax.validation.constraints.Pattern;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 @Data
 @NoArgsConstructor
@@ -15,6 +16,7 @@ public class Tag implements Entity {
 
   private long id;
 
+  @NotEmpty
   @Pattern(regexp = "[\\w\\s]{2,128}+", message = "40002")
   private String name;
 

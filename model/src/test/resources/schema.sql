@@ -7,8 +7,8 @@ create table gift_certificate
     description      varchar(512),
     price            numeric(16, 2) check (price > 0)             not null,
     duration         integer                                      not null,
-    create_date      timestamp default (now() at time zone 'UTC') not null,
-    last_update_date timestamp default (now() at time zone 'UTC') not null,
+    create_date      timestamp default (now() at time zone 'UTC+2') not null,
+    last_update_date timestamp default (now() at time zone 'UTC+2') not null,
     UNIQUE (name)
 );
 

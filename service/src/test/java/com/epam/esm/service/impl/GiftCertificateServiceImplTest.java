@@ -3,110 +3,160 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.filter.SearchFilter;
-import com.epam.esm.exception.DaoException;
-import com.epam.esm.service.GiftCertificateService;
-import com.epam.esm.service.exception.IncorrectUpdateValueException;
-import org.junit.jupiter.api.BeforeEach;
+import com.epam.esm.service.exception.PersistenceException;
+import com.epam.esm.util.ModelFactory;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
+@ExtendWith(MockitoExtension.class)
 class GiftCertificateServiceImplTest {
 
-    private final static int EMPTY_CERTIFICATE_ERROR = 40009;
+    @Mock
+    private GiftCertificateDao giftCertificateDao;
 
-    GiftCertificateService giftCertificateService;
+    @Mock
+    private TagDao tagDao;
 
-    GiftCertificateDao giftCertificateDao;
-    TagDao tagDao;
-    Tag tag;
-    GiftCertificate giftCertificate;
-
-    @BeforeEach
-    public void setUp() {
-        giftCertificateDao = mock(GiftCertificateDao.class);
-        tagDao = mock(TagDao.class);
-        giftCertificateService = new GiftCertificateServiceImpl(tagDao, giftCertificateDao);
-        tag = new Tag();
-        tag.setId(1L);
-        tag.setName("tagTestName");
-
-        giftCertificate = new GiftCertificate();
-        giftCertificate.setId(1L);
-        giftCertificate.setName("testGift");
-        giftCertificate.setDescription("test gift cert");
-        giftCertificate.setDuration(30);
-        giftCertificate.setPrice(new BigDecimal(1));
-        giftCertificate.setCreateDate(LocalDateTime.now());
-        giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        giftCertificate.setTags(List.of(tag));
-    }
+    @InjectMocks
+    private GiftCertificateServiceImpl giftCertificateService;
 
     @Test
-    void findAll_shouldReturnListOfCertificates() {
-        when(giftCertificateDao.getAll()).thenReturn(List.of(giftCertificate));
-        var actual = giftCertificateService.findAll();
+    void getAll_shouldReturnListOfCertificates() {
+        var giftCertificate = ModelFactory.createGiftCertificate(1, 1);
+        given(giftCertificateDao.findAll()).willReturn(List.of(giftCertificate));
+
+        var actual = giftCertificateService.getAll();
+
+        then(tagDao).should().findTagsForCertificate(anyLong());
+        then(giftCertificateDao).should().findAll();
         assertEquals(List.of(giftCertificate), actual);
-        verify(tagDao).getTagsForCertificate(anyLong());
-        verify(giftCertificateDao).getAll();
     }
 
     @Test
-    void findAllCertificatesWithFilter_shouldReturnListOfCertificates() {
+    void getAllCertificatesWithFilter_shouldReturnListOfCertificates() {
         SearchFilter searchFilterMock = mock(SearchFilter.class);
-        when(giftCertificateDao.getAll(searchFilterMock)).thenReturn(List.of(giftCertificate));
-        var actual = giftCertificateService.findAllCertificatesWithFilter(searchFilterMock);
+        var giftCertificate = ModelFactory.createGiftCertificate(1, 1);
+        given(giftCertificateDao.findAll(searchFilterMock)).willReturn(List.of(giftCertificate));
+
+        var actual = giftCertificateService.getAllCertificatesWithFilter(searchFilterMock);
+
+        then(tagDao).should().findTagsForCertificate(anyLong());
+        then(giftCertificateDao).should().findAll(searchFilterMock);
         assertEquals(List.of(giftCertificate), actual);
-        verify(tagDao).getTagsForCertificate(anyLong());
-        verify(giftCertificateDao).getAll(searchFilterMock);
     }
 
     @Test
-    void findById_shouldReturnCertificate() throws DaoException {
-        when(giftCertificateDao.getById(giftCertificate.getId())).thenReturn(giftCertificate);
-        GiftCertificate actual = giftCertificateService.findById(giftCertificate.getId());
+    void getById_shouldReturnCertificate() {
+        var giftCertificate = ModelFactory.createGiftCertificate(1, 1);
+        given(giftCertificateDao.findById(giftCertificate.getId())).willReturn(Optional.of(giftCertificate));
+
+        GiftCertificate actual = giftCertificateService.getById(giftCertificate.getId());
+
+        then(giftCertificateDao).should().findById(anyLong());
         assertEquals(giftCertificate, actual);
-        verify(giftCertificateDao).getById(anyLong());
     }
 
     @Test
-    void save_shouldSaveCertificate() {
-        when(giftCertificateDao.create(any())).thenReturn(giftCertificate);
-        when(tagDao.getAll()).thenReturn(giftCertificate.getTags());
-        when(tagDao.getByName(any())).thenReturn(Optional.of(tag));
-        giftCertificateService.save(giftCertificate);
-        verify(giftCertificateDao).create(any());
-        verify(tagDao).getTagsForCertificate(anyLong());
-        verify(tagDao).assignTagToCertificate(anyLong(), anyLong());
+    void getById_shouldThrowException_whenCertificateNotFound() {
+        assertThrows(PersistenceException.class, () -> giftCertificateService.getById(1));
     }
 
-    @Test
-    void update_shouldThrowException_whenUpdateEmptyCertificate() {
-        var ex = assertThrows(IncorrectUpdateValueException.class, () -> giftCertificateService.update(new GiftCertificate()));
-        assertEquals(EMPTY_CERTIFICATE_ERROR, ex.getErrorCode());
+    @Nested
+    class whenSave {
+
+        @Test
+        void save_shouldSaveCertificate() {
+            var giftCertificate = ModelFactory.createGiftCertificate(1, 1, 0); // tag with id 0 mean this tag is new
+            var tag1 = ModelFactory.createTag(1);
+            given(giftCertificateDao.create(any())).willReturn(giftCertificate);
+            given(tagDao.findByName(tag1.getName())).willReturn(Optional.of(tag1));
+
+            giftCertificateService.save(giftCertificate);
+
+            then(giftCertificateDao).should().create(any());
+            then(tagDao).should().findTagsForCertificate(anyLong());
+            then(tagDao).should().assignTagToCertificate(anyLong(), anyLong());
+        }
+
+        @Test
+        void save_shouldThrowException_whenCertificateAlreadyExist() {
+            var giftCertificate = ModelFactory.createGiftCertificate(1, 1);
+            given(giftCertificateDao.findByName(anyString())).willReturn(Optional.of(giftCertificate));
+
+            assertThrows(PersistenceException.class, () -> giftCertificateService.save(giftCertificate));
+        }
+
+        @Test
+        void save_shouldThrowException_whenCertificateIdIsZero() {
+            var giftCertificate = ModelFactory.createGiftCertificate(0);
+            given(giftCertificateDao.create(any(GiftCertificate.class))).willReturn(giftCertificate);
+
+            assertThrows(PersistenceException.class, () -> giftCertificateService.save(giftCertificate));
+        }
     }
 
-    @Test
-    void delete_shouldDeleteCertificate() {
-        giftCertificateService.delete(1L);
-        verify(giftCertificateDao).remove(anyLong());
+    @Nested
+    class whenDelete {
+        @Test
+        void delete_shouldDeleteCertificate() {
+            var giftCertificate = ModelFactory.createGiftCertificate();
+            long id = giftCertificate.getId();
+            given(giftCertificateDao.findById(anyLong())).willReturn(Optional.of(giftCertificate));
+
+            giftCertificateService.delete(1);
+
+            then(giftCertificateDao).should().delete(anyLong());
+        }
+
+        @Test
+        void delete_shouldThrowException_whenCertificateNotFound() {
+            assertThrows(PersistenceException.class, () -> giftCertificateService.delete(1));
+        }
     }
 
-    @Test
-    void update_shouldUpdateCertificate() throws IncorrectUpdateValueException {
-        when(tagDao.getByName(any())).thenReturn(Optional.of(tag));
-        giftCertificateService.update(giftCertificate);
-        verify(tagDao).detachTagsFromCertificate(anyLong());
-        verify(tagDao).getTagsForCertificate(anyLong());
-        verify(giftCertificateDao).update(any());
-        verify(tagDao).assignTagToCertificate(anyLong(), anyLong());
+    @Nested
+    class whenUpdate {
+        @Test
+        void update_shouldUpdateCertificate() {
+            var tag1 = ModelFactory.createTag();
+            var tag2 = ModelFactory.createTag();
+            var giftCertificate = ModelFactory.createGiftCertificate(1, tag1.getId(), tag2.getId());
+            given(giftCertificateDao.findById(anyLong())).willReturn(Optional.of(giftCertificate));
+            given(tagDao.findByName(tag1.getName())).willReturn(Optional.of(tag1));
+            given(tagDao.findByName(tag2.getName())).willReturn(Optional.of(tag2));
+            given(tagDao.findTagsForCertificate(anyLong())).willReturn(ModelFactory.createTagList(1,2));
+
+            giftCertificateService.update(1, giftCertificate);
+
+            then(tagDao).should().detachTagsFromCertificate(anyLong());
+            then(tagDao).should().findTagsForCertificate(anyLong());
+            then(giftCertificateDao).should().update(any());
+            then(tagDao).should(times(2)).assignTagToCertificate(anyLong(), anyLong());
+        }
+        
+        @Test
+        void update_shouldThrowException_whenCertificateDoNotExist() {
+            given(giftCertificateDao.findById(anyLong())).willReturn(Optional.empty());
+            var certificate = ModelFactory.createGiftCertificate();
+            assertThrows(PersistenceException.class, () -> giftCertificateService.update(0, certificate));
+        }
     }
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 @Component
 public class GiftCertificateQueryBuilder implements QueryBuilder {
 
+    @Override
     public String buildFilteredSelectQuery(String selectQuery, SearchFilter searchFilter) {
         var query = new StringBuilder(selectQuery);
         addPartParameter(query, "tag.name", searchFilter.getTagName());
@@ -19,6 +20,7 @@ public class GiftCertificateQueryBuilder implements QueryBuilder {
         return query.toString();
     }
 
+    @Override
     public String buildUpdateQuery(String query, Map<String, String> updateParams) {
         Map<String, String> paramsCopy = new HashMap<>(updateParams);
         String id = paramsCopy.remove("id");
@@ -31,7 +33,7 @@ public class GiftCertificateQueryBuilder implements QueryBuilder {
         return updateQuery.toString();
     }
 
-    public void addPartParameter(StringBuilder query, String column, String value) {
+    private void addPartParameter(StringBuilder query, String column, String value) {
         if (StringUtils.isEmpty(value)) {
             return;
         }
@@ -44,7 +46,7 @@ public class GiftCertificateQueryBuilder implements QueryBuilder {
         query.append(String.format("%s ilike '%%%s%%'", column, value));
     }
 
-    public void addSortParameter(StringBuilder query, String column, String value) {
+    private void addSortParameter(StringBuilder query, String column, String value) {
         if (StringUtils.isEmpty(column)) {
             return;
         }

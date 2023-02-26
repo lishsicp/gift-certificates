@@ -1,22 +1,14 @@
 package com.epam.esm.exception;
 
-import lombok.*;
-
-import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-public class ErrorBody implements Serializable {
+@AllArgsConstructor
+public class ErrorBody {
 
-    private String errorMessage;
-    private int errorCode;
-
-    public ErrorBody(String errorMessage, int errorCode) {
-        this.errorMessage = errorMessage;
-        this.errorCode = errorCode;
-    }
-
-    public ErrorBody() {
-
-    }
+    private final String errorMessage;
+    private final int errorCode;
 }

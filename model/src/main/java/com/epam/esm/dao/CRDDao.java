@@ -2,6 +2,7 @@ package com.epam.esm.dao;
 
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Base interface of a CRD repository for data layer.
@@ -13,7 +14,7 @@ public interface CRDDao<T> {
      * Finds all entities
      * @return A {@link List} of {@link T} objects.
      */
-    List<T> getAll();
+    List<T> findAll();
 
     /**
      * Finds an entity with given id
@@ -21,20 +22,20 @@ public interface CRDDao<T> {
      * @param id Id of the entity to find
      * @return Found entity
      */
-    T getById(long id);
+    Optional<T> findById(long id);
 
     /**
      * Removes an entity by given id.
      *
      * @param id Id of the entity to remove
      */
-    void remove(long id);
+    void delete(long id);
 
     /**
-     * Saves given entity, used when creating a new entity
+     * Creates new entity.
      *
-     * @param t Entity to save
-     * @return Saved entity
+     * @param entityToCreate entity to create
+     * @return created entity
      */
-    T create(T t);
+    T create(T entityToCreate);
 }

@@ -1,5 +1,6 @@
 package com.epam.esm.config;
 
+import lombok.NonNull;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import javax.servlet.ServletRegistration;
@@ -16,7 +17,7 @@ public class WebMVCDispatcher extends AbstractAnnotationConfigDispatcherServletI
     }
 
     @Override
-    protected String[] getServletMappings() {
+    protected String @NonNull [] getServletMappings() {
         return new String[]{"/"};
     }
 

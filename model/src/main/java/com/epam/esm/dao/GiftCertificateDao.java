@@ -4,6 +4,7 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.filter.SearchFilter;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This interface describes abstract behavior and data access functionality for the {@link GiftCertificate} entity
@@ -16,5 +17,7 @@ public interface GiftCertificateDao extends CRUDDao<GiftCertificate> {
      * @param searchFilter object for search parameters
      * @return {@link List} of found {@link GiftCertificate}.
      */
-    List<GiftCertificate> getAll(SearchFilter searchFilter);
+    List<GiftCertificate> findAll(SearchFilter searchFilter);
+
+    Optional<GiftCertificate> findByName(String name);
 }

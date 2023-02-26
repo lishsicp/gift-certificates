@@ -8,7 +8,9 @@ package com.epam.esm.service;
 public interface CRUDService<T> extends CRDService<T> {
     /**
      * Updates given entity
-     * @param t Entity to update
+     *
+     * @param id id of entity to update
+     * @param t  Entity to update
      */
-    void update(T t);
+    void update(long id, T t);
 }

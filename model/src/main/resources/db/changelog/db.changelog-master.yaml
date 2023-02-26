@@ -1,4 +1,4 @@
 databaseChangeLog:
   - include:
-      file: v-1.0/db.changelog-v.1.0.yaml
+      file: 0.1-db-structure/db.changelog-1.0.0-master.yaml
       relativeToChangelogFile: true

@@ -3,11 +3,9 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.GenericDao;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.querybuilder.QueryBuilder;
-import com.epam.esm.dao.queries.CertificateQueries;
+import com.epam.esm.dao.queries.GiftCertificateSqlQueries;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.filter.SearchFilter;
-import com.epam.esm.exception.DaoException;
-import com.epam.esm.exception.ErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,48 +16,58 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implements GiftCertificateDao {
 
     private final QueryBuilder queryBuilder;
+    private final BeanPropertyRowMapper<GiftCertificate> rowMapper;
 
     @Autowired
     protected GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate, QueryBuilder queryBuilder) {
         super(jdbcTemplate);
         this.queryBuilder = queryBuilder;
+        rowMapper = new BeanPropertyRowMapper<>(GiftCertificate.class);
     }
 
     @Override
-    public List<GiftCertificate> getAll() {
-        return jdbcTemplate.query(CertificateQueries.GET_ALL, new BeanPropertyRowMapper<>(GiftCertificate.class));
+    public List<GiftCertificate> findAll() {
+        return jdbcTemplate.query(GiftCertificateSqlQueries.GET_ALL, rowMapper);
     }
 
     @Override
-    public List<GiftCertificate> getAll(SearchFilter searchFilter) {
-        String query = queryBuilder.buildFilteredSelectQuery(CertificateQueries.GET_ALL_FILTERED, searchFilter);
-        return jdbcTemplate.query(query, new BeanPropertyRowMapper<>(GiftCertificate.class));
+    public List<GiftCertificate> findAll(SearchFilter searchFilter) {
+        String query = queryBuilder.buildFilteredSelectQuery(GiftCertificateSqlQueries.GET_ALL_FILTERED, searchFilter);
+        return jdbcTemplate.query(query, rowMapper);
     }
 
     @Override
-    public GiftCertificate getById(long id) {
-        return jdbcTemplate.queryForStream(CertificateQueries.GET_BY_ID, new BeanPropertyRowMapper<>(GiftCertificate.class), id)
-                .findAny()
-                .orElseThrow(() -> new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, id));
+    public Optional<GiftCertificate> findByName(String name) {
+        return jdbcTemplate
+                .queryForStream(GiftCertificateSqlQueries.GET_BY_NAME, rowMapper, name)
+                .findAny();
     }
 
     @Override
-    public void remove(long id) throws DaoException {
-        int updatedRows = jdbcTemplate.update(CertificateQueries.DELETE_BY_ID, id);
-        if (updatedRows == 0) throw new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, id);
+    public Optional<GiftCertificate> findById(long id) {
+        return jdbcTemplate.queryForStream(GiftCertificateSqlQueries.GET_BY_ID, rowMapper, id)
+                .findAny();
+    }
+
+    @Override
+    public void delete(long id) {
+        jdbcTemplate.update(GiftCertificateSqlQueries.DELETE_BY_ID, id);
     }
 
     @Override
     public GiftCertificate create(GiftCertificate giftCertificate) {
         KeyHolder holder = new GeneratedKeyHolder();
-        int updatedFields = jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(CertificateQueries.INSERT, Statement.RETURN_GENERATED_KEYS);
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(GiftCertificateSqlQueries.INSERT, Statement.RETURN_GENERATED_KEYS);
             int index = 1;
             ps.setString(index++, giftCertificate.getName());
             ps.setString(index++, giftCertificate.getDescription());
@@ -70,20 +78,16 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
             ps.setTimestamp(index, createdDate);
             return ps;
         }, holder);
-        if (updatedFields > 0) {
-            long id = getGeneratedId(holder);
-            giftCertificate.setId(id);
-            return giftCertificate;
-        }
-        throw new DaoException(ErrorCodes.SAVE_FAILURE);
+        long id = getGeneratedId(holder);
+        giftCertificate.setId(id);
+        return giftCertificate;
     }
 
     @Override
     public void update(GiftCertificate giftCertificate) {
         Map<String, String> updateParams = getUpdateParams(giftCertificate);
-        String updateQuery = queryBuilder.buildUpdateQuery(CertificateQueries.UPDATE, updateParams);
-        int updatedRows = jdbcTemplate.update(updateQuery);
-        if (updatedRows == 0) throw new DaoException(ErrorCodes.CERTIFICATE_NOT_FOUND, giftCertificate.getId());
+        String updateQuery = queryBuilder.buildUpdateQuery(GiftCertificateSqlQueries.UPDATE, updateParams);
+        jdbcTemplate.update(updateQuery);
     }
 
     private Map<String, String> getUpdateParams(GiftCertificate giftCertificate) {
@@ -105,7 +109,7 @@ public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implemen
             fields.put("price", giftCertificate.getPrice().toString());
         }
 
-        if (giftCertificate.getDuration() != 0) {
+        if (giftCertificate.getDuration() != null) {
             fields.put("duration", String.valueOf(giftCertificate.getDuration()));
         }
         fields.put("last_update_date", giftCertificate.getLastUpdateDate().toString());

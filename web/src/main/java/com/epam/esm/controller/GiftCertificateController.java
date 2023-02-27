@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * This class is an endpoint of the API which allows to perform CRUD operations
- * with {@link com.epam.esm.entity.GiftCertificate} entities accessed through <i>api/certificates</i>.
+ * with {@link GiftCertificate} entities accessed through <i>api/certificates</i>.
  * @author Lobur Yaroslav
  * @version 1.0
  */
@@ -77,9 +77,9 @@ public class GiftCertificateController {
     }
 
     /**
-     * Gets a {@link com.epam.esm.entity.GiftCertificate} by its <code>id</code> from database.
-     * @param id for {@link com.epam.esm.entity.GiftCertificate}
-     * @return requested {@link com.epam.esm.entity.GiftCertificate} entity. Response code 200.
+     * Gets a {@link GiftCertificate} by its <code>id</code> from database.
+     * @param id for {@link GiftCertificate}
+     * @return requested {@link GiftCertificate} entity. Response code 200.
      */
     @GetMapping("/{id}")
     public GiftCertificate giftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
@@ -90,8 +90,8 @@ public class GiftCertificateController {
      * Creates a new {@link GiftCertificate} entity with a
      * {@link List} of {@link Tag} entities.
      * If new {@link Tag} entities are passed during creation – they will be created in the database.
-     * @param giftCertificate must be valid according to {@link com.epam.esm.entity.GiftCertificate} entity.
-     * @return ResponseEntity with saved {@link com.epam.esm.entity.Tag}. Response code 201.
+     * @param giftCertificate must be valid according to {@link GiftCertificate} entity.
+     * @return Saved {@link GiftCertificate}. Response code 201.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -107,20 +107,22 @@ public class GiftCertificateController {
      * @return ResponseEntity with message. Response code 203.
      */
     @PatchMapping("/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id, @RequestBody @Valid GiftCertificate giftCertificate) {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Object> updateGiftCertificate(@PathVariable @Min(value = 1, message="40001") Long id,
+                                                 @RequestBody @Valid GiftCertificate giftCertificate) {
         giftCertificateService.update(id, giftCertificate);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Success");
+        return ResponseEntity.accepted().body("Updated");
     }
 
     /**
-     * Deletes {@link com.epam.esm.entity.GiftCertificate} entity from database.
+     * Deletes {@link GiftCertificate} entity from database.
      *
-     * @param id for {@link com.epam.esm.entity.GiftCertificate} to delete.
+     * @param id for {@link GiftCertificate} to delete.
      * @return ResponseEntity with empty body. Response code 204.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteGiftCertificate(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
+    public ResponseEntity<Object> deleteGiftCertificate(@PathVariable @Valid @Min(value = 1, message = "40001")
+            Long id) {
         giftCertificateService.delete(id);
         return ResponseEntity.noContent().build();
     }

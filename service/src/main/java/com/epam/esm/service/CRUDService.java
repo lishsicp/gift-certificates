@@ -10,7 +10,7 @@ public interface CRUDService<T> extends CRDService<T> {
      * Updates given entity
      *
      * @param id id of entity to update
-     * @param t  Entity to update
+     * @param entityToUpdate  Entity to update
      */
-    void update(long id, T t);
+    void update(long id, T entityToUpdate);
 }

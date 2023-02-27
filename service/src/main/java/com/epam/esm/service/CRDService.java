@@ -24,10 +24,10 @@ public interface CRDService<T> {
     /**
      * Saves given entity, used when creating a new entity
      *
-     * @param t Entity to save
+     * @param entityToSave Entity to save
      * @return Saved entity
      */
-    T save(T t);
+    T save(T entityToSave);
 
     /**
      * Deletes an entity by given id.

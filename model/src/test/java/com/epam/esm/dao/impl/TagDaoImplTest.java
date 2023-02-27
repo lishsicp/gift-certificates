@@ -26,12 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TagDaoImplTest {
 
     @Autowired
-    TagDao tagDao;
+    private TagDao tagDao;
 
     @Test
     void create_shouldCreateTagAndGenerateId() {
         Tag tag = ModelFactory.createTag();
-        assertTrue(tagDao.create(tag).getId() > 0);
+        Tag createdTag = tagDao.create(tag);
+        assertTrue(createdTag.getId() > 0);
     }
 
     @Test
@@ -53,14 +54,16 @@ class TagDaoImplTest {
     @Test
     void findByName_shouldReturnTag() {
         long id = 1;
-        var expected = ModelFactory.createTag(id);
-        Optional<Tag> tagOptional = tagDao.findByName(expected.getName());
-        assertTrue(tagOptional.isPresent());
-        assertEquals(expected, tagOptional.get());
+        var expected = Optional.of(ModelFactory.createTag(id));
+
+        Optional<Tag> actual = tagDao.findByName(expected.get().getName());
+
+        assertTrue(actual.isPresent());
+        assertEquals(expected, actual);
     }
 
     @Test
-    void delete_shouldReturnEmptyOptional_whenTagWasRemoved() {
+    void delete_shouldDeleteTag() {
         long createTagId = tagDao.create(ModelFactory.createTag()).getId();
 
         tagDao.delete(createTagId);
@@ -76,7 +79,7 @@ class TagDaoImplTest {
     }
 
     @Test
-    void assignTagToCertificate_ShouldReturnAllAssignedTags() {
+    void assignTagToCertificate_shouldReturnAllAssignedTags() {
         Tag tag = tagDao.create(ModelFactory.createTag());
         var expected = ModelFactory.createTagList(1, 2, 3);
         expected.add(tag);
@@ -86,7 +89,7 @@ class TagDaoImplTest {
     }
 
     @Test
-    void detachTagsFromCertificate_ShouldReturnEmptyTagList() {
+    void detachTagsFromCertificate_shouldReturnEmptyTagList() {
         long tagId = tagDao.create(ModelFactory.createTag()).getId();
         tagDao.assignTagToCertificate(1, tagId);
 

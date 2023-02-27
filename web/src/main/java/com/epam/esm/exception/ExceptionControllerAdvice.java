@@ -26,7 +26,7 @@ public class ExceptionControllerAdvice {
         this.exceptionMessageI18n = exceptionMessageI18n;
     }
 
-    @ExceptionHandler(PersistenceException.class)
+    @ExceptionHandler
     ResponseEntity<ErrorBody> handlePersistenceException(PersistenceException ex) {
         String errorMessage = exceptionMessageI18n.toLocale(String.valueOf(ex.getErrorCode()));
         if (ex.getParameter() != null) errorMessage = String.format(errorMessage, ex.getParameter());

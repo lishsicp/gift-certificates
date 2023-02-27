@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -38,7 +36,6 @@ class GiftCertificateDaoImplTest {
     @Test
     void create_shouldReturnCreatedCertificate() {
         GiftCertificate certificate = ModelFactory.createGiftCertificate();
-        certificate.setName("anyCertificateName");
         GiftCertificate createdCertificate = giftCertificateDao.create(certificate);
         assertTrue(createdCertificate.getId() > 0);
     }
@@ -49,7 +46,6 @@ class GiftCertificateDaoImplTest {
                 ModelFactory.createGiftCertificate(1, 1, 2, 3),
                 ModelFactory.createGiftCertificate(2, 2, 3)
         );
-
         SearchFilter searchFilter = SearchFilter.builder()
                 .tagName("tag2")
                 .description("description")
@@ -57,7 +53,9 @@ class GiftCertificateDaoImplTest {
                 .sortByType("ASC")
                 .sortBy("NAME")
                 .build();
+
         List<GiftCertificate> giftCertificateListFiltered = giftCertificateDao.findAll(searchFilter);
+
         giftCertificateListFiltered.forEach(c -> c.setTags(tagDao.findTagsForCertificate(c.getId())));
         long actualAmount = giftCertificateList.size();
         long checkedAmount = giftCertificateListFiltered.stream()
@@ -72,25 +70,23 @@ class GiftCertificateDaoImplTest {
     @Test
     void findAll_shouldReturnAllCertificates() {
         var giftCertificateList = List.of(
-                ModelFactory.createGiftCertificate(1, 1, 2, 3),
-                ModelFactory.createGiftCertificate(2, 2, 3)
+                ModelFactory.createGiftCertificate(1),
+                ModelFactory.createGiftCertificate(2)
         );
+
         List<GiftCertificate> giftCertificates= giftCertificateDao.findAll();
-        giftCertificates.forEach(g -> g.setTags(tagDao.findTagsForCertificate(g.getId())));
+
         assertEquals(giftCertificateList, giftCertificates);
     }
 
     @Test
     void findById_shouldReturnCertificate() {
         long id = 1;
-        var expected = Optional.of(ModelFactory.createGiftCertificate(id, 1, 2, 3));
+        var expected = Optional.of(ModelFactory.createGiftCertificate(id));
 
         Optional<GiftCertificate> actual = giftCertificateDao.findById(id);
 
         assertTrue(actual.isPresent());
-
-        actual.get().setTags(tagDao.findTagsForCertificate(id));
-
         assertEquals(expected, actual);
     }
 
@@ -120,28 +116,29 @@ class GiftCertificateDaoImplTest {
     @Test
     void update_shouldUpdateAllFields() {
         long id = 1;
-        GiftCertificate initialCertificate = ModelFactory.createGiftCertificate(id);
         GiftCertificate update = ModelFactory.createGiftCertificate(id);
         update.setName("updatedName");
         update.setDescription("updatedDescription");
-        update.setPrice(BigDecimal.TEN);
+        update.setPrice(new BigDecimal("10.00"));
         update.setDuration(3);
+
         giftCertificateDao.update(update);
 
         Optional<GiftCertificate> updatedCertificate = giftCertificateDao.findById(id);
-
         assertTrue(updatedCertificate.isPresent());
-        assertNotSame(update.getName(), updatedCertificate.get().getName());
+        assertEquals(update.getName(), updatedCertificate.get().getName());
         assertEquals(update.getDescription(), updatedCertificate.get().getDescription());
         assertEquals(update.getDuration(), updatedCertificate.get().getDuration());
-        assertEquals(0, initialCertificate.getPrice().compareTo(updatedCertificate.get().getPrice()));
+        assertEquals(update.getPrice(), updatedCertificate.get().getPrice());
     }
 
     @Test
     void delete_shouldDeleteCertificate() {
         GiftCertificate initialCertificate = ModelFactory.createGiftCertificate();
         long id = giftCertificateDao.create(initialCertificate).getId();
+
         giftCertificateDao.delete(id);
+
         assertTrue(giftCertificateDao.findById(id).isEmpty());
     }
 }

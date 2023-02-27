@@ -54,12 +54,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificate getById(long id) {
         Optional<GiftCertificate> giftCertificate = giftCertificateDao.findById(id);
-        if (giftCertificate.isPresent()) {
-            List<Tag> tagsForCertificate = tagDao.findTagsForCertificate(id);
-            giftCertificate.get().setTags(tagsForCertificate);
-            return giftCertificate.get();
+        if (giftCertificate.isEmpty()) {
+            throw new PersistenceException(ErrorCodes.CERTIFICATE_NOT_FOUND, id);
         }
-        throw new PersistenceException(ErrorCodes.CERTIFICATE_NOT_FOUND, id);
+        List<Tag> tagsForCertificate = tagDao.findTagsForCertificate(id);
+        giftCertificate.get().setTags(tagsForCertificate);
+        return giftCertificate.get();
     }
 
     @Override

@@ -19,5 +19,12 @@ public interface GiftCertificateDao extends CRUDDao<GiftCertificate> {
      */
     List<GiftCertificate> findAll(SearchFilter searchFilter);
 
+
+    /**
+     * Finds {@link GiftCertificate} by given name
+     *
+     * @param name the name of a {@link GiftCertificate}
+     * @return Found {@link GiftCertificate} in an [Optional]
+     */
     Optional<GiftCertificate> findByName(String name);
 }

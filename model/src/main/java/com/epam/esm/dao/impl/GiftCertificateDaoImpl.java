@@ -9,6 +9,7 @@ import com.epam.esm.entity.filter.SearchFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -25,7 +26,7 @@ import java.util.Optional;
 public class GiftCertificateDaoImpl extends GenericDao<GiftCertificate> implements GiftCertificateDao {
 
     private final QueryBuilder queryBuilder;
-    private final BeanPropertyRowMapper<GiftCertificate> rowMapper;
+    private final RowMapper<GiftCertificate> rowMapper;
 
     @Autowired
     protected GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate, QueryBuilder queryBuilder) {

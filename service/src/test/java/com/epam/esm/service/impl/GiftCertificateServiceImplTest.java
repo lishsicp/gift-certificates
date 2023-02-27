@@ -80,7 +80,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Nested
-    class whenSave {
+    class WhenSaving {
 
         @Test
         void save_shouldSaveCertificate() {
@@ -114,7 +114,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Nested
-    class whenDelete {
+    class WhenDeleting {
         @Test
         void delete_shouldDeleteCertificate() {
             var giftCertificate = ModelFactory.createGiftCertificate();
@@ -133,7 +133,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Nested
-    class whenUpdate {
+    class WhenUpdating {
         @Test
         void update_shouldUpdateCertificate() {
             var tag1 = ModelFactory.createTag();

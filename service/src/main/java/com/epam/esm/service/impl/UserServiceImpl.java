@@ -5,7 +5,7 @@ import com.epam.esm.entity.User;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.dto.converter.UserConverter;
-import com.epam.esm.service.exception.ExceptionErrorCode;
+import com.epam.esm.service.exception.ErrorCodes;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(long id) throws PersistentException {
         User user = userRepository.findById(id).orElseThrow(() ->
-                new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id)
+                new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id)
         );
         return userConverter.toDto(user);
     }

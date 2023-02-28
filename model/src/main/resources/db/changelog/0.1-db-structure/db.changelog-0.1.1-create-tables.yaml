@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: create-tag
+      id: create-tag-table-structure
       author: Yaroslav Lobur
       changes:
         - createSequence:
@@ -25,7 +25,7 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: create-certificate
+      id: create-gift-certificate-table-structure
       author: Yaroslav Lobur
       changes:
         - createSequence:
@@ -76,7 +76,7 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: create-certificate-tag
+      id: create-certificate-tag-table-structure
       author: Yaroslav Lobur
       changes:
         - createTable:
@@ -116,7 +116,7 @@ databaseChangeLog:
               name: tag_id
 
   - changeSet:
-      id: create-user
+      id: create-user-table-structure
       author: Yaroslav Lobur
       changes:
         - createSequence:
@@ -138,7 +138,7 @@ databaseChangeLog:
                     nullable: false
 
   - changeSet:
-      id: create-order
+      id: create-order-table-structure
       author: Yaroslav Lobur
       changes:
         - createSequence:

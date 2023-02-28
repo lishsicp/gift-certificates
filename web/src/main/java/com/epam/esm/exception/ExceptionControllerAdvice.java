@@ -1,6 +1,6 @@
 package com.epam.esm.exception;
 
-import com.epam.esm.service.exception.ExceptionErrorCode;
+import com.epam.esm.service.exception.ErrorCodes;
 import com.epam.esm.service.exception.PersistentException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
@@ -93,7 +93,7 @@ public class ExceptionControllerAdvice {
             errorBody.setErrorMessage(String.format(errorMessage, invalidValue));
         } else {
             errorBody.setErrorMessage(errorField + " - " + errorMessage);
-            errorBody.setErrorCode(ExceptionErrorCode.VALIDATION_ERROR);
+            errorBody.setErrorCode(ErrorCodes.VALIDATION_ERROR);
         }
         return errorBody;
     }

@@ -9,7 +9,7 @@ import com.epam.esm.entity.User;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.converter.OrderConverter;
-import com.epam.esm.service.exception.ExceptionErrorCode;
+import com.epam.esm.service.exception.ErrorCodes;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -48,12 +48,12 @@ public class OrderServiceImpl implements OrderService {
         long certificateId = order.getGiftCertificate().getId();
         Optional<GiftCertificate> certificateOptional = giftCertificateDao.findById(certificateId);
         if (certificateOptional.isEmpty())
-            throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, certificateId);
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, certificateId);
 
         long userId = order.getUser().getId();
         Optional<User> userOptional = userDao.findById(userId);
         if (userOptional.isEmpty())
-            throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, userId);
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, userId);
         order.setUser(userOptional.get());
         order.setGiftCertificate(certificateOptional.get());
         order.setCost(certificateOptional.get().getPrice());
@@ -66,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderDto> getOrdersByUserId(long id, int page, int size) throws PersistentException {
         Optional<User> userOptional = userDao.findById(id);
         if (userOptional.isEmpty())
-            throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Order> ordersByUserId = orderDao.findOrdersByUserId(id, pageable);
         return ordersByUserId.map(orderConverter::toDto);
@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto getById(long id) throws PersistentException {
-        Order order = orderDao.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
+        Order order = orderDao.findById(id).orElseThrow(() -> new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id));
         return orderConverter.toDto(order);
     }
 

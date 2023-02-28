@@ -3,7 +3,7 @@ package com.epam.esm.service;
 import org.springframework.data.domain.Page;
 
 /**
- * This interface defines the basic CRUD (Create, Read, Delete) operations for a service in the business layer.
+ * This interface defines the basic CRD operations for a service in the business layer.
  *
  * @param <T> the type of entity managed by this service
  */
@@ -29,10 +29,10 @@ public interface CRDService<T> {
     /**
      * Saves a new entity.
      *
-     * @param t the entity to save
+     * @param entityToSave the entity to save
      * @return the saved entity
      */
-    T save(T t);
+    T save(T entityToSave);
 
     /**
      * Deletes an entity by its ID.

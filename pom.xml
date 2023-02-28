@@ -19,7 +19,7 @@
 
 	<groupId>com.epam.esm</groupId>
 	<artifactId>gift-certificates</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>${revision}</version>
 
 	<name>gift-certificates</name>
 	<description>Gift Certificates Spring Boot migration</description>
@@ -29,10 +29,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
-		<project.version>0.0.1-SNAPSHOT</project.version>
 		<lombok.version>1.18.24</lombok.version>
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<spring.version>2.7.7</spring.version>
+		<revision>0.0.1-SNAPSHOT</revision>
 	</properties>
 
 	<dependencies>

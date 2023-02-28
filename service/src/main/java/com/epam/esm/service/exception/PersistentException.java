@@ -1,30 +1,14 @@
 package com.epam.esm.service.exception;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@RequiredArgsConstructor
 public class PersistentException extends RuntimeException {
 
-    private int errorCode;
-    private Object parameter;
-
-    public PersistentException(int errorCode, Object parameter) {
-        super();
-        this.errorCode = errorCode;
-        this.parameter = parameter;
-    }
-
-    public PersistentException(int errorCode) {
-        super();
-        this.errorCode = errorCode;
-    }
-
-    public PersistentException() {
-        super();
-    }
-
-    public int getErrorCode() {
-        return errorCode;
-    }
-
-    public Object getParameter() {
-        return parameter;
-    }
+    private final int errorCode;
+    private final Object parameter;
 }

@@ -31,7 +31,9 @@ public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateD
 
     @Override
     public @NonNull GiftCertificateDto toModel(GiftCertificateDto certificateDto) {
-        Link link = linkTo(methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS).giftCertificateById(certificateDto.getId())).withSelfRel();
+        Link link = linkTo(methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS)
+                .giftCertificateById(certificateDto.getId())).
+                withSelfRel();
         certificateDto.add(link);
         certificateDto.getTags().forEach(tagModelAssembler::toModel);
         return certificateDto;
@@ -42,8 +44,13 @@ public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateD
             int page, int size, MultiValueMap<String, String> filterParams) {
         List<GiftCertificateDto> entityModels = new LinkedList<>();
         certificates.forEach(certificate -> entityModels.add(toModel(certificate)));
-        Link selfRel = linkTo(methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS).findAllCertificatesWithParameters(page,size, filterParams)).withSelfRel();
-        PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(certificates.getSize(),certificates.getNumber(),certificates.getTotalElements());
+        Link selfRel = linkTo(methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS)
+                .findAllCertificatesWithParameters(page,size, filterParams)).withSelfRel();
+        PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(
+                certificates.getSize(),
+                certificates.getNumber(),
+                certificates.getTotalElements()
+        );
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

@@ -1,13 +1,13 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.TagRepository;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.repository.GiftCertificateRepository;
+import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.converter.GiftCertificateConverter;
-import com.epam.esm.service.exception.ExceptionErrorCode;
+import com.epam.esm.service.exception.ErrorCodes;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,7 +32,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateConverter giftCertificateConverter;
 
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository, GiftCertificateConverter giftCertificateConverter) {
+    public GiftCertificateServiceImpl(
+            GiftCertificateRepository giftCertificateRepository,
+            TagRepository tagRepository,
+            GiftCertificateConverter giftCertificateConverter) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagRepository = tagRepository;
         this.giftCertificateConverter = giftCertificateConverter;
@@ -46,24 +49,25 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public Page<GiftCertificateDto> getAllWithFilter(int page, int size, MultiValueMap<String, String> params) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<GiftCertificate> allWithParameters = giftCertificateRepository.findAllWithParameters(params, pageable);
+        Page<GiftCertificate> allWithParameters = giftCertificateRepository
+                .findAllWithParameters(params, pageable);
         return allWithParameters.map(giftCertificateConverter::toDto);
     }
 
     @Override
-    public GiftCertificateDto getById(long id) throws PersistentException {
+    public GiftCertificateDto getById(long id) {
         Optional<GiftCertificate> optionalGiftCertificate = giftCertificateRepository.findById(id);
         if (optionalGiftCertificate.isEmpty()) {
-            throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
         }
         return giftCertificateConverter.toDto(optionalGiftCertificate.get());
     }
 
     @Override
-    public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) throws PersistentException {
+    public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) {
         Optional<GiftCertificate> existed = giftCertificateRepository.findGiftCertificateByName(giftCertificateDto.getName());
         if (existed.isPresent())
-            throw new PersistentException(ExceptionErrorCode.DUPLICATED_CERTIFICATE, giftCertificateDto.getName());
+            throw new PersistentException(ErrorCodes.DUPLICATED_CERTIFICATE, giftCertificateDto.getName());
         LocalDateTime localDateTime = LocalDateTime.now(zoneId);
         GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDto);
         giftCertificate.setCreateDate(localDateTime);
@@ -77,15 +81,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void delete(long id) throws PersistentException {
         Optional<GiftCertificate> giftCertificateOptional = giftCertificateRepository.findById(id);
         if (giftCertificateOptional.isEmpty())
-            throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
         giftCertificateRepository.delete(giftCertificateOptional.get());
     }
 
     @Override
-    public GiftCertificateDto update(long id, GiftCertificateDto giftCertificateDto) throws PersistentException {
+    public GiftCertificateDto update(long id, GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificateToUpdate = giftCertificateRepository
                 .findById(id)
-                .orElseThrow(() -> new PersistentException(ExceptionErrorCode.CERTIFICATE_NOT_FOUND));
+                .orElseThrow(() -> new PersistentException(ErrorCodes.CERTIFICATE_NOT_FOUND, id));
         GiftCertificate updateData = giftCertificateConverter.toEntity(giftCertificateDto);
         Optional.ofNullable(updateData.getName()).ifPresent(giftCertificateToUpdate::setName);
         Optional.ofNullable(updateData.getDescription()).ifPresent(giftCertificateToUpdate::setDescription);

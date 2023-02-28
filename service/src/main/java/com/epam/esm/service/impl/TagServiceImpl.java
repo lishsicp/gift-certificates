@@ -5,7 +5,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.converter.TagConverter;
-import com.epam.esm.service.exception.ExceptionErrorCode;
+import com.epam.esm.service.exception.ErrorCodes;
 import com.epam.esm.service.exception.PersistentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,7 +37,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto getById(long id) throws PersistentException {
-        Tag tag = tagRepository.findById(id).orElseThrow(() -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id));
+        Tag tag = tagRepository.findById(id).orElseThrow(() -> new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id));
         return tagConverter.toDto(tag);
     }
 
@@ -45,7 +45,7 @@ public class TagServiceImpl implements TagService {
     public TagDto save(TagDto tagDto) throws PersistentException {
         Optional<Tag> optionalTag = tagRepository.findTagByName(tagDto.getName());
         if (optionalTag.isPresent())
-            throw new PersistentException(ExceptionErrorCode.DUPLICATED_TAG, tagDto.getName());
+            throw new PersistentException(ErrorCodes.DUPLICATED_TAG, tagDto.getName());
         Tag save = tagRepository.save(tagConverter.toEntity(tagDto));
         return tagConverter.toDto(save);
     }
@@ -54,7 +54,7 @@ public class TagServiceImpl implements TagService {
     public void delete(long id) throws PersistentException {
         Optional<Tag> tagOptional = tagRepository.findById(id);
         if (tagOptional.isEmpty())
-            throw new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, id);
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
         tagRepository.delete(tagOptional.get());
     }
 
@@ -63,7 +63,7 @@ public class TagServiceImpl implements TagService {
         Tag tag = tagRepository
                 .findMostWidelyUsedTagWithHighestCostOfAllOrders()
                 .orElseThrow(
-                        () -> new PersistentException(ExceptionErrorCode.RESOURCE_NOT_FOUND, "id")
+                        () -> new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, "id")
                 );
         return tagConverter.toDto(tag);
     }

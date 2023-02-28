@@ -1,6 +1,7 @@
 databaseChangeLog:
   - changeSet:
-      id: initial-data
+      context: prod
+      id: insert-initial-data
       author: Yaroslav Lobur
       changes:
         - sqlFile:

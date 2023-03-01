@@ -16,6 +16,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <profiles.default>prod</profiles.default>
         <hikari.version>5.0.1</hikari.version>
         <postgresql.version>42.5.1</postgresql.version>
         <commons.version>2.6</commons.version>
@@ -64,6 +65,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <goals>

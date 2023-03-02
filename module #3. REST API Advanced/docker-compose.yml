@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  postgres:
+    image: 'postgres:15.2-alpine'
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=lobur
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=gifts
+
+  gift-certificates:
+    build: ..
+    image: 'certificates'
+    container_name: certificates
+    ports:
+      - '8080:8080'
+

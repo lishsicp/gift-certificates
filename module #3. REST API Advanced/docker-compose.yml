@@ -12,7 +12,7 @@ services:
       - POSTGRES_DB=gifts
 
   gift-certificates:
-    build: ..
+    build: ./
     image: 'certificates'
     container_name: certificates
     ports:

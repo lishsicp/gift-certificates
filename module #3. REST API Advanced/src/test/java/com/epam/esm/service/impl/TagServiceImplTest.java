@@ -1,11 +1,10 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.converter.TagConverter;
 import com.epam.esm.exception.PersistentException;
-import org.junit.jupiter.api.BeforeEach;
+import com.epam.esm.util.ModelFactory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,20 +39,13 @@ class TagServiceImplTest {
     @InjectMocks
     private TagServiceImpl tagService;
 
-    private Tag tag;
-    private TagDto tagDto;
-
-    @BeforeEach
-    void setup() {
-        tag = Tag.builder().id(1L).name("tagTestName").build();
-        tagDto = TagDto.builder().id(1L).name("tagTestName").build();
-    }
-
     @Test
     void getAll_shouldInvokeFindAll() {
-        // given
         int PAGE = 1;
         int SIZE = 5;
+        var tag = ModelFactory.createTag();
+        var tagDto = ModelFactory.toTagDto(tag);
+
         given(tagConverter.toDto(any())).willReturn(tagDto);
         given(repository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(List.of(tag)));
 
@@ -64,24 +56,25 @@ class TagServiceImplTest {
 
     @Test
     void getById_shouldReturnTag() {
+        var tag = ModelFactory.createTag();
+        var tagDto = ModelFactory.toTagDto(tag);
         given(repository.findById(any())).willReturn(Optional.ofNullable(tag));
         given(tagConverter.toDto(any())).willReturn(tagDto);
 
         TagDto tagById = tagService.getById(1L);
 
         assertTrue(tagById.getId() > 0);
-        assertEquals("tagTestName", tagById.getName());
+        assertEquals(tagDto.getName(), tagById.getName());
     }
 
     @Test
     void getById_shouldThrowException_whenNonexistentId() {
-        given(repository.findById(any())).willReturn(Optional.empty());
-
         assertThrows(PersistentException.class, () -> tagService.getById(1L));
     }
 
     @Test
     void delete_shouldInvokeTagDaoDelete() {
+        var tag = ModelFactory.createTag();
         given(repository.findById(1L)).willReturn(Optional.ofNullable(tag));
         willDoNothing().given(repository).delete(any());
 
@@ -92,8 +85,6 @@ class TagServiceImplTest {
 
     @Test
     void delete_shouldThrowException_whenNonexistentId() {
-        given(repository.findById(any())).willReturn(Optional.empty());
-
         assertThrows(PersistentException.class, () -> tagService.delete(1L));
     }
 
@@ -102,6 +93,8 @@ class TagServiceImplTest {
 
         @Test
         void save_shouldInvokeTagDaoSave() {
+            var tag = ModelFactory.createTag();
+            var tagDto = ModelFactory.toTagDto(tag);
             given(repository.findTagByName(anyString())).willReturn(Optional.empty());
             given(repository.save(any())).willReturn(tag);
             given(tagConverter.toEntity(any())).willReturn(tag);
@@ -115,6 +108,8 @@ class TagServiceImplTest {
 
         @Test
         void save_shouldThrowException_whenNameAlreadyExist() {
+            var tag = ModelFactory.createTag();
+            var tagDto = ModelFactory.toTagDto(tag);
             given(repository.findTagByName(anyString())).willReturn(Optional.of(tag));
 
             assertThrows(PersistentException.class, () -> tagService.save(tagDto));
@@ -126,19 +121,19 @@ class TagServiceImplTest {
 
         @Test
         void getMostWidelyUsedTagWithHighestCostOfAllOrders_shouldReturnTag() {
+            var tag = ModelFactory.createTag();
+            var tagDto = ModelFactory.toTagDto(tag);
             given(repository.findMostWidelyUsedTagWithHighestCostOfAllOrders()).willReturn(Optional.of(tag));
             given(tagConverter.toDto(any())).willReturn(tagDto);
 
             TagDto popularTag = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
 
             assertTrue(popularTag.getId() > 0);
-            assertEquals("tagTestName", popularTag.getName());
+            assertEquals(tagDto.getName(), popularTag.getName());
         }
 
         @Test
         void getMostWidelyUsedTagWithHighestCostOfAllOrders_shouldThrowException_whenOptionalEmpty() {
-            given(repository.findMostWidelyUsedTagWithHighestCostOfAllOrders()).willReturn(Optional.empty());
-
             assertThrows(PersistentException.class, () -> tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders());
         }
 

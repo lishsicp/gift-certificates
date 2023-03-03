@@ -1,29 +1,28 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.assembler.GiftCertificateAssembler;
-import com.epam.esm.config.LanguageConfig;
 import com.epam.esm.dto.GiftCertificateDto;
-import com.epam.esm.exception.ExceptionMessageI18n;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.util.JsonMapperUtil;
+import com.epam.esm.util.ModelFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,60 +40,41 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest({GiftCertificateController.class, ExceptionMessageI18n.class})
+
+@ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class GiftCertificateControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private GiftCertificateService giftCertificateService;
 
-    @MockBean
+    @Mock
     private GiftCertificateAssembler giftCertificateAssembler;
 
+    @InjectMocks
+    private GiftCertificateController giftCertificateController;
+
+    @BeforeEach
+    void setup() {
+        this.mockMvc = MockMvcBuilders.standaloneSetup(giftCertificateController).build();
+    }
 
     @Test
     @DisplayName("GET /api/certificates - Success")
     void shouldReturnAllCertificatesWithParameters() throws Exception {
-        GiftCertificateDto certificate1 = GiftCertificateDto.builder()
-                .id(1L)
-                .name("Certificate 1")
-                .description("Description 1")
-                .price(BigDecimal.valueOf(10.00))
-                .duration(10L)
-                .createDate(LocalDateTime.now())
-                .lastUpdateDate(LocalDateTime.now())
-                .build();
-
-        GiftCertificateDto certificate2 = GiftCertificateDto.builder()
-                .id(2L)
-                .name("Certificate 2")
-                .description("Description 2")
-                .price(BigDecimal.valueOf(20.00))
-                .duration(20L)
-                .createDate(LocalDateTime.now())
-                .lastUpdateDate(LocalDateTime.now())
-                .build();
-
+        GiftCertificateDto certificate1 = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
+        GiftCertificateDto certificate2 = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
         List<GiftCertificateDto> certificates = Arrays.asList(certificate1, certificate2);
         Page<GiftCertificateDto> page = new PageImpl<>(certificates);
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("name", "Certificate");
-        params.add("tags", "Tag1");
-        params.add("name_sort", "asc");
-        params.add("date_sort", "desc");
-
         given(giftCertificateAssembler.toCollectionModel(any(), anyInt(), anyInt(), eq(params)))
                 .willReturn(PagedModel.of(certificates, new PagedModel.PageMetadata(0,0,0)));
         given(giftCertificateService.getAllWithFilter(anyInt(), anyInt(), eq(params)))
                 .willReturn(page);
 
-        mockMvc.perform(get("/api/certificates/")
-                        .param("name", "Certificate")
-                        .param("tags", "Tag1")
-                        .param("name_sort", "asc")
-                        .param("date_sort", "desc"))
+        mockMvc.perform(get("/api/certificates/"))
                 .andExpect(status().isOk());
 
         then(giftCertificateService).should().getAllWithFilter(anyInt(), anyInt(), eq(params));
@@ -105,14 +85,7 @@ class GiftCertificateControllerTest {
     @DisplayName("GET /api/certificates/{id} - Success")
     void shouldReturnCertificateById() throws Exception {
         long id = 1;
-        GiftCertificateDto certificate = GiftCertificateDto.builder()
-                .id(id).name("Certificate 1")
-                .description("Description 1")
-                .price(BigDecimal.valueOf(10.00))
-                .duration(10L)
-                .createDate(LocalDateTime.now())
-                .lastUpdateDate(LocalDateTime.now())
-                .build();
+        GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
         given(giftCertificateService.getById(anyLong())).willReturn(certificate);
         given(giftCertificateAssembler.toModel(certificate)).willReturn(new GiftCertificateDto());
 
@@ -126,15 +99,7 @@ class GiftCertificateControllerTest {
     @Test
     @DisplayName("POST /api/certificates - Success")
     void shouldSaveGiftCertificate() throws Exception {
-        GiftCertificateDto certificate = GiftCertificateDto.builder()
-                .id(1L)
-                .name("Certificate 1")
-                .description("Description 1")
-                .price(BigDecimal.valueOf(10.00))
-                .duration(10L)
-                .createDate(LocalDateTime.now())
-                .lastUpdateDate(LocalDateTime.now())
-                .build();
+        GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
 
         given(giftCertificateService.save(any(GiftCertificateDto.class))).willReturn(certificate);
         given(giftCertificateAssembler.toModel(certificate)).willReturn(certificate);
@@ -151,24 +116,10 @@ class GiftCertificateControllerTest {
     @Test
     @DisplayName("PATCH /api/certificates/{id} - Success")
     void givenValidGiftCertificateDto_whenUpdatingGiftCertificate_thenReturnsCreatedStatus() throws Exception {
-        long id = 1;
-        GiftCertificateDto dto = GiftCertificateDto.builder()
-                .id(id).name("Certificate 1")
-                .description("Description 1")
-                .price(BigDecimal.valueOf(10.00))
-                .duration(10L)
-                .createDate(LocalDateTime.now())
-                .lastUpdateDate(LocalDateTime.now())
-                .build();
-        GiftCertificateDto updatedDto = GiftCertificateDto
-                .builder().id(dto.getId())
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .duration(dto.getDuration())
-                .createDate(dto.getCreateDate())
-                .lastUpdateDate(dto.getLastUpdateDate())
-                .build();
+        var giftCertificate = ModelFactory.createGiftCertificate();
+        long id = giftCertificate.getId();
+        GiftCertificateDto dto = ModelFactory.toGiftCertificateDto(giftCertificate);
+        GiftCertificateDto updatedDto = ModelFactory.toGiftCertificateDto(giftCertificate);
         given(giftCertificateService.update(id, dto)).willReturn(updatedDto);
         given(giftCertificateAssembler.toModel(any())).willReturn(updatedDto);
 

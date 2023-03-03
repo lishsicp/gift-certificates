@@ -1,18 +1,13 @@
 package com.epam.esm.service.impl;
 
 
+import com.epam.esm.dto.OrderDto;
+import com.epam.esm.dto.converter.OrderConverter;
+import com.epam.esm.exception.PersistentException;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
-import com.epam.esm.entity.GiftCertificate;
-import com.epam.esm.entity.Order;
-import com.epam.esm.entity.User;
-import com.epam.esm.dto.GiftCertificateDto;
-import com.epam.esm.dto.OrderDto;
-import com.epam.esm.dto.UserDto;
-import com.epam.esm.dto.converter.OrderConverter;
-import com.epam.esm.exception.PersistentException;
-import org.junit.jupiter.api.BeforeEach;
+import com.epam.esm.util.ModelFactory;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,9 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -49,28 +41,10 @@ class OrderServiceImplTest {
     @InjectMocks
     private OrderServiceImpl service;
 
-    private Order order;
-    private OrderDto orderDto;
-
-    @BeforeEach
-    void setUp() {
-        User user = User.builder().id(1).name("User Name").build();
-        UserDto userDto = UserDto.builder().id(1L).name("User Name").build();
-        GiftCertificate certificate = GiftCertificate.builder().id(1).build();
-        GiftCertificateDto certificateDto = GiftCertificateDto.builder().id(1L).build();
-        order = Order.builder().id(1).user(user)
-                .giftCertificate(certificate)
-                .purchaseDate(LocalDateTime.now())
-                .cost(BigDecimal.TEN).build();
-
-        orderDto = OrderDto.builder().id(1L).user(userDto)
-                .giftCertificate(certificateDto)
-                .purchaseDate(LocalDateTime.now())
-                .cost(BigDecimal.TEN).build();
-    }
-
     @Test
     void findById_shouldReturnOrder() {
+        var order = ModelFactory.createOrder();
+        var orderDto = ModelFactory.toOrderDto(order);
         given(orderRepository.findById(anyLong())).willReturn(Optional.ofNullable(order));
         given(orderConverter.toDto(any())).willReturn(orderDto);
 
@@ -81,9 +55,7 @@ class OrderServiceImplTest {
 
     @Test
     void findById_shouldThrowException_whenNonExistentId() {
-        long userId = order.getId();
-
-        assertThrows(PersistentException.class, () -> service.getById(userId));
+        assertThrows(PersistentException.class, () -> service.getById(0));
     }
 
     @Nested
@@ -91,18 +63,24 @@ class OrderServiceImplTest {
 
         @Test
         void save_shouldThrowException_whenCertificateIsEmpty() {
+            var order = ModelFactory.createOrder();
+            var orderDto = ModelFactory.toOrderDto(order);
             given(orderConverter.toEntity(any())).willReturn(order);
             assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
         @Test
         void save_shouldThrowException_whenUserIsEmpty() {
+            var order = ModelFactory.createOrder();
+            var orderDto = ModelFactory.toOrderDto(order);
             given(orderConverter.toEntity(any())).willReturn(order);
             assertThrows(PersistentException.class, () -> service.save(orderDto));
         }
 
         @Test
         void save_shouldSave() {
+            var order = ModelFactory.createOrder();
+            var orderDto = ModelFactory.toOrderDto(order);
             given(certificateRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getGiftCertificate()));
             given(userRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getUser()));
             given(orderConverter.toEntity(any())).willReturn(order);
@@ -122,6 +100,8 @@ class OrderServiceImplTest {
 
         @Test
         void getOrdersByUserId_shouldReturnOrderList() {
+            var order = ModelFactory.createOrder();
+            var orderDto = ModelFactory.toOrderDto(order);
             given(userRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getUser()));
             given(orderRepository.findOrdersByUserId(anyLong(), any())).willReturn(new PageImpl<>(Collections.singletonList(order)));
             given(orderConverter.toDto(any())).willReturn(orderDto);
@@ -133,10 +113,7 @@ class OrderServiceImplTest {
 
         @Test
         void getOrdersByUserId_shouldThrowException() {
-            long id = order.getId();
-
-            assertThrows(PersistentException.class, () -> service.getOrdersByUserId(id, PAGE, SIZE));
+            assertThrows(PersistentException.class, () -> service.getOrdersByUserId(0, PAGE, SIZE));
         }
-
     }
 }

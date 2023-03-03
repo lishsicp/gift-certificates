@@ -2,24 +2,25 @@ package com.epam.esm.controller;
 
 import com.epam.esm.assembler.TagModelAssembler;
 import com.epam.esm.dto.TagDto;
-import com.epam.esm.dto.converter.TagConverter;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.ExceptionMessageI18n;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.JsonMapperUtil;
+import com.epam.esm.util.ModelFactory;
 import org.hamcrest.core.IsNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -33,24 +34,31 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest({TagConverter.class, ExceptionMessageI18n.class})
+@ExtendWith(MockitoExtension.class)
 class TagControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @Mock
     private TagService tagService;
 
-    @MockBean
+    @Mock
     private TagModelAssembler tagModelAssembler;
+
+    @InjectMocks
+    private TagController tagController;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setup() {
+        this.mockMvc = MockMvcBuilders.standaloneSetup(tagController).build();
+    }
 
     @Test
     @DisplayName("GET /api/tags/{id} - Success")
     void testTagById() throws Exception {
-        long id = 1;
-        Tag tag = new Tag(id, "Test Tag");
-        TagDto tagDto = new TagDto(id, tag.getName());
+        Tag tag = ModelFactory.createTag();
+        TagDto tagDto = ModelFactory.toTagDto(tag);
+        long id = tagDto.getId();
         given(tagService.getById(id)).willReturn(tagDto);
         given(tagModelAssembler.toModel(tagDto)).willReturn(tagDto);
 
@@ -59,7 +67,7 @@ class TagControllerTest {
                 .andExpect(status().isOk());
 
         resultActions.andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.name").value("Test Tag"));
+                .andExpect(jsonPath("$.name").value(tagDto.getName()));
     }
 
 
@@ -68,10 +76,11 @@ class TagControllerTest {
     void testAllTags() throws Exception {
         int page = 1;
         int size = 5;
-        List<TagDto> tags = Arrays.asList(
-                TagDto.builder().id(1L).name("tag1").build(),
-                TagDto.builder().id(2L).name("tag2").build()
-        );
+        Tag tag1 = ModelFactory.createTag();
+        TagDto tagDto1 = ModelFactory.toTagDto(tag1);
+        Tag tag2 = ModelFactory.createTag();
+        TagDto tagDto2 = ModelFactory.toTagDto(tag2);
+        List<TagDto> tags = List.of(tagDto1, tagDto2);
         given(tagModelAssembler.toCollectionModel(any(), anyInt(), anyInt()))
                 .willReturn(PagedModel.of(tags, new PagedModel.PageMetadata(0,0,0)));
         given(tagService.getAll(page, size)).willReturn(new PageImpl<>(tags));
@@ -81,34 +90,34 @@ class TagControllerTest {
                 .andExpect(status().isOk());
 
         resultActions
-                .andExpect(jsonPath("$._embedded.tagDtoList[0].id", is(1)))
-                .andExpect(jsonPath("$._embedded.tagDtoList[0].name", is("tag1")))
-                .andExpect(jsonPath("$._embedded.tagDtoList[1].id", is(2)))
-                .andExpect(jsonPath("$._embedded.tagDtoList[1].name", is("tag2")));
+                .andExpect(jsonPath("$.content[0].id", is((int) tag1.getId())))
+                .andExpect(jsonPath("$.content[0].name", is(tag1.getName())))
+                .andExpect(jsonPath("$.content[1].id", is((int) tag2.getId())))
+                .andExpect(jsonPath("$.content[1].name", is(tag2.getName())));
     }
 
     @Test
     @DisplayName("GET /api/tags/popular - Success")
     void popularTag() throws Exception {
-        TagDto tagDto1 = new TagDto();
-        tagDto1.setId(1L);
-        tagDto1.setName("tag1");
-        when(tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders()).thenReturn(tagDto1);
-        when(tagModelAssembler.toModel(any())).thenReturn(tagDto1);
+        Tag tag = ModelFactory.createTag();
+        TagDto tagDto = ModelFactory.toTagDto(tag);
+        when(tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders()).thenReturn(tagDto);
+        when(tagModelAssembler.toModel(any())).thenReturn(tagDto);
 
         ResultActions resultActions = mockMvc.perform(get("/api/tags/popular")
                         .contentType("application/json"))
                 .andExpect(status().isOk());
 
         resultActions
-                .andExpect(jsonPath("$.id").value(tagDto1.getId()))
-                .andExpect(jsonPath("$.name").value(tagDto1.getName()));
+                .andExpect(jsonPath("$.id").value(tagDto.getId()))
+                .andExpect(jsonPath("$.name").value(tagDto.getName()));
     }
 
     @Test
     @DisplayName("POST /api/tag - Success")
     void saveTag() throws Exception {
-        TagDto tagDto = new TagDto(1L, "Test Tag");
+        Tag tag = ModelFactory.createTag();
+        TagDto tagDto = ModelFactory.toTagDto(tag);
         given(tagService.save(any())).willReturn(tagDto);
         given(tagModelAssembler.toModel(any())).willReturn(tagDto);
 

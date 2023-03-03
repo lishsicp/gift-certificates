@@ -1,11 +1,10 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.repository.UserRepository;
-import com.epam.esm.entity.User;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.dto.converter.UserConverter;
 import com.epam.esm.exception.PersistentException;
-import org.junit.jupiter.api.BeforeEach;
+import com.epam.esm.repository.UserRepository;
+import com.epam.esm.util.ModelFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,11 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -37,45 +36,30 @@ class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl service;
 
-    private User USER_1;
-    private User USER_2;
-    private List<User> expectedUserList;
-
-    private UserDto USER_DTO_1;
-    private UserDto USER_DTO_2;
-    private List<UserDto> expectedUserDtoList;
-
-    @BeforeEach
-    void setUp() {
-        USER_1 = User.builder().id(1L).name("User1").build();
-        USER_2 = User.builder().id(1L).name("User2").build();
-        expectedUserList = Arrays.asList(USER_1, USER_2);
-
-        USER_DTO_1 = UserDto.builder().id(1L).name("User1").build();
-        USER_DTO_2 = UserDto.builder().id(1L).name("User2").build();
-        expectedUserDtoList = Arrays.asList(USER_DTO_1, USER_DTO_2);
-    }
-
     @Test
     void getAll_shouldReturnTwoUsers() {
         // Given
         int PAGE = 1;
         int SIZE = 5;
-        given(repository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(expectedUserList));
-        given(userConverter.toDto(any())).willReturn(USER_DTO_1, USER_DTO_2);
+        var user = ModelFactory.createUser();
+        var userDto = ModelFactory.toUserDto(user);
+        var userList = Collections.singletonList(user);
+        var userDtoList = Collections.singletonList(userDto);
+        given(repository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(userList));
+        given(userConverter.toDto(any())).willReturn(userDto);
 
         // When
         Page<UserDto> actual = service.getAll(PAGE, SIZE);
 
         // Then
-        assertThat(actual.getContent()).isEqualTo(expectedUserDtoList);
+        assertEquals(actual.getContent(), userDtoList);
         then(repository).should().findAll(any(Pageable.class));
     }
 
     @Test
     void getById_shouldThrowException_whenUserNonexistent() {
-        Long userId = USER_2.getId();
-        given(repository.findById(userId)).willReturn(Optional.empty());
+        var user = ModelFactory.createUser();
+        long userId = user.getId();
 
         // Then
         assertThrows(PersistentException.class, () -> service.getById(userId));
@@ -85,15 +69,17 @@ class UserServiceImplTest {
     @Test
     void getById_shouldReturnUser() {
         // Given
-        Long userId = USER_1.getId();
-        given(repository.findById(userId)).willReturn(Optional.ofNullable(USER_1));
-        given(userConverter.toDto(any())).willReturn(USER_DTO_1);
+        var user = ModelFactory.createUser();
+        var userDto = ModelFactory.toUserDto(user);
+        long userId = user.getId();
+        given(repository.findById(userId)).willReturn(Optional.of(user));
+        given(userConverter.toDto(any())).willReturn(userDto);
 
         // When
         UserDto userById = service.getById(userId);
 
         // Then
-        assertThat(userById).isEqualTo(USER_DTO_1);
+        assertThat(userById).isEqualTo(userDto);
         then(repository).should().findById(userId);
     }
 }

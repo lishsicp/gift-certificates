@@ -69,17 +69,12 @@ public class ExceptionControllerAdvice extends ExceptionHandlerExceptionResolver
     }
 
     private ErrorBody errorBodyValidationMessageSetter(String errorMessage, String errorField, Object invalidValue) {
-        ErrorBody errorBody = new ErrorBody();
         if (StringUtils.isNumeric(errorMessage)) {
             int errorCode = Integer.parseInt(errorMessage);
-            errorBody.setErrorCode(errorCode);
             errorMessage = exceptionMessageI18n.toLocale(String.valueOf(errorCode));
-            errorBody.setErrorMessage(String.format(errorMessage, invalidValue));
-        } else {
-            errorBody.setErrorMessage(errorField + " - " + errorMessage);
-            errorBody.setErrorCode(ErrorCodes.VALIDATION_ERROR);
+            return new ErrorBody(String.format(errorMessage, invalidValue), errorCode);
         }
-        return errorBody;
+        return new ErrorBody(String.format("%s - %s", errorField, errorMessage), ErrorCodes.VALIDATION_ERROR);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

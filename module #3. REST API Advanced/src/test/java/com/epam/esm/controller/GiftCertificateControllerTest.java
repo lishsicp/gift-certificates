@@ -42,7 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
 class GiftCertificateControllerTest {
 
     private MockMvc mockMvc;

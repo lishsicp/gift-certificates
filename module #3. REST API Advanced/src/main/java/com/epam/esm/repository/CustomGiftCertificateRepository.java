@@ -3,7 +3,6 @@ package com.epam.esm.repository;
 import com.epam.esm.entity.GiftCertificate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -12,7 +11,6 @@ import org.springframework.util.MultiValueMap;
  * finding all GiftCertificate entities that match the specified filter parameters.
  * <p>
  */
-@Component
 public interface CustomGiftCertificateRepository {
 
     /**

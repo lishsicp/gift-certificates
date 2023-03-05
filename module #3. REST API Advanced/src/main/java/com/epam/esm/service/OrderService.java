@@ -3,7 +3,6 @@ package com.epam.esm.service;
 import com.epam.esm.dto.OrderDto;
 import org.springframework.data.domain.Page;
 
-
 /**
  * The OrderService interface extends the CRDService interface for managing OrderDto objects.
  * <p>

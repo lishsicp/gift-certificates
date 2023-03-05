@@ -1,6 +1,5 @@
 package com.epam.esm.dto;
 
-
 import com.epam.esm.dto.group.OnPersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +28,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class GiftCertificateDto extends RepresentationModel<GiftCertificateDto> {
 
-    //@Min(value = 1, message = "40001")
     private long id;
 
     @Pattern(regexp = "[\\w\\s]{3,64}+", message = "40003")

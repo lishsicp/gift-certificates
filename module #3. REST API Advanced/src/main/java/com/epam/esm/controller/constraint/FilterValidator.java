@@ -12,9 +12,11 @@ import java.util.Map;
 public class FilterValidator implements ConstraintValidator<FilterConstraint, MultiValueMap<String, String>> {
 
     private static final String INVALID_DATE_SORT = "40007";
+
     private static final String INVALID_NAME_SORT = "40008";
 
     private static final String ASCENDING = "asc";
+
     private static final String DESCENDING = "desc";
 
     @Override

@@ -13,9 +13,6 @@ import org.springframework.stereotype.Component;
 @Component
 public abstract class ModelDtoConverter<T, E> {
 
-    /**
-     * The ModelMapper instance used for mapping between model and DTO objects.
-     */
     protected final ModelMapper modelMapper;
 
     @Autowired

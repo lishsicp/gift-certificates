@@ -25,5 +25,4 @@ public class TagDto extends RepresentationModel<TagDto> {
     @Pattern(regexp = "[\\w\\s]{3,64}+", message = "40002")
     @NotEmpty(groups = OnPersist.class)
     private String name;
-
 }

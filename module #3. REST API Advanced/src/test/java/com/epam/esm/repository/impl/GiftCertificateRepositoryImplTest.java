@@ -8,7 +8,7 @@ import com.epam.esm.util.ModelFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(TestContainerExtension.class)
 @Transactional
-@DataJpaTest
+@SpringBootTest
 class GiftCertificateRepositoryImplTest {
 
     @Autowired

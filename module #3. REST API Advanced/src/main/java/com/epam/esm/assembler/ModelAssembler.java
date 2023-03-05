@@ -1,6 +1,5 @@
 package com.epam.esm.assembler;
 
-
 import org.springframework.hateoas.RepresentationModel;
 
 /**

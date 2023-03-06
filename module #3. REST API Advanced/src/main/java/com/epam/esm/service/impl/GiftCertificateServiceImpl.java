@@ -66,8 +66,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDto save(GiftCertificateDto giftCertificateDto) {
         Optional<GiftCertificate> existed = giftCertificateRepository.findGiftCertificateByName(giftCertificateDto.getName());
-        if (existed.isPresent())
+        if (existed.isPresent()) {
             throw new PersistentException(ErrorCodes.DUPLICATED_CERTIFICATE, giftCertificateDto.getName());
+        }
         LocalDateTime localDateTime = LocalDateTime.now(zoneId);
         GiftCertificate giftCertificate = giftCertificateConverter.toEntity(giftCertificateDto);
         giftCertificate.setCreateDate(localDateTime);
@@ -78,10 +79,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public void delete(long id) throws PersistentException {
+    public void delete(long id) {
         Optional<GiftCertificate> giftCertificateOptional = giftCertificateRepository.findById(id);
-        if (giftCertificateOptional.isEmpty())
+        if (giftCertificateOptional.isEmpty()) {
             throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
+        }
         giftCertificateRepository.delete(giftCertificateOptional.get());
     }
 

@@ -37,34 +37,38 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto getById(long id) throws PersistentException {
-        Tag tag = tagRepository.findById(id).orElseThrow(() -> new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id));
-        return tagConverter.toDto(tag);
+        Optional<Tag> optionalTag = tagRepository.findById(id);
+        if (optionalTag.isEmpty()) {
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
+        }
+        return tagConverter.toDto(optionalTag.get());
     }
 
     @Override
     public TagDto save(TagDto tagDto) throws PersistentException {
         Optional<Tag> optionalTag = tagRepository.findTagByName(tagDto.getName());
-        if (optionalTag.isPresent())
+        if (optionalTag.isPresent()) {
             throw new PersistentException(ErrorCodes.DUPLICATED_TAG, tagDto.getName());
-        Tag save = tagRepository.save(tagConverter.toEntity(tagDto));
-        return tagConverter.toDto(save);
+        }
+        Tag savedTag = tagRepository.save(tagConverter.toEntity(tagDto));
+        return tagConverter.toDto(savedTag);
     }
 
     @Override
-    public void delete(long id) throws PersistentException {
+    public void delete(long id) {
         Optional<Tag> tagOptional = tagRepository.findById(id);
-        if (tagOptional.isEmpty())
+        if (tagOptional.isEmpty()) {
             throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
+        }
         tagRepository.delete(tagOptional.get());
     }
 
     @Override
     public TagDto getMostWidelyUsedTagWithHighestCostOfAllOrders() {
-        Tag tag = tagRepository
-                .findMostWidelyUsedTagWithHighestCostOfAllOrders()
-                .orElseThrow(
-                        () -> new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, "id")
-                );
-        return tagConverter.toDto(tag);
+        Optional<Tag> tagOptional = tagRepository.findMostWidelyUsedTagWithHighestCostOfAllOrders();
+        if (tagOptional.isEmpty()) {
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, "id");
+        }
+        return tagConverter.toDto(tagOptional.get());
     }
 }

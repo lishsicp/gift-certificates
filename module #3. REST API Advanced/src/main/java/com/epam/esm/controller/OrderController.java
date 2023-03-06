@@ -7,7 +7,9 @@ import com.epam.esm.service.OrderService;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -74,5 +76,18 @@ public class OrderController {
     public OrderDto makeOrder(@RequestBody @Valid MakeOrderDto orderDto) {
         OrderDto savedOrderDto = orderService.save(orderDto);
         return orderAssembler.toModel(savedOrderDto);
+    }
+
+
+    /**
+     * Method used to delete an existing order by its id.
+     *
+     * @param id The id of the order to delete
+     * @return A response indicating the completion of the delete operation
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteOrder(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
+        orderService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

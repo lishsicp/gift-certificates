@@ -26,9 +26,9 @@ public class OrderServiceImpl implements OrderService {
 
     private final ZoneId zoneId = ZoneId.systemDefault();
 
-    private final OrderRepository orderDao;
-    private final UserRepository userDao;
-    private final GiftCertificateRepository giftCertificateDao;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final GiftCertificateRepository giftCertificateRepository;
     private final OrderConverter orderConverter;
 
     @Autowired
@@ -36,39 +36,43 @@ public class OrderServiceImpl implements OrderService {
                             UserRepository userDao,
                             GiftCertificateRepository giftCertificateDao,
                             OrderConverter orderConverter) {
-        this.orderDao = orderDao;
-        this.userDao = userDao;
-        this.giftCertificateDao = giftCertificateDao;
+        this.orderRepository = orderDao;
+        this.userRepository = userDao;
+        this.giftCertificateRepository = giftCertificateDao;
         this.orderConverter = orderConverter;
     }
 
     @Override
-    public OrderDto save(OrderDto orderDto) throws PersistentException {
+    public OrderDto save(OrderDto orderDto) {
         Order order = orderConverter.toEntity(orderDto);
         long certificateId = order.getGiftCertificate().getId();
-        Optional<GiftCertificate> certificateOptional = giftCertificateDao.findById(certificateId);
-        if (certificateOptional.isEmpty())
+        Optional<GiftCertificate> certificateOptional = giftCertificateRepository.findById(certificateId);
+        if (certificateOptional.isEmpty()) {
             throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, certificateId);
+        }
 
         long userId = order.getUser().getId();
-        Optional<User> userOptional = userDao.findById(userId);
-        if (userOptional.isEmpty())
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
             throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, userId);
+        }
+
         order.setUser(userOptional.get());
         order.setGiftCertificate(certificateOptional.get());
         order.setCost(certificateOptional.get().getPrice());
         order.setPurchaseDate(LocalDateTime.now(zoneId));
 
-        return orderConverter.toDto(orderDao.save(order));
+        return orderConverter.toDto(orderRepository.save(order));
     }
 
     @Override
-    public Page<OrderDto> getOrdersByUserId(long id, int page, int size) throws PersistentException {
-        Optional<User> userOptional = userDao.findById(id);
-        if (userOptional.isEmpty())
+    public Page<OrderDto> getOrdersByUserId(long id, int page, int size) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
             throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
+        }
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Order> ordersByUserId = orderDao.findOrdersByUserId(id, pageable);
+        Page<Order> ordersByUserId = orderRepository.findOrdersByUserId(id, pageable);
         return ordersByUserId.map(orderConverter::toDto);
     }
 
@@ -78,13 +82,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto getById(long id) throws PersistentException {
-        Order order = orderDao.findById(id).orElseThrow(() -> new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id));
-        return orderConverter.toDto(order);
+    public OrderDto getById(long id)  {
+        Optional<Order> orderOptional = orderRepository.findById(id);
+        if (orderOptional.isEmpty()) {
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
+        }
+        return orderConverter.toDto(orderOptional.get());
     }
 
     @Override
-    public void delete(long id) throws PersistentException {
-        throw new UnsupportedOperationException();
+    public void delete(long id) {
+        Optional<Order> orderOptional = orderRepository.findById(id);
+        if (orderOptional.isEmpty()) {
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
+        }
+        orderRepository.delete(orderOptional.get());
     }
 }

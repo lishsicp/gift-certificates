@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -36,10 +38,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(long id) throws PersistentException {
-        User user = userRepository.findById(id).orElseThrow(() ->
-                new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id)
-        );
-        return userConverter.toDto(user);
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, id);
+        }
+        return userConverter.toDto(userOptional.get());
     }
 
     @Override

@@ -14,7 +14,7 @@ public interface OrderBuilder {
      *
      * @param cb         The {@link CriteriaBuilder} to use for constructing the order.
      * @param expression The {@link Path} to use for specifying the attribute to order by.
-     * @return The constructed {@link Order} object.
+     * @return the constructed {@link Order}.
      */
     Order toOrder(CriteriaBuilder cb, Path<String> expression);
 }

@@ -6,19 +6,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * This interface extends Spring's PagingAndSortingRepository interface for the GiftCertificate entity, adding a custom
- * <p>
- * method for finding a GiftCertificate entity by name.
- */
 @Repository
 public interface GiftCertificateRepository extends PagingAndSortingRepository<GiftCertificate, Long>, CustomGiftCertificateRepository {
 
     /**
-     * Finds a GiftCertificate entity by name.
+     * Finds a {@link GiftCertificate} entity by name.
      *
-     * @param name the name of the GiftCertificate to find
-     * @return an Optional object containing the requested GiftCertificate object, or an empty Optional if no match is found
+     * @param name the name of the {@link GiftCertificate} to find
+     * @return an {@link Optional} object containing the requested {@link GiftCertificate} object
      */
     Optional<GiftCertificate> findGiftCertificateByName(String name);
 }

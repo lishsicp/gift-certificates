@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 /**
  * Abstract class that defines common methods and properties for creating JPA specifications.
  * It provides helper methods for building predicates and orders for use in CriteriaQuery objects.
- * Concrete classes can extend this class and use the methods to create specifications tailored to specific entities.
  */
 public abstract class SpecificationBuilder {
 

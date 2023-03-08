@@ -7,25 +7,20 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * This interface extends Spring's JpaRepository interface for the Tag entity, providing CRUD and basic query operations
- * for the Tag entity.
- */
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
     /**
-     * Finds a Tag by its name.
+     * Finds a {@link Tag} by its name.
      *
-     * @param name the name of the Tag to find
-     * @return an Optional containing the requested Tag object, or an empty Optional if the Tag is not found
+     * @param name the name of the {@link Tag} to find
+     * @return an {@link Optional Optional} containing the requested {@link Tag} object
      */
     Optional<Tag> findTagByName(String name);
 
     /**
-     * Finds the Tag that is most widely used in GiftCertificates with the highest total cost of all orders.
-     * This method is implemented with a native SQL query that selects the Tag with the highest count of occurrences
-     * in GiftCertificates that are included in Orders with the highest total cost of all orders.
+     * Finds the {@link Tag tag} that is most widely used in {@link com.epam.esm.entity.GiftCertificate GiftCertificate}
+     * with the highest total cost of all {@link com.epam.esm.entity.Order orders}.
      */
     @Query(value = "select t.id, t.name, t.created_at, t.updated_at from order_ o\n" +
             " join gift_certificate g on o.gift_certificate_id = g.id\n" +

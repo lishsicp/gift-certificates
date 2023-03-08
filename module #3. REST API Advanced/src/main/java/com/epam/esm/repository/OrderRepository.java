@@ -6,19 +6,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * This interface extends Spring's PagingAndSortingRepository interface for the Order entity, adding a custom method
- * for finding all orders belonging to a specified user.
- */
 @Repository
 public interface OrderRepository extends PagingAndSortingRepository<Order, Long> {
 
     /**
-     * Finds all orders belonging to the specified user.
+     * Finds all {@link Order orders} belonging to the specified {@link com.epam.esm.entity.User User}.
      *
-     * @param id       the id of the user to find orders for
-     * @param pageable a Pageable object that specifies the requested page and page size for the result set
-     * @return a Page object containing the requested list of Order objects
+     * @param id       the id of the {@link com.epam.esm.entity.User User} to find {@link Order orders} for
+     * @param pageable a {@link Pageable} object that specifies the requested page and page size for the result set
+     * @return a {@link Page} object containing the requested list of {@link Order} objects
      */
     Page<Order> findOrdersByUserId(Long id, Pageable pageable);
 }

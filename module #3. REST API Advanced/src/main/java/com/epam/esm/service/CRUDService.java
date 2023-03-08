@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
 /**
- * This interface provides a base implementation of a CRUD service for the business layer.
+ * This interface defines the basic CRD operations for a service in the business layer.
  * It extends the CRDService interface and adds a method for updating an entity.
  *
  * @param <T> the type of entity managed by this service

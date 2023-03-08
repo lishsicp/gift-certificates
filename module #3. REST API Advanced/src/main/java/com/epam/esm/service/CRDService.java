@@ -10,11 +10,11 @@ import org.springframework.data.domain.Page;
 public interface CRDService<T> {
 
     /**
-     * Retrieves a paginated list of all entities.
+     * Retrieves a paginated {@link Page} of all entities.
      *
      * @param page the page number of the result set to retrieve
      * @param size the number of items per page to retrieve
-     * @return a Page object containing the requested list of entities
+     * @return a {@link Page} object containing the requested list of entities
      */
     Page<T> getAll(int page, int size);
 

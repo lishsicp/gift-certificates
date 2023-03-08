@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
@@ -25,4 +26,8 @@ public class UserDto extends RepresentationModel<UserDto> {
     @Pattern(regexp = "[\\w\\s]{3,64}+", message = "40002")
     @NotEmpty(groups = OnPersist.class)
     private String name;
+
+    @Email
+    @NotEmpty(groups = OnPersist.class)
+    private String email;
 }

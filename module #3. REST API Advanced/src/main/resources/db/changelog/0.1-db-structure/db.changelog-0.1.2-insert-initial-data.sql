@@ -29,11 +29,11 @@ VALUES (1, 2),
        (3, 8),
        (3, 9);
 
-INSERT INTO user_(name)
-values ('Anthony Jennings'),
-       ('Monty Norman'),
-       ('Sophia Hodges'),
-       ('Evie Romero');
+INSERT INTO user_(name, email)
+values ('Anthony Jennings', 'anthonyjennings@gmail.com'),
+       ('Monty Norman', 'montynorman@gmail.com'),
+       ('Sophia Hodges', 'sophiahodges@gmail.com'),
+       ('Evie Romero', 'evieromero@gmail.com');
 
 INSERT INTO order_(cost, gift_certificate_id, user_id)
 values (200, 2, 1),

@@ -55,7 +55,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("GET /api/tags/{id} - Success")
-    void testTagById() throws Exception {
+    void tagById_shouldReturnTag() throws Exception {
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
         long id = tagDto.getId();
@@ -73,7 +73,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("GET /api/tags - Success")
-    void testAllTags() throws Exception {
+    void allTags_shouldReturnTwoTags() throws Exception {
         int page = 1;
         int size = 5;
         Tag tag1 = ModelFactory.createTag();
@@ -98,7 +98,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("GET /api/tags/popular - Success")
-    void popularTag() throws Exception {
+    void popularTag_shouldReturnTag() throws Exception {
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
         when(tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders()).thenReturn(tagDto);
@@ -115,7 +115,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("POST /api/tag - Success")
-    void saveTag() throws Exception {
+    void saveTag_shouldReturnTag() throws Exception {
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
         given(tagService.save(any())).willReturn(tagDto);
@@ -132,7 +132,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("DELETE /api/tags/{id} - Success")
-    void deleteTag() throws Exception {
+    void deleteTag_shouldDelete() throws Exception {
         long id = 1;
 
         mockMvc.perform(delete("/api/tags/{id}", id))

@@ -59,7 +59,7 @@ class TagServiceImplIT {
 
         Page<TagDto> tagDtos = tagService.getAll(1, 5);
 
-        assertEquals(tagDtos, savedTagsPaged);
+        assertEquals(savedTagsPaged, tagDtos);
     }
 
     @Test

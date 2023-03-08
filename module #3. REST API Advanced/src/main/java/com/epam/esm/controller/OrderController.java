@@ -3,6 +3,7 @@ package com.epam.esm.controller;
 import com.epam.esm.assembler.OrderAssembler;
 import com.epam.esm.dto.MakeOrderDto;
 import com.epam.esm.dto.OrderDto;
+import com.epam.esm.entity.User;
 import com.epam.esm.service.OrderService;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.PagedModel;
@@ -23,7 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 
 /**
- * This class is used to implement controller logic for orders.
+ * This class is used to implement controller logic for {@link OrderDto orders}.
  */
 @RestController
 @RequestMapping("api/orders")
@@ -39,9 +40,9 @@ public class OrderController {
     }
 
     /**
-     * Method used to get order details by id.
-     * @param id The id of the order
-     * @return The order details
+     * Method to get {@link OrderDto order} details by id.
+     * @param id The id of the {@link OrderDto order}
+     * @return The {@link OrderDto order} details
      */
     @GetMapping("/{id}")
     public OrderDto orderById(
@@ -51,11 +52,28 @@ public class OrderController {
     }
 
     /**
-     * Method used to get orders of a particular user.
+     * Method to get all {@link OrderDto orders} with Pagination.
+     *
+     * @param page number of the page
+     * @param size number of items in a page
+     * @return a {@link PagedModel} which contains all {@link OrderDto Orders}
+     */
+    @GetMapping()
+    public PagedModel<OrderDto> allOrders(
+            @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
+            @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size
+    ) {
+        Page<OrderDto> orderDtos = orderService.getAll(page, size);
+        return orderAssembler.toCollectionModel(orderDtos, page, size);
+    }
+
+
+    /**
+     * Method used to get {@link OrderDto orders} of a particular {@link User user}.
      * @param page The page number
      * @param size The page size
-     * @param id The id of the user
-     * @return All the orders of the given user
+     * @param id The id of the {@link User user}
+     * @return All the {@link OrderDto orders} of the given {@link User user}
      */
     @GetMapping("/users/{id}")
     public PagedModel<OrderDto> ordersByUserId(
@@ -67,9 +85,9 @@ public class OrderController {
     }
 
     /**
-     * Method used to make a new order.
-     * @param orderDto The details of the new order to make
-     * @return The newly created order.
+     * Method used to make a new {@link OrderDto order}.
+     * @param orderDto The details of the new {@link OrderDto order} to make
+     * @return The newly created {@link OrderDto order}.
      */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
@@ -80,9 +98,9 @@ public class OrderController {
 
 
     /**
-     * Method used to delete an existing order by its id.
+     * Method used to delete an existing {@link OrderDto order} by its id.
      *
-     * @param id The id of the order to delete
+     * @param id The id of the {@link OrderDto order} to delete
      * @return A response indicating the completion of the delete operation
      */
     @DeleteMapping("/{id}")

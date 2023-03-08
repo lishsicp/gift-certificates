@@ -4,21 +4,17 @@ import com.epam.esm.dto.OrderDto;
 import org.springframework.data.domain.Page;
 
 /**
- * The OrderService interface extends the CRDService interface for managing OrderDto objects.
- * <p>
- * It provides methods for creating, reading, and deleting OrderDto objects.
- * <p>
- * It also defines a method for retrieving a paginated list of orders by user ID.
+ * This interface provides business logic for the {@link OrderDto} entity.
  */
 public interface OrderService extends CRDService<OrderDto> {
 
     /**
-     * Retrieves a paginated list of orders associated with the given user ID.
+     * Retrieves a paginated list of {@link OrderDto orders} associated with the given {@link com.epam.esm.entity.User User} ID.
      *
-     * @param id   the ID of the user to retrieve orders for
+     * @param id   the ID of the {@link com.epam.esm.entity.User User} to retrieve {@link OrderDto orders} for
      * @param page the page number of the result set to retrieve
      * @param size the number of items per page to retrieve
-     * @return a Page object containing the requested list of OrderDto objects
+     * @return a {@link Page} object containing the requested list of {@link OrderDto} objects
      */
     Page<OrderDto> getOrdersByUserId(long id, int page, int size);
 }

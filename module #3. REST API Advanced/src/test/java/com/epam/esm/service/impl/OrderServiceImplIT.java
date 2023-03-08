@@ -3,6 +3,9 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dto.MakeOrderDto;
 import com.epam.esm.dto.OrderDto;
+import com.epam.esm.dto.TagDto;
+import com.epam.esm.entity.Order;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.PersistentException;
 import com.epam.esm.extension.TestContainerExtension;
 import com.epam.esm.repository.GiftCertificateRepository;
@@ -16,10 +19,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,6 +51,29 @@ class OrderServiceImplIT {
 
     @Autowired
     private OrderService service;
+
+    @Test
+    void getAll_shouldReturnTwoOrdersWithPagedMetadata() {
+        // given
+        var order = ModelFactory.createNewOrder();
+
+        var user = userRepository.save(ModelFactory.createNewUser());
+        var certificate = certificateRepository.save(ModelFactory.createNewGiftCertificate());
+
+        order.setUser(user);
+        order.setGiftCertificate(certificate);
+
+        var savedOrder = orderRepository.save(order);
+        var orderDto = ModelFactory.toOrderDto(savedOrder);
+        List<OrderDto> savedOrdersToDto = Collections.singletonList(orderDto);
+        Page<OrderDto> savedTagsPaged = new PageImpl<>(savedOrdersToDto, PageRequest.of(0, 5), savedOrdersToDto.size());
+
+        // when
+        Page<OrderDto> orderDtos = service.getAll(1, 5);
+
+        // then
+        assertEquals(savedTagsPaged, orderDtos);
+    }
 
     @Test
     void findById_shouldReturnOrder() {
@@ -126,6 +157,23 @@ class OrderServiceImplIT {
         @Test
         void getOrdersByUserId_shouldThrowException() {
             assertThrows(PersistentException.class, () -> service.getOrdersByUserId(0, 0, 0));
+        }
+    }
+
+    @Nested
+    class WhenDeleting {
+        @Test
+        void delete_shouldReturnEmptyOptional_whenOrderWasDeleted() {
+            var newOrder = orderRepository.save(ModelFactory.createNewOrder());
+
+            service.delete(newOrder.getId());
+
+            assertEquals(Optional.empty(), orderRepository.findById(newOrder.getId()));
+        }
+
+        @Test
+        void delete_shouldThrowException_whenOrderDoNotExist() {
+            assertThrows(PersistentException.class,() -> service.delete(0));
         }
     }
 }

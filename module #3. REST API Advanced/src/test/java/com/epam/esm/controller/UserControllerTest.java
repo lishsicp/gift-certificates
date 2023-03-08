@@ -52,7 +52,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("GET /api/users - Success")
-    void getAllUsers_shouldReturnTwo() throws Exception {
+    void getAllUsers_shouldReturnTwoUsers() throws Exception {
         UserDto userDto1 = ModelFactory.toUserDto(ModelFactory.createUser());
         UserDto userDto2 = ModelFactory.toUserDto(ModelFactory.createUser());
         List<UserDto> userDtos = List.of(userDto1, userDto2);
@@ -69,8 +69,10 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(userDto1.getId()))
                 .andExpect(jsonPath("$.content[0].name").value(userDto1.getName()))
+                .andExpect(jsonPath("$.content[0].email").value(userDto1.getEmail()))
                 .andExpect(jsonPath("$.content[1].id").value(userDto2.getId()))
-                .andExpect(jsonPath("$.content[1].name").value(userDto2.getName()));
+                .andExpect(jsonPath("$.content[1].name").value(userDto2.getName()))
+                .andExpect(jsonPath("$.content[1].email").value(userDto2.getEmail()));
 
         then(userService).should().getAll(anyInt(), anyInt());
         then(userAssembler).should().toCollectionModel(users, 1, 5);
@@ -78,7 +80,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("GET /api/users/{id} - Success")
-    void testGetUserById() throws Exception {
+    void getUserById_shouldReturnUser() throws Exception {
         UserDto userDto = ModelFactory.toUserDto(ModelFactory.createUser());
 
         given(userService.getById(anyLong())).willReturn(userDto);
@@ -87,7 +89,8 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users/{id}", userDto.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(userDto.getId()))
-                .andExpect(jsonPath("$.name").value(userDto.getName()));
+                .andExpect(jsonPath("$.name").value(userDto.getName()))
+                .andExpect(jsonPath("$.email").value(userDto.getEmail()));
 
         then(userService).should().getById(anyLong());
         then(userAssembler).should().toModel(any(UserDto.class));

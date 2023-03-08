@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -62,7 +61,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("GET /api/certificates - Success")
-    void shouldReturnAllCertificatesWithParameters() throws Exception {
+    void findAllCertificatesWithParameters_shouldReturnAllCertificates() throws Exception {
         GiftCertificateDto certificate1 = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
         GiftCertificateDto certificate2 = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
         List<GiftCertificateDto> certificates = Arrays.asList(certificate1, certificate2);
@@ -82,7 +81,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("GET /api/certificates/{id} - Success")
-    void shouldReturnCertificateById() throws Exception {
+    void giftCertificateById_shouldReturnCertificate() throws Exception {
         long id = 1;
         GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
         given(giftCertificateService.getById(anyLong())).willReturn(certificate);
@@ -97,7 +96,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("POST /api/certificates - Success")
-    void shouldSaveGiftCertificate() throws Exception {
+    void saveGiftCertificate_shouldSaveGiftCertificate_thenReturnsCreatedStatus() throws Exception {
         GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
 
         given(giftCertificateService.save(any(GiftCertificateDto.class))).willReturn(certificate);
@@ -114,7 +113,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("PATCH /api/certificates/{id} - Success")
-    void givenValidGiftCertificateDto_whenUpdatingGiftCertificate_thenReturnsCreatedStatus() throws Exception {
+    void updateGiftCertificate_shouldUpdate_thenReturnsCreatedStatus() throws Exception {
         var giftCertificate = ModelFactory.createGiftCertificate();
         long id = giftCertificate.getId();
         GiftCertificateDto dto = ModelFactory.toGiftCertificateDto(giftCertificate);
@@ -140,7 +139,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("DELETE /api/certificates/{id} - Success")
-    void givenExistingGiftCertificateId_whenDeletingGiftCertificate_thenReturnsNoContentStatus() throws Exception {
+    void deleteGiftCertificate_shouldDeleteGiftCertificate() throws Exception {
         long id = 1L;
 
         mockMvc.perform(delete("/api/certificates/" + id))

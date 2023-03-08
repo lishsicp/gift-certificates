@@ -72,12 +72,12 @@ public class ModelFactory {
 
     public User createUser() {
         long id = generateId();
-        return User.builder().id(id).name("user" + id).build();
+        return User.builder().id(id).name("user" + id).email("user" + id + "@at.test").build();
     }
 
     public User createNewUser() {
         long id = generateId();
-        return User.builder().name("user" + id).build();
+        return User.builder().name("user" + id).email("user" + id + "@at.test").build();
     }
 
     public UserDto toUserDto(User user) {

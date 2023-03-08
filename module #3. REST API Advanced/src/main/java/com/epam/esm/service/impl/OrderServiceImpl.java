@@ -78,7 +78,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<OrderDto> getAll(int page, int size) {
-        throw new UnsupportedOperationException();
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Order> orders = orderRepository.findAll(pageable);
+        return orders.map(orderConverter::toDto);
     }
 
     @Override

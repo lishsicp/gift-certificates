@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -23,8 +24,11 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -56,6 +60,21 @@ class OrderServiceImplTest {
     @Test
     void findById_shouldThrowException_whenNonExistentId() {
         assertThrows(PersistentException.class, () -> service.getById(0));
+    }
+
+    @Test
+    void getAll_shouldInvokeFindAll() {
+        int PAGE = 1;
+        int SIZE = 5;
+        var order = ModelFactory.createOrder();
+        var orderDto = ModelFactory.toOrderDto(order);
+
+        given(orderConverter.toDto(any())).willReturn(orderDto);
+        given(orderRepository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(Collections.singletonList(order)));
+
+        service.getAll(PAGE, SIZE);
+
+        then(orderRepository).should().findAll(any(Pageable.class));
     }
 
     @Nested
@@ -114,6 +133,25 @@ class OrderServiceImplTest {
         @Test
         void getOrdersByUserId_shouldThrowException() {
             assertThrows(PersistentException.class, () -> service.getOrdersByUserId(0, PAGE, SIZE));
+        }
+    }
+
+    @Nested
+    class WhenDeleting {
+        @Test
+        void getById_shouldThrowException_whenNonexistentId() {
+            assertThrows(PersistentException.class, () -> service.getById(0));
+        }
+
+        @Test
+        void delete_shouldInvokeDelete() {
+            var order = ModelFactory.createOrder();
+            given(orderRepository.findById(1L)).willReturn(Optional.ofNullable(order));
+            willDoNothing().given(orderRepository).delete(any());
+
+            service.delete(1L);
+
+            then(orderRepository).should().delete(any());
         }
     }
 }

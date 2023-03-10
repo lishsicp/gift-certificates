@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,7 +59,7 @@ class UserControllerTest {
         List<UserDto> userDtos = List.of(userDto1, userDto2);
         Page<UserDto> users = new PageImpl<>(userDtos);
 
-        given(userAssembler.toCollectionModel(any(), anyInt(), anyInt()))
+        given(userAssembler.toCollectionModel(any(), any(Link.class)))
                 .willReturn(PagedModel.of(users.getContent(), new PagedModel.PageMetadata(0,0,0)));
         given(userService.getAll(anyInt(), anyInt())).willReturn(users);
 
@@ -75,7 +76,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.content[1].email").value(userDto2.getEmail()));
 
         then(userService).should().getAll(anyInt(), anyInt());
-        then(userAssembler).should().toCollectionModel(users, 1, 5);
+        then(userAssembler).should().toCollectionModel(any(), any(Link.class));
     }
 
     @Test

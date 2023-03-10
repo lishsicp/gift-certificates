@@ -15,7 +15,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class TagModelAssembler implements ModelAssembler<TagDto> {
+public class TagAssembler implements ModelAssembler<TagDto> {
 
     private static final Class<TagController> TAG_CONTROLLER_CLASS = TagController.class;
 
@@ -24,11 +24,12 @@ public class TagModelAssembler implements ModelAssembler<TagDto> {
         return tagDto.add(linkTo(methodOn(TAG_CONTROLLER_CLASS).tagById(tagDto.getId())).withSelfRel());
     }
 
-    public PagedModel<TagDto> toCollectionModel(Page<TagDto> dtos, int page, int size) {
+    @Override
+    public PagedModel<TagDto> toCollectionModel(Page<TagDto> dtos, Link selfRel) {
         List<TagDto> entityModels = new LinkedList<>();
         dtos.forEach(tagDto -> entityModels.add(toModel(tagDto)));
-        Link selfRel = linkTo(methodOn(TAG_CONTROLLER_CLASS).allTags(page, size)).withSelfRel();
-        PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
+        PagedModel.PageMetadata metadata = new PagedModel
+                .PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

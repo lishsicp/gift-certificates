@@ -1,6 +1,6 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.assembler.TagModelAssembler;
+import com.epam.esm.assembler.TagAssembler;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.TagService;
@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,7 +26,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -41,7 +41,7 @@ class TagControllerTest {
     private TagService tagService;
 
     @Mock
-    private TagModelAssembler tagModelAssembler;
+    private TagAssembler tagAssembler;
 
     @InjectMocks
     private TagController tagController;
@@ -60,7 +60,7 @@ class TagControllerTest {
         TagDto tagDto = ModelFactory.toTagDto(tag);
         long id = tagDto.getId();
         given(tagService.getById(id)).willReturn(tagDto);
-        given(tagModelAssembler.toModel(tagDto)).willReturn(tagDto);
+        given(tagAssembler.toModel(tagDto)).willReturn(tagDto);
 
         ResultActions resultActions = mockMvc.perform(get("/api/tags/{id}", id)
                         .contentType("application/json"))
@@ -81,7 +81,7 @@ class TagControllerTest {
         Tag tag2 = ModelFactory.createTag();
         TagDto tagDto2 = ModelFactory.toTagDto(tag2);
         List<TagDto> tags = List.of(tagDto1, tagDto2);
-        given(tagModelAssembler.toCollectionModel(any(), anyInt(), anyInt()))
+        given(tagAssembler.toCollectionModel(any(), any(Link.class)))
                 .willReturn(PagedModel.of(tags, new PagedModel.PageMetadata(0,0,0)));
         given(tagService.getAll(page, size)).willReturn(new PageImpl<>(tags));
 
@@ -102,7 +102,7 @@ class TagControllerTest {
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
         when(tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders()).thenReturn(tagDto);
-        when(tagModelAssembler.toModel(any())).thenReturn(tagDto);
+        when(tagAssembler.toModel(any())).thenReturn(tagDto);
 
         ResultActions resultActions = mockMvc.perform(get("/api/tags/popular")
                         .contentType("application/json"))
@@ -119,7 +119,7 @@ class TagControllerTest {
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
         given(tagService.save(any())).willReturn(tagDto);
-        given(tagModelAssembler.toModel(any())).willReturn(tagDto);
+        given(tagAssembler.toModel(any())).willReturn(tagDto);
 
         ResultActions resultActions = mockMvc.perform(post("/api/tags/")
                         .contentType(MediaType.APPLICATION_JSON)

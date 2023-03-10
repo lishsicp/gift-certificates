@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -67,7 +68,7 @@ class GiftCertificateControllerTest {
         List<GiftCertificateDto> certificates = Arrays.asList(certificate1, certificate2);
         Page<GiftCertificateDto> page = new PageImpl<>(certificates);
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        given(giftCertificateAssembler.toCollectionModel(any(), anyInt(), anyInt(), eq(params)))
+        given(giftCertificateAssembler.toCollectionModel(any(), any(Link.class)))
                 .willReturn(PagedModel.of(certificates, new PagedModel.PageMetadata(0,0,0)));
         given(giftCertificateService.getAllWithFilter(anyInt(), anyInt(), eq(params)))
                 .willReturn(page);
@@ -76,7 +77,7 @@ class GiftCertificateControllerTest {
                 .andExpect(status().isOk());
 
         then(giftCertificateService).should().getAllWithFilter(anyInt(), anyInt(), eq(params));
-        then(giftCertificateAssembler).should().toCollectionModel(any(), anyInt(), anyInt(), eq(params));
+        then(giftCertificateAssembler).should().toCollectionModel(any(), any(Link.class));
     }
 
     @Test

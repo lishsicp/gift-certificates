@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 
 
 import java.util.LinkedList;
@@ -22,11 +21,11 @@ public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateD
 
     private static final Class<GiftCertificateController> GIFT_CERTIFICATE_CONTROLLER_CLASS = GiftCertificateController.class;
 
-    private final TagModelAssembler tagModelAssembler;
+    private final TagAssembler tagAssembler;
 
     @Autowired
-    public GiftCertificateAssembler(TagModelAssembler tagModelAssembler) {
-        this.tagModelAssembler = tagModelAssembler;
+    public GiftCertificateAssembler(TagAssembler tagAssembler) {
+        this.tagAssembler = tagAssembler;
     }
 
     @Override
@@ -35,22 +34,16 @@ public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateD
                 .giftCertificateById(certificateDto.getId())).
                 withSelfRel();
         certificateDto.add(link);
-        certificateDto.getTags().forEach(tagModelAssembler::toModel);
+        certificateDto.getTags().forEach(tagAssembler::toModel);
         return certificateDto;
     }
 
-    public @NonNull PagedModel<GiftCertificateDto> toCollectionModel(
-            Page<GiftCertificateDto> certificates,
-            int page, int size, MultiValueMap<String, String> filterParams) {
+    @Override
+    public PagedModel<GiftCertificateDto> toCollectionModel(Page<GiftCertificateDto> dtos, Link selfRel) {
         List<GiftCertificateDto> entityModels = new LinkedList<>();
-        certificates.forEach(certificate -> entityModels.add(toModel(certificate)));
-        Link selfRel = linkTo(methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS)
-                .findAllCertificatesWithParameters(page,size, filterParams)).withSelfRel();
-        PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(
-                certificates.getSize(),
-                certificates.getNumber(),
-                certificates.getTotalElements()
-        );
+        dtos.forEach(certificate -> entityModels.add(toModel(certificate)));
+        PagedModel.PageMetadata metadata = new PagedModel
+                .PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

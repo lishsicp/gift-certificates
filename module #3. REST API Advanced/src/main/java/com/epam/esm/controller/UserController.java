@@ -4,6 +4,7 @@ import com.epam.esm.assembler.UserAssembler;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.service.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Min;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * This class is used to implement controller logic for users.
@@ -41,7 +45,8 @@ public class UserController {
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
         Page<UserDto> users = userService.getAll(page, size);
-        return userAssembler.toCollectionModel(users, page, size);
+        Link selfRel = linkTo(methodOn(this.getClass()).allUsers(page, size)).withSelfRel();
+        return userAssembler.toCollectionModel(users, selfRel);
     }
 
     /**

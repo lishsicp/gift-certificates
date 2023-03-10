@@ -23,11 +23,12 @@ public class UserAssembler implements ModelAssembler<UserDto> {
         return entity.add(linkTo(methodOn(USER_CONTROLLER_CLASS).userById(entity.getId())).withSelfRel());
     }
 
-    public PagedModel<UserDto> toCollectionModel(Page<UserDto> dtos, int page, int size) {
+    @Override
+    public PagedModel<UserDto> toCollectionModel(Page<UserDto> dtos, Link selfRel) {
         List<UserDto> entityModels = new LinkedList<>();
         dtos.forEach(userDto -> entityModels.add(toModel(userDto)));
-        Link selfRel = linkTo(methodOn(USER_CONTROLLER_CLASS).allUsers(page, size)).withSelfRel();
-        PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
+        PagedModel.PageMetadata metadata = new PagedModel
+                .PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

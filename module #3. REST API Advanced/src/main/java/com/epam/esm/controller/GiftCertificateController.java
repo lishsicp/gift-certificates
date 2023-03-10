@@ -6,6 +6,7 @@ import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.dto.group.OnPersist;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Controller class to manage {@link GiftCertificateDto Gift Certificates}.
@@ -57,7 +61,8 @@ public class GiftCertificateController {
             @RequestParam @FilterConstraint MultiValueMap<String, String> filterParams
     ) {
         Page<GiftCertificateDto> giftCertificateDtos = giftCertificateService.getAllWithFilter(page, size, filterParams);
-        return giftCertificateAssembler.toCollectionModel(giftCertificateDtos, page, size, filterParams);
+        Link selfRel = linkTo(methodOn(this.getClass()).findAllCertificatesWithParameters(page, size, filterParams)).withSelfRel();
+        return giftCertificateAssembler.toCollectionModel(giftCertificateDtos, selfRel);
     }
 
     /**

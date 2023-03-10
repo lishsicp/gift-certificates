@@ -6,6 +6,7 @@ import com.epam.esm.dto.OrderDto;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.OrderService;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * This class is used to implement controller logic for {@link OrderDto orders}.
@@ -64,7 +68,8 @@ public class OrderController {
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size
     ) {
         Page<OrderDto> orderDtos = orderService.getAll(page, size);
-        return orderAssembler.toCollectionModel(orderDtos, page, size);
+        Link selfRel = linkTo(methodOn(this.getClass()).allOrders(page, size)).withSelfRel();
+        return orderAssembler.toCollectionModel(orderDtos, selfRel);
     }
 
 
@@ -72,16 +77,17 @@ public class OrderController {
      * Method used to get {@link OrderDto orders} of a particular {@link User user}.
      * @param page The page number
      * @param size The page size
-     * @param id The id of the {@link User user}
+     * @param userId The id of the {@link User user}
      * @return All the {@link OrderDto orders} of the given {@link User user}
      */
-    @GetMapping("/users/{id}")
+    @GetMapping("/users/{userId}")
     public PagedModel<OrderDto> ordersByUserId(
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
-            @PathVariable @Min(value = 1, message = "40001") long id) {
-        Page<OrderDto> orderDtos = orderService.getOrdersByUserId(id, page, size);
-        return orderAssembler.toCollectionModel(orderDtos, page, size, id);
+            @PathVariable @Min(value = 1, message = "40001") long userId) {
+        Page<OrderDto> orderDtos = orderService.getOrdersByUserId(userId, page, size);
+        Link selfRel = linkTo(methodOn(this.getClass()).ordersByUserId(page, size, userId)).withSelfRel();
+        return orderAssembler.toCollectionModel(orderDtos, selfRel);
     }
 
     /**

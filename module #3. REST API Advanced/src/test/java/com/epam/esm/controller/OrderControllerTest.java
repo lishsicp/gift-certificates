@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -84,7 +85,7 @@ class OrderControllerTest {
         );
 
         given(orderService.getAll(page, size)).willReturn(orders);
-        given(orderAssembler.toCollectionModel(orders, page, size)).willReturn(pagedOrders);
+        given(orderAssembler.toCollectionModel(any(), any(Link.class))).willReturn(pagedOrders);
 
         mockMvc.perform(get("/api/orders")
                         .param("page", String.valueOf(page))
@@ -110,7 +111,7 @@ class OrderControllerTest {
         );
 
         given(orderService.getOrdersByUserId(userId, page, size)).willReturn(orders);
-        given(orderAssembler.toCollectionModel(orders, page, size, userId)).willReturn(pagedOrders);
+        given(orderAssembler.toCollectionModel(any(), any(Link.class))).willReturn(pagedOrders);
 
         mockMvc.perform(get("/api/orders/users/{id}", userId)
                         .param("page", String.valueOf(page))

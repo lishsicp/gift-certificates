@@ -1,10 +1,11 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.assembler.TagModelAssembler;
+import com.epam.esm.assembler.TagAssembler;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.group.OnPersist;
 import com.epam.esm.service.TagService;
 import org.springframework.data.domain.Page;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 /**
  * This class is used to implement controller logic for tags.
  */
@@ -31,11 +35,11 @@ import javax.validation.constraints.Min;
 public class TagController {
 
     private final TagService tagService;
-    private final TagModelAssembler tagModelAssembler;
+    private final TagAssembler tagAssembler;
 
-    public TagController(TagService tagService, TagModelAssembler tagModelAssembler) {
+    public TagController(TagService tagService, TagAssembler tagAssembler) {
         this.tagService = tagService;
-        this.tagModelAssembler = tagModelAssembler;
+        this.tagAssembler = tagAssembler;
     }
 
     /**
@@ -50,7 +54,8 @@ public class TagController {
             @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
             @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
         Page<TagDto> tagDtos = tagService.getAll(page, size);
-        return tagModelAssembler.toCollectionModel(tagDtos, page, size);
+        Link selfRel = linkTo(methodOn(this.getClass()).allTags(page, size)).withSelfRel();
+        return tagAssembler.toCollectionModel(tagDtos, selfRel);
     }
 
     /**
@@ -62,7 +67,7 @@ public class TagController {
     @GetMapping("/{id}")
     public TagDto tagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
         TagDto tagDto = tagService.getById(id);
-        return tagModelAssembler.toModel(tagDto);
+        return tagAssembler.toModel(tagDto);
     }
 
     /**
@@ -73,7 +78,7 @@ public class TagController {
     @GetMapping("/popular")
     public TagDto popularTag() {
         TagDto tagDto = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
-        return tagModelAssembler.toModel(tagDto);
+        return tagAssembler.toModel(tagDto);
     }
 
     /**
@@ -86,7 +91,7 @@ public class TagController {
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto saveTag(@RequestBody @Validated(OnPersist.class) TagDto tagDto)  {
         TagDto savedTagDto = tagService.save(tagDto);
-        return tagModelAssembler.toModel(savedTagDto);
+        return tagAssembler.toModel(savedTagDto);
     }
 
     /**

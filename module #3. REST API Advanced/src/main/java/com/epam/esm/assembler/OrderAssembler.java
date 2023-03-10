@@ -33,19 +33,12 @@ public class OrderAssembler implements ModelAssembler<OrderDto> {
         return order.add(linkTo(methodOn(ORDER_CONTROLLER_CLASS).orderById(order.getId())).withSelfRel());
     }
 
-    public PagedModel<OrderDto> toCollectionModel(Page<OrderDto> dtos, int page, int size, long userId) {
+    @Override
+    public PagedModel<OrderDto> toCollectionModel(Page<OrderDto> dtos, Link selfRel) {
         List<OrderDto> entityModels = new LinkedList<>();
         dtos.forEach(order -> entityModels.add(toModel(order)));
-        Link selfRel = linkTo(methodOn(ORDER_CONTROLLER_CLASS).ordersByUserId(page, size, userId)).withSelfRel();
-        PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
-        return PagedModel.of(entityModels, metadata, selfRel);
-    }
-
-    public PagedModel<OrderDto> toCollectionModel(Page<OrderDto> dtos, int page, int size) {
-        List<OrderDto> entityModels = new LinkedList<>();
-        dtos.forEach(order -> entityModels.add(toModel(order)));
-        Link selfRel = linkTo(methodOn(ORDER_CONTROLLER_CLASS).allOrders(page, size)).withSelfRel();
-        PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
+        PagedModel.PageMetadata metadata = new PagedModel
+                .PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

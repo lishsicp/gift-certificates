@@ -1,22 +1,21 @@
 package com.epam.esm.repository.impl;
 
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.repository.CustomGiftCertificateRepository;
 import com.epam.esm.repository.querybuilder.GiftCertificateQueryBuilder;
-import com.epam.esm.entity.GiftCertificate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Repository;
 import org.springframework.util.MultiValueMap;
 
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
-import java.util.List;
 
-@Component
+@Repository
 public class GiftCertificateRepositoryImpl implements CustomGiftCertificateRepository {
 
     @PersistenceContext

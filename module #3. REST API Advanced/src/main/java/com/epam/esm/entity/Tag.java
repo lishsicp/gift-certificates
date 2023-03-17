@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +15,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.util.Objects;
 
 @Entity
 @Table(name = "tag")
@@ -26,24 +26,30 @@ import java.util.Objects;
 @Builder
 public class Tag extends BaseEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tag_seq")
-  @SequenceGenerator(name = "tag_seq", sequenceName = "tag_id_seq", allocationSize = 1)
-  private long id;
+    public static final String TAG_SEQ = "tag_id_seq";
 
-  @Column(name = "name", nullable = false)
-  private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = TAG_SEQ)
+    @SequenceGenerator(name = TAG_SEQ, sequenceName = TAG_SEQ, allocationSize = 1)
+    private long id;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Tag tag = (Tag) o;
-    return Objects.equals(id, tag.id) && Objects.equals(name, tag.name);
-  }
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name);
-  }
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+        Tag tag = (Tag) o;
+        return Objects.equals(id, tag.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

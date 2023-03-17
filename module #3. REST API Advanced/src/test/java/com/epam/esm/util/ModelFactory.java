@@ -45,25 +45,25 @@ public class ModelFactory {
     public GiftCertificate createGiftCertificate() {
         long id = generateId();
         return getGiftCertificateBuilder(id)
-                .build();
+            .build();
     }
 
     public GiftCertificate createNewGiftCertificate() {
         long id = generateId();
         return getGiftCertificateBuilder(id)
-                .id(0)
-                .build();
+            .id(0)
+            .build();
     }
 
     private GiftCertificate.GiftCertificateBuilder getGiftCertificateBuilder(long num) {
         return GiftCertificate.builder()
-                .id(num)
-                .name("gift" + num)
-                .description("description" + num)
-                .price(new BigDecimal("10.99"))
-                .duration(60L)
-                .createDate(DATETIME)
-                .lastUpdateDate(DATETIME);
+            .id(num)
+            .name("gift" + num)
+            .description("description" + num)
+            .price(new BigDecimal("10.99"))
+            .duration(60L)
+            .createDate(DATETIME)
+            .lastUpdateDate(DATETIME);
     }
 
     public GiftCertificateDto toGiftCertificateDto(GiftCertificate giftCertificate) {
@@ -87,19 +87,19 @@ public class ModelFactory {
     public Order createOrder() {
         long id = generateId();
         return Order.builder()
-                .id(id)
-                .cost(new BigDecimal("10.99"))
-                .purchaseDate(DATETIME)
-                .user(createUser())
-                .giftCertificate(createGiftCertificate())
-                .build();
+            .id(id)
+            .price(new BigDecimal("10.99"))
+            .purchaseDate(DATETIME)
+            .user(createUser())
+            .giftCertificate(createGiftCertificate())
+            .build();
     }
 
     public Order createNewOrder() {
         return Order.builder()
-                .cost(new BigDecimal("10.99"))
-                .purchaseDate(DATETIME)
-                .build();
+            .price(new BigDecimal("10.99"))
+            .purchaseDate(DATETIME)
+            .build();
     }
 
     public OrderDto toOrderDto(Order order) {

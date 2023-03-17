@@ -59,7 +59,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: duration
-                  type: int
+                  type: bigint
                   constraints:
                     nullable: false
               - column:
@@ -161,7 +161,7 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: cost
+                  name: price
                   type: number
                   constraints:
                     nullable: false

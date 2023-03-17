@@ -3,11 +3,8 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dto.MakeOrderDto;
 import com.epam.esm.dto.OrderDto;
-import com.epam.esm.dto.TagDto;
-import com.epam.esm.entity.Order;
-import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.PersistentException;
-import com.epam.esm.extension.TestContainerExtension;
+import com.epam.esm.extension.PostgresExtension;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
@@ -27,17 +24,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(TestContainerExtension.class)
+@ExtendWith(PostgresExtension.class)
 @SpringBootTest
-@ActiveProfiles("test")
 @Transactional
+@ActiveProfiles("test")
 class OrderServiceImplIT {
 
     @Autowired
@@ -120,7 +116,7 @@ class OrderServiceImplIT {
             OrderDto actual = service.save(order);
 
             assertTrue(actual.getId() > 0);
-            assertNotNull(actual.getCost());
+            assertNotNull(actual.getPrice());
             assertNotNull(actual.getPurchaseDate());
             assertNotNull(actual.getUser());
             assertNotNull(actual.getGiftCertificate());
@@ -148,7 +144,7 @@ class OrderServiceImplIT {
             var orderDto = ModelFactory.toOrderDto(savedOrder);
 
             // when
-            Page<OrderDto> actual = service.getOrdersByUserId(user.getId(), 1, 1);
+            Page<OrderDto> actual = service.getOrdersByUserId(1, 1, user.getId());
 
             // then
             assertEquals(Collections.singletonList(orderDto), actual.getContent());
@@ -162,6 +158,7 @@ class OrderServiceImplIT {
 
     @Nested
     class WhenDeleting {
+
         @Test
         void delete_shouldReturnEmptyOptional_whenOrderWasDeleted() {
             var newOrder = orderRepository.save(ModelFactory.createNewOrder());
@@ -173,7 +170,7 @@ class OrderServiceImplIT {
 
         @Test
         void delete_shouldThrowException_whenOrderDoNotExist() {
-            assertThrows(PersistentException.class,() -> service.delete(0));
+            assertThrows(PersistentException.class, () -> service.delete(0));
         }
     }
 }

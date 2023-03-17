@@ -7,7 +7,6 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Component;
 
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,15 +20,15 @@ public class TagAssembler implements ModelAssembler<TagDto> {
 
     @Override
     public TagDto toModel(TagDto tagDto) {
-        return tagDto.add(linkTo(methodOn(TAG_CONTROLLER_CLASS).tagById(tagDto.getId())).withSelfRel());
+        return tagDto.add(linkTo(methodOn(TAG_CONTROLLER_CLASS).getTagById(tagDto.getId())).withSelfRel());
     }
 
     @Override
     public PagedModel<TagDto> toCollectionModel(Page<TagDto> dtos, Link selfRel) {
         List<TagDto> entityModels = new LinkedList<>();
         dtos.forEach(tagDto -> entityModels.add(toModel(tagDto)));
-        PagedModel.PageMetadata metadata = new PagedModel
-                .PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
+        PagedModel.PageMetadata metadata =
+            new PagedModel.PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

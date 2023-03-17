@@ -10,5 +10,5 @@ import lombok.Setter;
 public class PersistentException extends RuntimeException {
 
     private final int errorCode;
-    private final Object parameter;
+    private final transient Object parameter;
 }

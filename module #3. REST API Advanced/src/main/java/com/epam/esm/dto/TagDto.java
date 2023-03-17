@@ -1,6 +1,7 @@
 package com.epam.esm.dto;
 
 import com.epam.esm.dto.group.OnPersist;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
@@ -19,7 +19,7 @@ import javax.validation.constraints.Pattern;
 @EqualsAndHashCode(callSuper = true)
 public class TagDto extends RepresentationModel<TagDto> {
 
-    @Min(value = 1, message = "40001")
+    @JsonIgnore
     private long id;
 
     @Pattern(regexp = "[\\w\\s]{3,64}+", message = "40002")

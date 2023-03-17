@@ -30,15 +30,15 @@ public class OrderAssembler implements ModelAssembler<OrderDto> {
     public OrderDto toModel(OrderDto order) {
         giftCertificateAssembler.toModel(order.getGiftCertificate());
         userAssembler.toModel(order.getUser());
-        return order.add(linkTo(methodOn(ORDER_CONTROLLER_CLASS).orderById(order.getId())).withSelfRel());
+        return order.add(linkTo(methodOn(ORDER_CONTROLLER_CLASS).getOrderById(order.getId())).withSelfRel());
     }
 
     @Override
     public PagedModel<OrderDto> toCollectionModel(Page<OrderDto> dtos, Link selfRel) {
         List<OrderDto> entityModels = new LinkedList<>();
         dtos.forEach(order -> entityModels.add(toModel(order)));
-        PagedModel.PageMetadata metadata = new PagedModel
-                .PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
+        PagedModel.PageMetadata metadata =
+            new PagedModel.PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

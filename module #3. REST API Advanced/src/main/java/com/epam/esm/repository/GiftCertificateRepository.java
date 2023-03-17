@@ -7,7 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface GiftCertificateRepository extends PagingAndSortingRepository<GiftCertificate, Long>, CustomGiftCertificateRepository {
+public interface GiftCertificateRepository extends PagingAndSortingRepository<GiftCertificate, Long>,
+    CustomGiftCertificateRepository {
 
     /**
      * Finds a {@link GiftCertificate} entity by name.

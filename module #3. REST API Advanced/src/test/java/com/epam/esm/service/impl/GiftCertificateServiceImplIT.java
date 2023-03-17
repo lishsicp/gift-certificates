@@ -1,8 +1,10 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.config.SpringConfig;
 import com.epam.esm.dto.GiftCertificateDto;
+import com.epam.esm.dto.converter.GiftCertificateConverter;
 import com.epam.esm.exception.PersistentException;
-import com.epam.esm.extension.TestContainerExtension;
+import com.epam.esm.extension.PostgresExtension;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.GiftCertificateService;
@@ -11,10 +13,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.TestDatabaseAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -26,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(TestContainerExtension.class)
-@SpringBootTest
-@Transactional
+@Import(value = {GiftCertificateServiceImpl.class, GiftCertificateConverter.class, SpringConfig.class})
+@ExtendWith(PostgresExtension.class)
+@DataJpaTest(excludeAutoConfiguration = TestDatabaseAutoConfiguration.class)
 @ActiveProfiles("test")
 class GiftCertificateServiceImplIT {
 
@@ -108,9 +111,10 @@ class GiftCertificateServiceImplIT {
         void update_shouldUpdate() {
             var giftCertificate = certificateRepository.save(ModelFactory.createNewGiftCertificate());
             var giftCertificateDto = ModelFactory.toGiftCertificateDto(giftCertificate);
-            var updatableData =  ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
+            var updatableData = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
 
-            GiftCertificateDto updatedCertificate = giftCertificateService.update(giftCertificateDto.getId(), updatableData);
+            GiftCertificateDto updatedCertificate =
+                giftCertificateService.update(giftCertificateDto.getId(), updatableData);
 
             updatableData.setId(giftCertificateDto.getId());
             updatableData.setLastUpdateDate(updatedCertificate.getLastUpdateDate());

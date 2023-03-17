@@ -4,7 +4,7 @@ import com.epam.esm.dto.TagDto;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.PersistentException;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.extension.TestContainerExtension;
+import com.epam.esm.extension.PostgresExtension;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.ModelFactory;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(TestContainerExtension.class)
+@ExtendWith(PostgresExtension.class)
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
@@ -76,7 +76,7 @@ class TagServiceImplIT {
     void save_shouldThrowException_whenTagExists() {
         Tag newTag = tagRepository.save(ModelFactory.createNewTag());
         TagDto newTagDto = ModelFactory.toTagDto(newTag);
-        assertThrows(PersistentException.class,() -> tagService.save(newTagDto));
+        assertThrows(PersistentException.class, () -> tagService.save(newTagDto));
     }
 
     @Test
@@ -90,7 +90,7 @@ class TagServiceImplIT {
 
     @Test
     void delete_shouldThrowException_whenTagDoNotExist() {
-        assertThrows(PersistentException.class,() -> tagService.delete(0));
+        assertThrows(PersistentException.class, () -> tagService.delete(0));
     }
 
 }

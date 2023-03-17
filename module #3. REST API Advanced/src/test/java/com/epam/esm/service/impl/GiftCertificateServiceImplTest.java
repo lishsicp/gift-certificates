@@ -102,7 +102,8 @@ class GiftCertificateServiceImplTest {
         void save_shouldThrowException_whenCertificateWithNameExists() {
             var giftCertificate = ModelFactory.createGiftCertificate();
             var giftCertificateDto = ModelFactory.toGiftCertificateDto(giftCertificate);
-            given(certificateRepository.findGiftCertificateByName(anyString())).willReturn(Optional.of(giftCertificate));
+            given(certificateRepository.findGiftCertificateByName(anyString())).willReturn(
+                Optional.of(giftCertificate));
 
             assertThrows(PersistentException.class, () -> service.save(giftCertificateDto));
         }
@@ -150,9 +151,9 @@ class GiftCertificateServiceImplTest {
             int SIZE = 56;
 
             given(certificateRepository.findAllWithParameters(params, PageRequest.of(PAGE - 1, SIZE)))
-                    .willReturn(new PageImpl<>(expected));
+                .willReturn(new PageImpl<>(expected));
             given(giftCertificateConverter.toDto(any()))
-                    .willReturn(giftCertificateDto);
+                .willReturn(giftCertificateDto);
 
             Page<GiftCertificateDto> actual = service.getAllWithFilter(PAGE, SIZE, params);
 

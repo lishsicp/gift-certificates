@@ -5,10 +5,12 @@ import com.epam.esm.dto.MakeOrderDto;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,24 +35,21 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("api/orders")
 @Validated
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
     private final OrderAssembler orderAssembler;
 
-    public OrderController(OrderService orderService, OrderAssembler orderAssembler) {
-        this.orderService = orderService;
-        this.orderAssembler = orderAssembler;
-    }
-
     /**
      * Method to get {@link OrderDto order} details by id.
+     *
      * @param id The id of the {@link OrderDto order}
      * @return The {@link OrderDto order} details
      */
-    @GetMapping("/{id}")
-    public OrderDto orderById(
-            @PathVariable @Min(value = 1, message = "40001") long id) {
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public OrderDto getOrderById(
+        @PathVariable @Min(value = 1, message = "40001") long id) {
         OrderDto orderDto = orderService.getById(id);
         return orderAssembler.toModel(orderDto);
     }
@@ -62,42 +61,44 @@ public class OrderController {
      * @param size number of items in a page
      * @return a {@link PagedModel} which contains all {@link OrderDto Orders}
      */
-    @GetMapping()
-    public PagedModel<OrderDto> allOrders(
-            @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
-            @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public PagedModel<OrderDto> getAllOrders(
+        @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
+        @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size
     ) {
         Page<OrderDto> orderDtos = orderService.getAll(page, size);
-        Link selfRel = linkTo(methodOn(this.getClass()).allOrders(page, size)).withSelfRel();
+        Link selfRel = linkTo(methodOn(this.getClass()).getAllOrders(page, size)).withSelfRel();
         return orderAssembler.toCollectionModel(orderDtos, selfRel);
     }
 
 
     /**
      * Method used to get {@link OrderDto orders} of a particular {@link User user}.
-     * @param page The page number
-     * @param size The page size
+     *
+     * @param page   The page number
+     * @param size   The page size
      * @param userId The id of the {@link User user}
      * @return All the {@link OrderDto orders} of the given {@link User user}
      */
-    @GetMapping("/users/{userId}")
-    public PagedModel<OrderDto> ordersByUserId(
-            @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
-            @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
-            @PathVariable @Min(value = 1, message = "40001") long userId) {
-        Page<OrderDto> orderDtos = orderService.getOrdersByUserId(userId, page, size);
-        Link selfRel = linkTo(methodOn(this.getClass()).ordersByUserId(page, size, userId)).withSelfRel();
+    @GetMapping(path = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PagedModel<OrderDto> getOrdersByUserId(
+        @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
+        @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
+        @PathVariable @Min(value = 1, message = "40001") long userId) {
+        Page<OrderDto> orderDtos = orderService.getOrdersByUserId(page, size, userId);
+        Link selfRel = linkTo(methodOn(this.getClass()).getOrdersByUserId(page, size, userId)).withSelfRel();
         return orderAssembler.toCollectionModel(orderDtos, selfRel);
     }
 
     /**
      * Method used to make a new {@link OrderDto order}.
+     *
      * @param orderDto The details of the new {@link OrderDto order} to make
      * @return The newly created {@link OrderDto order}.
      */
-    @PostMapping()
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDto makeOrder(@RequestBody @Valid MakeOrderDto orderDto) {
+    public OrderDto saveOrder(@RequestBody @Valid MakeOrderDto orderDto) {
         OrderDto savedOrderDto = orderService.save(orderDto);
         return orderAssembler.toModel(savedOrderDto);
     }

@@ -28,7 +28,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -70,7 +69,8 @@ class OrderServiceImplTest {
         var orderDto = ModelFactory.toOrderDto(order);
 
         given(orderConverter.toDto(any())).willReturn(orderDto);
-        given(orderRepository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(Collections.singletonList(order)));
+        given(orderRepository.findAll(any(Pageable.class))).willReturn(
+            new PageImpl<>(Collections.singletonList(order)));
 
         service.getAll(PAGE, SIZE);
 
@@ -100,7 +100,8 @@ class OrderServiceImplTest {
         void save_shouldSave() {
             var order = ModelFactory.createOrder();
             var orderDto = ModelFactory.toOrderDto(order);
-            given(certificateRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getGiftCertificate()));
+            given(certificateRepository.findById(anyLong())).willReturn(
+                Optional.ofNullable(order.getGiftCertificate()));
             given(userRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getUser()));
             given(orderConverter.toEntity(any())).willReturn(order);
             given(orderRepository.save(order)).willReturn(order);
@@ -114,6 +115,7 @@ class OrderServiceImplTest {
 
     @Nested
     class WhenGettingOrdersByUserId {
+
         private final int PAGE = 61;
         private final int SIZE = 65;
 
@@ -122,22 +124,24 @@ class OrderServiceImplTest {
             var order = ModelFactory.createOrder();
             var orderDto = ModelFactory.toOrderDto(order);
             given(userRepository.findById(anyLong())).willReturn(Optional.ofNullable(order.getUser()));
-            given(orderRepository.findOrdersByUserId(anyLong(), any())).willReturn(new PageImpl<>(Collections.singletonList(order)));
+            given(orderRepository.findOrdersByUserId(anyLong(), any())).willReturn(
+                new PageImpl<>(Collections.singletonList(order)));
             given(orderConverter.toDto(any())).willReturn(orderDto);
 
-            Page<OrderDto> actual = service.getOrdersByUserId(anyLong(), PAGE, SIZE);
+            Page<OrderDto> actual = service.getOrdersByUserId(PAGE, SIZE, anyLong());
 
             assertEquals(Collections.singletonList(orderDto), actual.getContent());
         }
 
         @Test
         void getOrdersByUserId_shouldThrowException() {
-            assertThrows(PersistentException.class, () -> service.getOrdersByUserId(0, PAGE, SIZE));
+            assertThrows(PersistentException.class, () -> service.getOrdersByUserId(PAGE, SIZE, 0));
         }
     }
 
     @Nested
     class WhenDeleting {
+
         @Test
         void getById_shouldThrowException_whenNonexistentId() {
             assertThrows(PersistentException.class, () -> service.getById(0));

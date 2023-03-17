@@ -9,7 +9,6 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Component;
 
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +18,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateDto> {
 
-    private static final Class<GiftCertificateController> GIFT_CERTIFICATE_CONTROLLER_CLASS = GiftCertificateController.class;
+    private static final Class<GiftCertificateController> GIFT_CERTIFICATE_CONTROLLER_CLASS =
+        GiftCertificateController.class;
 
     private final TagAssembler tagAssembler;
 
@@ -30,9 +30,8 @@ public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateD
 
     @Override
     public @NonNull GiftCertificateDto toModel(GiftCertificateDto certificateDto) {
-        Link link = linkTo(methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS)
-                .giftCertificateById(certificateDto.getId())).
-                withSelfRel();
+        Link link = linkTo(
+            methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS).getGiftCertificateById(certificateDto.getId())).withSelfRel();
         certificateDto.add(link);
         certificateDto.getTags().forEach(tagAssembler::toModel);
         return certificateDto;
@@ -42,8 +41,8 @@ public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateD
     public PagedModel<GiftCertificateDto> toCollectionModel(Page<GiftCertificateDto> dtos, Link selfRel) {
         List<GiftCertificateDto> entityModels = new LinkedList<>();
         dtos.forEach(certificate -> entityModels.add(toModel(certificate)));
-        PagedModel.PageMetadata metadata = new PagedModel
-                .PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
+        PagedModel.PageMetadata metadata =
+            new PagedModel.PageMetadata(dtos.getSize(), dtos.getNumber(), dtos.getTotalElements());
         return PagedModel.of(entityModels, metadata, selfRel);
     }
 }

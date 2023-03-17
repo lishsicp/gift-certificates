@@ -5,10 +5,10 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
 /**
- * A builder for constructing JPA {@link Predicate} objects
- * using a {@link CriteriaBuilder} and a {@link Predicate}.
+ * A builder for constructing JPA {@link Predicate} objects using a {@link CriteriaBuilder} and a {@link Predicate}.
  */
 public interface PredicateBuilder {
+
     /**
      * Builds a {@link Predicate} that filters data based on the specified value and {@link Path}.
      *

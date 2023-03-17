@@ -1,13 +1,13 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.repository.TagRepository;
-import com.epam.esm.entity.Tag;
-import com.epam.esm.service.TagService;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.converter.TagConverter;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ErrorCodes;
 import com.epam.esm.exception.PersistentException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.epam.esm.repository.TagRepository;
+import com.epam.esm.service.TagService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,17 +16,12 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
 
     private final TagConverter tagConverter;
-
-    @Autowired
-    public TagServiceImpl(TagRepository tagRepository, TagConverter tagConverter) {
-        this.tagRepository = tagRepository;
-        this.tagConverter = tagConverter;
-    }
 
     @Override
     public Page<TagDto> getAll(int page, int size) {

@@ -2,7 +2,7 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.extension.TestContainerExtension;
+import com.epam.esm.extension.PostgresExtension;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.util.ModelFactory;
 import org.junit.jupiter.api.Test;
@@ -15,16 +15,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
+import javax.transaction.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(TestContainerExtension.class)
+@ExtendWith(PostgresExtension.class)
 @Transactional
 @SpringBootTest
-class GiftCertificateRepositoryImplTest {
+class GiftCertificateRepositoryImplIT {
 
     @Autowired
     private GiftCertificateRepository certificateRepository;
@@ -32,7 +32,7 @@ class GiftCertificateRepositoryImplTest {
     private static final Pageable PAGE_REQUEST = PageRequest.of(0, 5);
 
     @Test
-    void findAllWithValidFilter_shouldReturnTwoGiftCertificates_whenValidFilterProvided() {
+    void getAllWithValidFilter_shouldReturnTwoGiftCertificates_whenValidFilterProvided() {
         // given
         List<Tag> tagList = List.of(ModelFactory.createNewTag(), ModelFactory.createNewTag());
         var certificate1 = ModelFactory.createNewGiftCertificate();

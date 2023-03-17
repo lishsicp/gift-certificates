@@ -8,8 +8,8 @@ import com.epam.esm.dto.TagDto;
 public interface TagService extends CRDService<TagDto> {
 
     /**
-     * Retrieves the {@link TagDto} with the highest total cost of all orders it has been associated with, and is also the most
-     * widely used Tag.
+     * Retrieves the {@link TagDto} with the highest total cost of all orders it has been associated with, and is also
+     * the most widely used Tag.
      *
      * @return a {@link TagDto} object
      */

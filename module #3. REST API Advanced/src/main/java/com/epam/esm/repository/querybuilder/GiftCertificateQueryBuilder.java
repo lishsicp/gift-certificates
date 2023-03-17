@@ -1,17 +1,17 @@
 package com.epam.esm.repository.querybuilder;
 
-import com.epam.esm.repository.querybuilder.criteria.SpecificationBuilder;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.repository.querybuilder.criteria.SpecificationBuilder;
 import org.springframework.util.MultiValueMap;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class GiftCertificateQueryBuilder extends SpecificationBuilder implements QueryBuilder<GiftCertificate> {
 
@@ -52,7 +52,8 @@ public class GiftCertificateQueryBuilder extends SpecificationBuilder implements
     }
 
     /**
-     * This method Builds a {@link CriteriaQuery} to count the number of gift certificates matching the given query parameters.
+     * This method Builds a {@link CriteriaQuery} to count the number of gift certificates matching the given query
+     * parameters.
      *
      * @param params a {@link MultiValueMap} of query parameters to filter gift certificates
      * @return a {@link CriteriaQuery} to count the number of gift certificates matching the given query parameters
@@ -69,9 +70,8 @@ public class GiftCertificateQueryBuilder extends SpecificationBuilder implements
     }
 
     /**
-     * Builds an array of predicates based on the provided filter parameters for GiftCertificate entity.
-     * Uses a stream to iterate through the filter parameters and generate predicates using the appropriate method
-     * for each filter.
+     * Builds an array of predicates based on the provided filter parameters for GiftCertificate entity. Uses a stream
+     * to iterate through the filter parameters and generate predicates using the appropriate method for each filter.
      *
      * @param params the map of filter parameters to be applied to the query
      * @param root   the root of the query
@@ -89,7 +89,8 @@ public class GiftCertificateQueryBuilder extends SpecificationBuilder implements
                     predicates.add(getLikePredicate(root.get(DESCRIPTION_FIELD), filterValue));
                     break;
                 case FILTER_TAGS:
-                    filterValues.forEach(v -> predicates.add(getLikePredicate(root.join(FILTER_TAGS).get(NAME_FIELD), v)));
+                    filterValues.forEach(
+                        v -> predicates.add(getLikePredicate(root.join(FILTER_TAGS).get(NAME_FIELD), v)));
                     break;
                 default:
                     break;
@@ -99,9 +100,8 @@ public class GiftCertificateQueryBuilder extends SpecificationBuilder implements
     }
 
     /**
-     * Builds the orders for a GiftCertificate query based on the given parameters.
-     * If the parameters contain the 'name_sort' or 'date_sort' keys, the corresponding order
-     * will be added to the query.
+     * Builds the orders for a GiftCertificate query based on the given parameters. If the parameters contain the
+     * 'name_sort' or 'date_sort' keys, the corresponding order will be added to the query.
      *
      * @param params the query parameters
      * @param root   the root entity for the query

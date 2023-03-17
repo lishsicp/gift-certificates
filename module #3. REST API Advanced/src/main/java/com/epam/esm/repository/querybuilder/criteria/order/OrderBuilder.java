@@ -5,10 +5,10 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 
 /**
- * A builder for constructing JPA {@link Order} objects
- * using a {@link CriteriaBuilder} and a {@link Path}.
+ * A builder for constructing JPA {@link Order} objects using a {@link CriteriaBuilder} and a {@link Path}.
  */
 public interface OrderBuilder {
+
     /**
      * Builds an {@link Order} using the provided {@link CriteriaBuilder} and {@link Path}.
      *

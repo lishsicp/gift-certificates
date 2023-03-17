@@ -7,9 +7,10 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class JsonMapperUtil {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     static {
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
 

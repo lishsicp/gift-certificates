@@ -1,5 +1,6 @@
 package com.epam.esm.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +18,10 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 public class OrderDto extends RepresentationModel<OrderDto> {
 
+    @JsonIgnore
     private long id;
 
-    private BigDecimal cost;
+    private BigDecimal price;
 
     private LocalDateTime purchaseDate;
 

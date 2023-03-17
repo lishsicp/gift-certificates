@@ -2,7 +2,7 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.exception.PersistentException;
-import com.epam.esm.extension.TestContainerExtension;
+import com.epam.esm.extension.PostgresExtension;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.service.UserService;
 import com.epam.esm.util.ModelFactory;
@@ -19,9 +19,8 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 
-@ExtendWith(TestContainerExtension.class)
+@ExtendWith(PostgresExtension.class)
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")

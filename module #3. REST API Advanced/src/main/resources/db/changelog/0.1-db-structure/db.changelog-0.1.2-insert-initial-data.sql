@@ -35,7 +35,7 @@ values ('Anthony Jennings', 'anthonyjennings@gmail.com'),
        ('Sophia Hodges', 'sophiahodges@gmail.com'),
        ('Evie Romero', 'evieromero@gmail.com');
 
-INSERT INTO order_(cost, gift_certificate_id, user_id)
+INSERT INTO order_(price, gift_certificate_id, user_id)
 values (200, 2, 1),
        (500, 1, 2),
        (299.99, 3, 1);

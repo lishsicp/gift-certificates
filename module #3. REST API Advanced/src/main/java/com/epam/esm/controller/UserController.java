@@ -40,11 +40,11 @@ public class UserController {
      * @return All the users
      */
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedModel<UserDto> getAllUsers(
+    public PagedModel<UserDto> getAll(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
         @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
         Page<UserDto> users = userService.getAll(page, size);
-        Link selfRel = linkTo(methodOn(this.getClass()).getAllUsers(page, size)).withSelfRel();
+        Link selfRel = linkTo(methodOn(this.getClass()).getAll(page, size)).withSelfRel();
         return userAssembler.toCollectionModel(users, selfRel);
     }
 
@@ -55,7 +55,7 @@ public class UserController {
      * @return The user with the given id
      */
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserDto getUserById(@PathVariable @Min(value = 1, message = "40001") long id) {
+    public UserDto getById(@PathVariable @Min(value = 1, message = "40001") long id) {
         UserDto userDto = userService.getById(id);
         return userAssembler.toModel(userDto);
     }

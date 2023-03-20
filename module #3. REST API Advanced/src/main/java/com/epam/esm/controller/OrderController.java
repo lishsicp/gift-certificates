@@ -48,7 +48,7 @@ public class OrderController {
      * @return The {@link OrderDto order} details
      */
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public OrderDto getOrderById(
+    public OrderDto getById(
         @PathVariable @Min(value = 1, message = "40001") long id) {
         OrderDto orderDto = orderService.getById(id);
         return orderAssembler.toModel(orderDto);
@@ -62,12 +62,12 @@ public class OrderController {
      * @return a {@link PagedModel} which contains all {@link OrderDto Orders}
      */
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedModel<OrderDto> getAllOrders(
+    public PagedModel<OrderDto> getAll(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
         @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size
     ) {
         Page<OrderDto> orderDtos = orderService.getAll(page, size);
-        Link selfRel = linkTo(methodOn(this.getClass()).getAllOrders(page, size)).withSelfRel();
+        Link selfRel = linkTo(methodOn(this.getClass()).getAll(page, size)).withSelfRel();
         return orderAssembler.toCollectionModel(orderDtos, selfRel);
     }
 
@@ -81,12 +81,12 @@ public class OrderController {
      * @return All the {@link OrderDto orders} of the given {@link User user}
      */
     @GetMapping(path = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedModel<OrderDto> getOrdersByUserId(
+    public PagedModel<OrderDto> getByUserId(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
         @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
         @PathVariable @Min(value = 1, message = "40001") long userId) {
         Page<OrderDto> orderDtos = orderService.getOrdersByUserId(page, size, userId);
-        Link selfRel = linkTo(methodOn(this.getClass()).getOrdersByUserId(page, size, userId)).withSelfRel();
+        Link selfRel = linkTo(methodOn(this.getClass()).getByUserId(page, size, userId)).withSelfRel();
         return orderAssembler.toCollectionModel(orderDtos, selfRel);
     }
 
@@ -111,7 +111,7 @@ public class OrderController {
      * @return A response indicating the completion of the delete operation
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteOrder(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
+    public ResponseEntity<Object> deleteById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         orderService.delete(id);
         return ResponseEntity.noContent().build();
     }

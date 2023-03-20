@@ -56,7 +56,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("GET /api/certificates - Success")
-    void getAllCertificatesWithParameters_shouldReturnAllCertificates() throws Exception {
+    void getAllWithParameters_shouldReturnAllCertificates() throws Exception {
         // given
         GiftCertificateDto certificate1 = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
         GiftCertificateDto certificate2 = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
@@ -87,7 +87,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("GET /api/certificates/{id} - Success")
-    void getGiftCertificateById_shouldReturnCertificate() throws Exception {
+    void getById_shouldReturnCertificate() throws Exception {
         // given
         long id = 1;
         GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
@@ -108,7 +108,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("POST /api/certificates - Success")
-    void saveGiftCertificate_shouldSaveGiftCertificate_thenReturnsCreatedStatus() throws Exception {
+    void save_shouldSaveGiftCertificate_thenReturnsCreatedStatus() throws Exception {
         // given
         GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
 
@@ -130,7 +130,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("PATCH /api/certificates/{id} - Success")
-    void updateGiftCertificate_shouldUpdate_thenReturnsCreatedStatus() throws Exception {
+    void update_shouldUpdate_thenReturnsCreatedStatus() throws Exception {
         // given
         var giftCertificate = ModelFactory.createGiftCertificate();
         long id = giftCertificate.getId();
@@ -157,7 +157,7 @@ class GiftCertificateControllerTest {
 
     @Test
     @DisplayName("DELETE /api/certificates/{id} - Success")
-    void deleteGiftCertificate_shouldDeleteGiftCertificate() throws Exception {
+    void deleteById_shouldDeleteGiftCertificate() throws Exception {
         // given
         long id = 1L;
 

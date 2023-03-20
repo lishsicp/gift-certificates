@@ -53,7 +53,7 @@ public class GiftCertificateController {
      * filter options
      */
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public PagedModel<GiftCertificateDto> getAllCertificatesWithParameters(
+    public PagedModel<GiftCertificateDto> getAllWithParameters(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
         @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
         @RequestParam @FilterConstraint MultiValueMap<String, String> filterParams
@@ -61,7 +61,7 @@ public class GiftCertificateController {
         Page<GiftCertificateDto> giftCertificateDtos =
             giftCertificateService.getAllWithFilter(page, size, filterParams);
         Link selfRel =
-            linkTo(methodOn(this.getClass()).getAllCertificatesWithParameters(page, size, filterParams)).withSelfRel();
+            linkTo(methodOn(this.getClass()).getAllWithParameters(page, size, filterParams)).withSelfRel();
         return giftCertificateAssembler.toCollectionModel(giftCertificateDtos, selfRel);
     }
 
@@ -72,7 +72,7 @@ public class GiftCertificateController {
      * @return the {@link GiftCertificateDto Gift Certificate}
      */
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GiftCertificateDto getGiftCertificateById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
+    public GiftCertificateDto getById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         GiftCertificateDto giftCertificateDto = giftCertificateService.getById(id);
         return giftCertificateAssembler.toModel(giftCertificateDto);
     }
@@ -85,7 +85,7 @@ public class GiftCertificateController {
      */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public GiftCertificateDto saveGiftCertificate(
+    public GiftCertificateDto save(
         @RequestBody @Validated(OnPersist.class) GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto savedCert = giftCertificateService.save(giftCertificateDto);
         return giftCertificateAssembler.toModel(savedCert);
@@ -99,7 +99,7 @@ public class GiftCertificateController {
      * @return the updated {@link GiftCertificateDto Gift Certificate}
      */
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public GiftCertificateDto updateGiftCertificate(@PathVariable @Min(value = 1, message = "40001") long id,
+    public GiftCertificateDto update(@PathVariable @Min(value = 1, message = "40001") long id,
         @RequestBody @Valid GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto updated = giftCertificateService.update(id, giftCertificateDto);
         return giftCertificateAssembler.toModel(updated);
@@ -111,7 +111,7 @@ public class GiftCertificateController {
      * @param id the Id of the {@link GiftCertificateDto Gift Certificate} to be deleted
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteGiftCertificateById(
+    public ResponseEntity<Object> deleteById(
         @PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         giftCertificateService.delete(id);
         return ResponseEntity.noContent().build();

@@ -31,7 +31,7 @@ public class GiftCertificateAssembler implements ModelAssembler<GiftCertificateD
     @Override
     public @NonNull GiftCertificateDto toModel(GiftCertificateDto certificateDto) {
         Link link = linkTo(
-            methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS).getGiftCertificateById(certificateDto.getId())).withSelfRel();
+            methodOn(GIFT_CERTIFICATE_CONTROLLER_CLASS).getById(certificateDto.getId())).withSelfRel();
         certificateDto.add(link);
         certificateDto.getTags().forEach(tagAssembler::toModel);
         return certificateDto;

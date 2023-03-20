@@ -51,7 +51,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("GET /api/tags/{id} - Success")
-    void getTagById_shouldReturnTag() throws Exception {
+    void getById_shouldReturnTag() throws Exception {
         // given
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
@@ -75,7 +75,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("GET /api/tags - Success")
-    void getAllTags_shouldReturnTwoTags() throws Exception {
+    void getAll_shouldReturnTwoTags() throws Exception {
         // given
         int page = 1;
         int size = 5;
@@ -103,7 +103,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("GET /api/tags/popular - Success")
-    void getPopularTag_shouldReturnTag() throws Exception {
+    void getPopular_shouldReturnTag() throws Exception {
         // given
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
@@ -125,7 +125,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("POST /api/tag - Success")
-    void saveTag_shouldReturnTag() throws Exception {
+    void save_shouldReturnTag() throws Exception {
         // given
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
@@ -147,7 +147,7 @@ class TagControllerTest {
 
     @Test
     @DisplayName("DELETE /api/tags/{id} - Success")
-    void deleteTag_shouldDelete() throws Exception {
+    void deleteById_shouldDelete() throws Exception {
         // given
         long id = 1;
 

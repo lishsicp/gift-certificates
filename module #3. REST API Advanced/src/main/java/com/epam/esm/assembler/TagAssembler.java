@@ -20,7 +20,7 @@ public class TagAssembler implements ModelAssembler<TagDto> {
 
     @Override
     public TagDto toModel(TagDto tagDto) {
-        return tagDto.add(linkTo(methodOn(TAG_CONTROLLER_CLASS).getTagById(tagDto.getId())).withSelfRel());
+        return tagDto.add(linkTo(methodOn(TAG_CONTROLLER_CLASS).getById(tagDto.getId())).withSelfRel());
     }
 
     @Override

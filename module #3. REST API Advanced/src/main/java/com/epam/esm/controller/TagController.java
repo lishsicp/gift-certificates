@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,12 +47,12 @@ public class TagController {
      * @param size The page size
      * @return All the tags
      */
-    @GetMapping()
-    public PagedModel<TagDto> getAllTags(
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public PagedModel<TagDto> getAll(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
         @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size) {
         Page<TagDto> tagDtos = tagService.getAll(page, size);
-        Link selfRel = linkTo(methodOn(this.getClass()).getAllTags(page, size)).withSelfRel();
+        Link selfRel = linkTo(methodOn(this.getClass()).getAll(page, size)).withSelfRel();
         return tagAssembler.toCollectionModel(tagDtos, selfRel);
     }
 
@@ -61,8 +62,8 @@ public class TagController {
      * @param id The id of the tag
      * @return The tag with the given id
      */
-    @GetMapping("/{id}")
-    public TagDto getTagById(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public TagDto getById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         TagDto tagDto = tagService.getById(id);
         return tagAssembler.toModel(tagDto);
     }
@@ -72,8 +73,8 @@ public class TagController {
      *
      * @return The most widely used tag with the highest cost of all orders.
      */
-    @GetMapping("/popular")
-    public TagDto getPopularTag() {
+    @GetMapping(path = "/popular", produces = MediaType.APPLICATION_JSON_VALUE)
+    public TagDto getPopular() {
         TagDto tagDto = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
         return tagAssembler.toModel(tagDto);
     }
@@ -84,9 +85,9 @@ public class TagController {
      * @param tagDto The details of the tag to save
      * @return The newly saved tag
      */
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public TagDto saveTag(@RequestBody @Validated(OnPersist.class) TagDto tagDto) {
+    public TagDto save(@RequestBody @Validated(OnPersist.class) TagDto tagDto) {
         TagDto savedTagDto = tagService.save(tagDto);
         return tagAssembler.toModel(savedTagDto);
     }
@@ -98,7 +99,7 @@ public class TagController {
      * @return A response indicating the completion of the delete operation
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteTag(@PathVariable @Valid @Min(value = 1, message = "40001") Long id) {
+    public ResponseEntity<Object> deleteById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         tagService.delete(id);
         return ResponseEntity.noContent().build();
     }

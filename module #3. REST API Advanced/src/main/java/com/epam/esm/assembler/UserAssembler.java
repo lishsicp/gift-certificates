@@ -20,7 +20,7 @@ public class UserAssembler implements ModelAssembler<UserDto> {
 
     @Override
     public UserDto toModel(UserDto entity) {
-        return entity.add(linkTo(methodOn(USER_CONTROLLER_CLASS).getUserById(entity.getId())).withSelfRel());
+        return entity.add(linkTo(methodOn(USER_CONTROLLER_CLASS).getById(entity.getId())).withSelfRel());
     }
 
     @Override

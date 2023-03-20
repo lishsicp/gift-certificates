@@ -47,7 +47,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("GET /api/users - Success")
-    void getAllUsers_shouldReturnTwoUsers() throws Exception {
+    void getAll_shouldReturnTwoUsers() throws Exception {
         // given
         UserDto userDto1 = ModelFactory.toUserDto(ModelFactory.createUser());
         UserDto userDto2 = ModelFactory.toUserDto(ModelFactory.createUser());
@@ -76,7 +76,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("GET /api/users/{id} - Success")
-    void getUserById_shouldReturnUser() throws Exception {
+    void getById_shouldReturnUser() throws Exception {
         // given
         UserDto userDto = ModelFactory.toUserDto(ModelFactory.createUser());
 

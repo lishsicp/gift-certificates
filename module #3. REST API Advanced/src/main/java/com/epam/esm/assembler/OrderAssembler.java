@@ -30,7 +30,7 @@ public class OrderAssembler implements ModelAssembler<OrderDto> {
     public OrderDto toModel(OrderDto order) {
         giftCertificateAssembler.toModel(order.getGiftCertificate());
         userAssembler.toModel(order.getUser());
-        return order.add(linkTo(methodOn(ORDER_CONTROLLER_CLASS).getOrderById(order.getId())).withSelfRel());
+        return order.add(linkTo(methodOn(ORDER_CONTROLLER_CLASS).getById(order.getId())).withSelfRel());
     }
 
     @Override

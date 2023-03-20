@@ -52,7 +52,7 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("GET /api/orders/{id} - Success")
-    void getOrderById_shouldReturnOrder() throws Exception {
+    void getById_shouldReturnOrder() throws Exception {
         // given
         OrderDto orderDto = ModelFactory.toOrderDto(ModelFactory.createOrder());
         long orderId = orderDto.getId();
@@ -77,7 +77,7 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("GET /api/orders - Success")
-    void getAllOrders_shouldReturnOrderList() throws Exception {
+    void getAll_shouldReturnOrderList() throws Exception {
         // given
         int page = 1;
         int size = 5;
@@ -111,7 +111,7 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("GET /api/orders/users/{id} - Success")
-    void getOrdersByUserId_shouldReturnOrderList() throws Exception {
+    void getByUserId_shouldReturnOrderList() throws Exception {
         // given
         int page = 1;
         int size = 5;
@@ -145,7 +145,7 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("POST /api/orders - Success")
-    void saveOrder_shouldReturnSavedOrder() throws Exception {
+    void save_shouldReturnSavedOrder() throws Exception {
         // given
         OrderDto orderDto = ModelFactory.toOrderDto(ModelFactory.createOrder());
         long userId = orderDto.getUser().getId();
@@ -170,7 +170,7 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("DELETE /api/orders/{id} - Success")
-    void deleteOrder_shouldDelete() throws Exception {
+    void delete_shouldDelete() throws Exception {
         // given
         long id = 1;
 

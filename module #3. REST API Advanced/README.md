@@ -1,4 +1,16 @@
 # REST API Advanced
+
+### Setup
+**_Run tests (optional):_**
+1. Run tests `./mvnw test` for Unit tests or `./mvnw integration-test` for all integration and Unit tests
+
+**_Run with local postgres db:_**
+1. Run `./mvnw spring-boot:run '-Dspring-boot.run.profiles=dev' -DskipTests `
+
+_**Run with docker:**_
+1. Edit `.env` if you need to.
+2. Run `docker-compose -up --build`
+
 ### Task
 #### General requirements
 

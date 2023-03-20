@@ -5,16 +5,24 @@ services:
     image: 'postgres:15.2-alpine'
     container_name: postgres
     ports:
-      - '5432:5432'
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     environment:
-      - POSTGRES_USER=lobur
-      - POSTGRES_PASSWORD=pass
-      - POSTGRES_DB=gifts
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_SERVER
 
   gift-certificates:
     build: ./
     image: 'certificates'
     container_name: certificates
+    depends_on:
+      - postgres
     ports:
-      - '8080:8080'
-
+      - ${APPLICATION_PORT}:${APPLICATION_PORT}
+    environment:
+      - SPRING_PROFILES_ACTIVE
+      - APPLICATION_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_URL=jdbc:postgresql://${POSTGRES_SERVER}:${POSTGRES_PORT}/${POSTGRES_DB}

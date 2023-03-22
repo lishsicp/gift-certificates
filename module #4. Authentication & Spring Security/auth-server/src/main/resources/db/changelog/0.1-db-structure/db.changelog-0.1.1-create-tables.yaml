@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-auth-user-table
+      author: Yaroslav Lobur
+      changes:
+        - createSequence:
+            sequenceName: user_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueComputed: nextval('user_seq')
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(128)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(16)

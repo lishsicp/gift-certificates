@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -35,20 +34,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String jwt = getTokenFromRequest(request);
-        String email = tokenUtil.extractUserEmail(jwt);
+        String tokenFromRequest = getTokenFromRequest(request);
+        String email = tokenUtil.extractUserEmail(tokenFromRequest);
 
-        if (jwt != null && tokenUtil.isValid(jwt, email)) {
-            saveUserIfDoNotExist(jwt, email);
+        if (tokenFromRequest != null && tokenUtil.isValid(tokenFromRequest, email)) {
+            saveUserIfDoNotExist(tokenFromRequest, email);
 
             List<GrantedAuthority> authorityList =
-                Collections.singletonList(new SimpleGrantedAuthority(tokenUtil.extractUserRole(jwt)));
-
-            User userDetails = new User(email, "", authorityList);
-
-            Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                Collections.singletonList(new SimpleGrantedAuthority(tokenUtil.extractUserRole(tokenFromRequest)));
+            Authentication authenticationToken = new UsernamePasswordAuthenticationToken(email, null, authorityList);
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
 
         filterChain.doFilter(request, response);

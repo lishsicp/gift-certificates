@@ -1,0 +1,20 @@
+server:
+  port: 8082
+spring:
+  config:
+    activate:
+      on-profile: dev
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/oauth2_server
+    username: lobur
+    password: pass
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  application:
+    name: oauth2-server

@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-admin-auth-user-data
+      author: Yaroslav Lobur
+      changes:
+        - insert:
+            tableName: auth_user
+            columns:
+              - column:
+                  name: firstname
+                  value: Admin
+              - column:
+                  name: lastname
+                  value: Admin
+              - column:
+                  name: email
+                  value: admin@at.test
+              - column:
+                  name: password
+                  value: $2a$12$gi7hwAbZy3eLkCeKMbjxJelPpbj3coEbdBVh6/kEx.F4GD8ymAZhm #password
+              - column:
+                  name: role
+                  value: ADMIN
+  - changeSet:
+      id: insert-admin-registered-client-data
+      author: Yaroslav Lobur
+      changes:
+        - insert:
+            tableName: oauth2_registered_client
+            columns:
+              - column:
+                  name: id
+                  value: fe563a92-aaee-4ba7-8cfc-6488f863feb6
+              - column:
+                  name: client_id
+                  value: client
+              - column:
+                  name: client_secret
+                  value: $2a$12$gi7hwAbZy3eLkCeKMbjxJelPpbj3coEbdBVh6
+              - column:
+                  name: client_name
+                  value: fe563a92-aaee-4ba7-8cfc-6488f863feb6
+              - column:
+                  name: client_authentication_methods
+                  value: client_secret_post
+              - column:
+                  name: authorization_grant_types
+                  value: refresh_token,authorization_code
+              - column:
+                  name: redirect_uris
+                  value: http://127.0.0.1:8080/authorized
+              - column:
+                  name: client_settings
+                  value: '{"@class":"java.util.Collections$UnmodifiableMap","settings.client.require-proof-key":true,"settings.client.require-authorization-consent":true}'
+              - column:
+                  name: token_settings
+                  value: '{"@class":"java.util.Collections$UnmodifiableMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",86400.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000]}'
+              - column:
+                  name: scopes
+                  value: user.read,user.write,certificate.write,order.read,certificate.read,order.write,user.order.read,user.order.write,tag.write,tag.read
+
+
+

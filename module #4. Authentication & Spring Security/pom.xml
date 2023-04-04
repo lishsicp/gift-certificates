@@ -8,7 +8,9 @@
 	<modules>
 		<module>resource-server</module>
 		<module>auth-server</module>
-	</modules>
+    <module>oauth2-server</module>
+		<module>resource-oauth2-server</module>
+  </modules>
 
 	<groupId>com.epam.esm</groupId>
 	<artifactId>gift-certificates-security</artifactId>
@@ -20,14 +22,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>3.0.4</version>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

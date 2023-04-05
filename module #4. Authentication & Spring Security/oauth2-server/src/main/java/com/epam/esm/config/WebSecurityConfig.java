@@ -53,18 +53,6 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-
-
-//    @Bean
-//    public OAuth2TokenCustomizer<JwtEncodingContext> auth2TokenCustomizer() {
-//        return context -> {
-//            var user = (AuthUser) context.getPrincipal().getPrincipal();
-//
-//            context.getClaims().claim("name", user.getFirstname() + " " + user.getLastname());
-//            context.getClaims().claim("role", "ROLE_" + user.getRole().name());
-//        };
-//    }
-
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
         RSAKey rsaKey = Jwks.generateRsa();

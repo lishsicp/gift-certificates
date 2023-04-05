@@ -36,11 +36,9 @@ public final class FederatedIdentityConfigurer extends AbstractHttpConfigurer<Fe
 
 		http
 			.exceptionHandling(exceptionHandling ->
-				exceptionHandling.authenticationEntryPoint(authenticationEntryPoint)
-			)
+				exceptionHandling.authenticationEntryPoint(authenticationEntryPoint))
 			.oauth2Login(oauth2 -> oauth2
-				.successHandler(authenticationSuccessHandler)
-			);
+				.successHandler(authenticationSuccessHandler));
 	}
 
 }

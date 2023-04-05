@@ -27,13 +27,13 @@ public class StandardSecurityConfig {
 
     private final CorsCustomizer corsCustomizer;
     private final AuthUserRepository authUserRepository;
+    private final UserRepositoryOAuth2UserHandler auth2UserHandler;
 
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         corsCustomizer.customize(http);
-
         FederatedIdentityConfigurer federatedIdentityConfigurer = new FederatedIdentityConfigurer()
-            .oauth2UserHandler(new UserRepositoryOAuth2UserHandler(authUserRepository));
+            .oauth2UserHandler(auth2UserHandler);
 
         http
             .csrf(c -> c.ignoringRequestMatchers("/**"))

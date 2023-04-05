@@ -8,10 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
 
 @RequiredArgsConstructor
+@Component
 @Slf4j
 public final class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2User> {
 

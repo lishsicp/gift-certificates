@@ -2,6 +2,9 @@ package com.epam.esm.config;
 
 import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.repository.AuthUserRepository;
+import com.epam.esm.idp.FederatedIdentityConfigurer;
+import com.epam.esm.idp.OAuth2TokenClaimsCustomizer;
+import com.epam.esm.idp.UserRepositoryOAuth2UserHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +15,8 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
@@ -27,6 +32,9 @@ public class StandardSecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         corsCustomizer.customize(http);
 
+        FederatedIdentityConfigurer federatedIdentityConfigurer = new FederatedIdentityConfigurer()
+            .oauth2UserHandler(new UserRepositoryOAuth2UserHandler(authUserRepository));
+
         http
             .csrf(c -> c.ignoringRequestMatchers("/**"))
             .authorizeHttpRequests(
@@ -34,8 +42,19 @@ public class StandardSecurityConfig {
                     .requestMatchers("/oauth2/*", "/login", "/webjars/**").permitAll()
                     .anyRequest()
                     .authenticated())
-            .formLogin(l -> l.loginPage("/login").usernameParameter("email"));
+            .formLogin(l -> l
+                .loginPage("/login")
+                .usernameParameter("email")
+            );
+
+        http.apply(federatedIdentityConfigurer);
+
         return http.build();
+    }
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> idTokenCustomizer() {
+        return new OAuth2TokenClaimsCustomizer(authUserRepository);
     }
 
     @Bean

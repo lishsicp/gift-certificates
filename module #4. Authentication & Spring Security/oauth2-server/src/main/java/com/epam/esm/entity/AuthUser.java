@@ -30,6 +30,7 @@ import java.util.Objects;
 public class AuthUser implements UserDetails {
 
     public static final String USER_SEQ = "user_seq";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = USER_SEQ)
     @SequenceGenerator(name = USER_SEQ, sequenceName = USER_SEQ, allocationSize = 1)

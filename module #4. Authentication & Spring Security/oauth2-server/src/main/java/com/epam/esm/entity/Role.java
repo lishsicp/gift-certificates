@@ -1,5 +1,5 @@
 package com.epam.esm.entity;
 
 public enum Role {
-    ADMIN, USER
+    ADMIN, USER // TODO create db for roles
 }

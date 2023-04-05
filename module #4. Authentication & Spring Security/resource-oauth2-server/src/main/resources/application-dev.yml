@@ -10,7 +10,6 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://oauth2-server:8082
-          #jwk-set-uri: http://127.0.0.1:8082/oauth2/jwks
   config:
     activate:
       on-profile: dev
@@ -30,3 +29,9 @@ spring:
         format_sql: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+logging:
+  level:
+    org:
+      springframework:
+        security: info
+    root: info

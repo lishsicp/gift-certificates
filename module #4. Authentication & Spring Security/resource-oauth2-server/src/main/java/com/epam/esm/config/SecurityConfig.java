@@ -28,6 +28,11 @@ import org.springframework.util.MimeTypeUtils;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    public static final String[] TAG_ENDPOINTS = {"/api/tags", "/api/tags/**"};
+    public static final String[] USER_ENDPOINTS = {"/api/users", "/api/users/**"};
+    public static final String[] CERTIFICATE_ENDPOINTS = {"/api/certificates", "/api/certificates/**"};
+    public static final String[] ORDER_ENDPOINTS = {"/api/orders", "/api/orders/**"};
+
     private final String issuer;
     private final JwtAuthenticationTokenConverter jwtAuthenticationTokenConverter;
     private final PermissionEvaluator permissionEvaluator;
@@ -51,19 +56,36 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(request -> request
                 // Guest
-                .requestMatchers(HttpMethod.GET, "/api/certificates", "/api/certificates/**").permitAll()
+                .requestMatchers(HttpMethod.GET, CERTIFICATE_ENDPOINTS).permitAll()
 
                 // User
-                .requestMatchers(HttpMethod.GET, "/api/tags/**", "/api/tags").hasAuthority("SCOPE_tag.read")
-                .requestMatchers(HttpMethod.GET, "/api/orders/users/*").hasAuthority("SCOPE_user.order.read")
-                .requestMatchers(HttpMethod.POST,"/api/orders").hasAuthority("SCOPE_user.order.write")
-                .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**").hasAuthority("SCOPE_user.read")
+                .requestMatchers(HttpMethod.GET, TAG_ENDPOINTS)
+                .hasAuthority("SCOPE_tag.read")
+                .requestMatchers(HttpMethod.GET, "/api/orders/users/*")
+                .hasAuthority("SCOPE_user.order.read")
+                .requestMatchers(HttpMethod.POST,"/api/orders")
+                .hasAnyAuthority("SCOPE_user.order.write")
+                .requestMatchers(HttpMethod.GET, USER_ENDPOINTS)
+                .hasAuthority("SCOPE_user.read")
 
                 // Admin
-                .requestMatchers("/api/tags", "/api/tags/**").hasAuthority("SCOPE_tag.write")
-                .requestMatchers("/api/users", "/api/users/**").hasAuthority("SCOPE_user.write")
-                .requestMatchers("/api/certificates", "/api/certificates/**").hasAuthority("SCOPE_certificate.write")
-                .requestMatchers("/api/orders", "/api/orders/**").hasAuthority("SCOPE_order.write")
+                .requestMatchers(HttpMethod.POST, TAG_ENDPOINTS)
+                .hasAuthority("SCOPE_tag.write")
+                .requestMatchers(HttpMethod.DELETE, TAG_ENDPOINTS)
+                .hasAuthority("SCOPE_tag.write")
+
+                .requestMatchers(HttpMethod.POST, USER_ENDPOINTS)
+                .hasAuthority("SCOPE_user.write")
+                .requestMatchers(HttpMethod.DELETE, USER_ENDPOINTS)
+                .hasAuthority("SCOPE_user.write")
+
+                .requestMatchers(HttpMethod.POST, CERTIFICATE_ENDPOINTS)
+                .hasAuthority("SCOPE_certificate.write")
+                .requestMatchers(HttpMethod.DELETE, CERTIFICATE_ENDPOINTS)
+                .hasAuthority("SCOPE_certificate.write")
+
+                .requestMatchers(HttpMethod.POST, ORDER_ENDPOINTS).hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, ORDER_ENDPOINTS).hasRole("ADMIN")
             )
 
             .exceptionHandling(ex -> ex

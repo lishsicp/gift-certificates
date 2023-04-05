@@ -29,7 +29,6 @@ class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractAuthenti
         Set.of("tag.read", "user.read", "certificate.read", "user.order.read", "user.order.write", "openid");
 
     @Override
-    @SuppressWarnings("null")
     public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
         boolean userExists = userRepository.existsByEmail(jwt.getSubject());
 
@@ -40,12 +39,20 @@ class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractAuthenti
             userRepository.save(newUser);
             log.trace("Saving new user: {}", userEmail);
         }
+
+        Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
+
+        return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
+    }
+
+    @SuppressWarnings("null")
+    private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         Collection<GrantedAuthority> authorities = grantedAuthoritiesConverter.convert(jwt);
 
         String userRole = (String) jwt.getClaims().get("role");
 
-        if (userRole != null && userRole.equals("ROLE_USER")) {
+        if (userRole != null && userRole.equals("ROLE_USER") && !authorities.isEmpty()) {
             List<GrantedAuthority> restrictedAuthorities =
                 authorities.stream()
                     .filter(a -> !USER_PERMISSION.contains(a.getAuthority().substring(SCOPE_PREFIX.length())))
@@ -56,7 +63,6 @@ class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractAuthenti
         authorities.add(new SimpleGrantedAuthority(userRole));
 
         log.debug("User JWT token authorities: {}", authorities);
-
-        return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
+        return authorities;
     }
 }

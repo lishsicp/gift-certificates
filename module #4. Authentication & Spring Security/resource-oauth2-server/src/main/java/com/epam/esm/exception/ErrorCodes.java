@@ -11,5 +11,6 @@ public class ErrorCodes {
     public final int DUPLICATED_TAG = 40011;
     public final int DUPLICATED_CERTIFICATE = 40012;
     public final int ACCESS_DENIED = 40301;
+    public final int UNAUTHORIZED = 40101;
 }
 

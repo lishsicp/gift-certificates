@@ -4,6 +4,7 @@ import com.epam.esm.exception.ErrorBody;
 import com.epam.esm.exception.ErrorCodes;
 import com.epam.esm.exception.ExceptionMessageI18n;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,15 +24,19 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.MimeTypeUtils;
 
+import java.io.IOException;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    public static final String[] TAG_ENDPOINTS = {"/api/tags", "/api/tags/**"};
-    public static final String[] USER_ENDPOINTS = {"/api/users", "/api/users/**"};
-    public static final String[] CERTIFICATE_ENDPOINTS = {"/api/certificates", "/api/certificates/**"};
-    public static final String[] ORDER_ENDPOINTS = {"/api/orders", "/api/orders/**"};
+    private static final String[] TAG_ENDPOINTS = {"/api/tags", "/api/tags/**"};
+    private static final String[] USER_ENDPOINTS = {"/api/users", "/api/users/**"};
+    private static final String[] CERTIFICATE_ENDPOINTS = {"/api/certificates", "/api/certificates/**"};
+    private static final String[] ORDER_ENDPOINTS = {"/api/orders", "/api/orders/**"};
+    private static final String ADMIN = "ADMIN";
+    private static final String USER_ORDERS_ENDPOINT = "/api/orders/users/*";
 
     private final String issuer;
     private final JwtAuthenticationTokenConverter jwtAuthenticationTokenConverter;
@@ -59,33 +64,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, CERTIFICATE_ENDPOINTS).permitAll()
 
                 // User
-                .requestMatchers(HttpMethod.GET, TAG_ENDPOINTS)
-                .hasAuthority("SCOPE_tag.read")
-                .requestMatchers(HttpMethod.GET, "/api/orders/users/*")
-                .hasAuthority("SCOPE_user.order.read")
-                .requestMatchers(HttpMethod.POST,"/api/orders")
-                .hasAnyAuthority("SCOPE_user.order.write")
-                .requestMatchers(HttpMethod.GET, USER_ENDPOINTS)
-                .hasAuthority("SCOPE_user.read")
+                .requestMatchers(HttpMethod.GET, TAG_ENDPOINTS).authenticated()
+                .requestMatchers(HttpMethod.GET, USER_ENDPOINTS).hasAuthority("SCOPE_user.read")
+                .requestMatchers(HttpMethod.GET, USER_ORDERS_ENDPOINT).hasAuthority("SCOPE_user.order.read")
+                .requestMatchers(HttpMethod.POST,ORDER_ENDPOINTS).hasAnyAuthority("SCOPE_user.order.write", "SCOPE_order.write")
 
                 // Admin
-                .requestMatchers(HttpMethod.POST, TAG_ENDPOINTS)
-                .hasAuthority("SCOPE_tag.write")
-                .requestMatchers(HttpMethod.DELETE, TAG_ENDPOINTS)
-                .hasAuthority("SCOPE_tag.write")
-
-                .requestMatchers(HttpMethod.POST, USER_ENDPOINTS)
-                .hasAuthority("SCOPE_user.write")
-                .requestMatchers(HttpMethod.DELETE, USER_ENDPOINTS)
-                .hasAuthority("SCOPE_user.write")
-
-                .requestMatchers(HttpMethod.POST, CERTIFICATE_ENDPOINTS)
-                .hasAuthority("SCOPE_certificate.write")
-                .requestMatchers(HttpMethod.DELETE, CERTIFICATE_ENDPOINTS)
-                .hasAuthority("SCOPE_certificate.write")
-
-                .requestMatchers(HttpMethod.POST, ORDER_ENDPOINTS).hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, ORDER_ENDPOINTS).hasRole("ADMIN")
+                .anyRequest().hasRole(ADMIN)
             )
 
             .exceptionHandling(ex -> ex
@@ -101,19 +86,23 @@ public class SecurityConfig {
     }
 
     private AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) -> response.sendRedirect(issuer);
+         return (request, response, authException) ->
+             setExceptionBody(response, HttpStatus.UNAUTHORIZED, ErrorCodes.UNAUTHORIZED);
     }
 
     private AccessDeniedHandler accessDeniedHandler() {
-        return (request, response, accessDeniedException) -> {
-            response.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);
-            response.setStatus(HttpStatus.FORBIDDEN.value());
-            response.setCharacterEncoding("UTF-8");
-            String message = i18n.toLocale(String.valueOf(ErrorCodes.ACCESS_DENIED));
-            ObjectMapper objectMapper = new ObjectMapper();
-            response.getWriter()
-                .write(objectMapper.writeValueAsString(new ErrorBody(message, ErrorCodes.ACCESS_DENIED)));
-        };
+        return (request, response, accessDeniedException) ->
+            setExceptionBody(response, HttpStatus.FORBIDDEN, ErrorCodes.ACCESS_DENIED);
+    }
+
+    private void setExceptionBody(HttpServletResponse response, HttpStatus httpStatus, int errorCode ) throws IOException {
+        response.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);
+        response.setStatus(httpStatus.value());
+        response.setCharacterEncoding("UTF-8");
+        String message = i18n.toLocale(String.valueOf(errorCode));
+        ObjectMapper objectMapper = new ObjectMapper();
+        response.getWriter()
+            .write(objectMapper.writeValueAsString(new ErrorBody(message, errorCode)));
     }
 
     @Bean

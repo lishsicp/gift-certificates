@@ -1,7 +1,5 @@
 server:
   port: 8080
-  ssl:
-    enabled: false
 spring:
   application:
     name: resource-server
@@ -9,7 +7,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://oauth2-server:8082
+          issuer-uri: http://oauth2-server.com:8082
   config:
     activate:
       on-profile: dev
@@ -31,7 +29,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 logging:
   level:
-    org:
-      springframework:
-        security: info
-    root: info
+    #org.springframework.web: INFO
+    org.springframework.security: debug
+    org.springframework.security.oauth2: debug
+    web: trace

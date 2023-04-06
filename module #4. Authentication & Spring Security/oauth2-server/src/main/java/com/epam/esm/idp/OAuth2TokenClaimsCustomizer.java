@@ -27,11 +27,12 @@ public final class OAuth2TokenClaimsCustomizer implements OAuth2TokenCustomizer<
 
 	@Override
 	public void customize(JwtEncodingContext context) {
-		var authUser = authUserRepository.findByEmail(context.getPrincipal().getName());
-		if (authUser.isPresent()) {
-			context.getClaims().claim("name", authUser.get().getFirstname() + " " + authUser.get().getLastname());
-			context.getClaims().claim("role", "ROLE_" + authUser.get().getRole().name());
-		}
+		authUserRepository.findByEmail(context.getPrincipal().getName()).ifPresent(user -> {
+			context.getClaims()
+				.claim("role", "ROLE_" + user.getRole().name());
+			context.getClaims()
+				.claim("name", user.getFirstname() + " " + user.getLastname());
+		});
 
 		if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
 			Map<String, Object> thirdPartyClaims = extractClaims(context.getPrincipal());

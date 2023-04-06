@@ -22,16 +22,19 @@ public final class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2Use
 	@Override
 	public void accept(OAuth2User user) {
 		if (!userRepository.existsByEmail(user.getName())) {
-
-			var authUser = AuthUser.builder()
-				.email(user.getAttribute("email"))
-				.firstname(user.getAttribute("given_name"))
-				.lastname(user.getAttribute("family_name"))
-				.password(Sha512DigestUtils.shaHex(RandomStringUtils.randomAlphabetic(10))) // random password
-				.role(Role.USER)
-				.build();
-			log.info("Saving new user: name=" + user.getName() + ", attributes=" + user.getAttributes() + ", authorities=" + user.getAuthorities());
-			this.userRepository.save(authUser);
+			String nameAttribute = user.getAttribute("name");
+			if (nameAttribute != null) {
+				String[] fullName = nameAttribute.split("\\s");
+				var authUser = AuthUser.builder()
+					.email(user.getAttribute("email"))
+					.firstname(fullName[0])
+					.lastname(fullName[1])
+					.password(Sha512DigestUtils.shaHex(RandomStringUtils.randomAlphabetic(10))) // random password
+					.role(Role.USER)
+					.build();
+				log.info("Saving new user: name=" + user.getName() + ", attributes=" + user.getAttributes() + ", authorities=" + user.getAuthorities());
+				this.userRepository.save(authUser);
+			}
 		}
 	}
 }

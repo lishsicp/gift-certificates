@@ -1,8 +1,8 @@
 package com.epam.esm.config;
 
 import com.epam.esm.entity.AuthUser;
-import com.epam.esm.jose.Jwks;
 import com.epam.esm.idp.FederatedIdentityConfigurer;
+import com.epam.esm.jose.Jwks;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -44,9 +44,11 @@ public class WebSecurityConfig {
         corsCustomizer.customize(http);
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+            .oidc(Customizer.withDefaults());
 
-        http.formLogin(Customizer.withDefaults());
+        http
+            .formLogin(Customizer.withDefaults());
 
         http.apply(new FederatedIdentityConfigurer());
 
@@ -68,7 +70,7 @@ public class WebSecurityConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-            .issuer("http://oauth2-server:8082")
+            .issuer("http://oauth2-server.com:8082")
             .build();
     }
 

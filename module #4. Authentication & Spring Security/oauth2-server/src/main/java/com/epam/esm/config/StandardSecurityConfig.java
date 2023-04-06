@@ -32,6 +32,7 @@ public class StandardSecurityConfig {
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         corsCustomizer.customize(http);
+
         FederatedIdentityConfigurer federatedIdentityConfigurer = new FederatedIdentityConfigurer()
             .oauth2UserHandler(auth2UserHandler);
 
@@ -39,7 +40,7 @@ public class StandardSecurityConfig {
             .csrf(c -> c.ignoringRequestMatchers("/**"))
             .authorizeHttpRequests(
                 authorize -> authorize
-                    .requestMatchers("/oauth2/*", "/login", "/webjars/**").permitAll()
+                    .requestMatchers("/oauth2/**", "/login", "/webjars/**").permitAll()
                     .anyRequest()
                     .authenticated())
             .formLogin(l -> l

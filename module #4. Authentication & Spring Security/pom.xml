@@ -6,9 +6,9 @@
 	<packaging>pom</packaging>
 
 	<modules>
-    <module>oauth2-server</module>
+    		<module>oauth2-server</module>
 		<module>oauth2-resource-server</module>
-  </modules>
+  	</modules>
 
 	<groupId>com.epam.esm</groupId>
 	<artifactId>gift-certificates-security</artifactId>

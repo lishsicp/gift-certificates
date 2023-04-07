@@ -1,10 +1,10 @@
 package com.epam.esm.config;
 
 import com.epam.esm.exception.EntityNotFoundException;
-import com.epam.esm.repository.AuthUserRepository;
 import com.epam.esm.idp.FederatedIdentityConfigurer;
 import com.epam.esm.idp.OAuth2TokenClaimsCustomizer;
 import com.epam.esm.idp.UserRepositoryOAuth2UserHandler;
+import com.epam.esm.repository.AuthUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +44,6 @@ public class StandardSecurityConfig {
                     .anyRequest()
                     .authenticated())
             .formLogin(l -> l
-                .loginPage("/login")
                 .usernameParameter("email")
             );
 

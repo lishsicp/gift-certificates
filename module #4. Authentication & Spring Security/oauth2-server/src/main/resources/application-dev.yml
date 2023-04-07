@@ -4,6 +4,7 @@ logging:
   level:
     org.springframework.security: TRACE
     org.springframework.security.oauth2: TRACE
+    web: trace
 spring:
   config:
     import: google-idp.properties
@@ -17,7 +18,7 @@ spring:
             provider: google
             client-id: ${google.client_id}
             client-secret: ${google.client_secret}
-            scope: openid,email,profile
+            scope: openid, https://www.googleapis.com/auth/userinfo.profile, https://www.googleapis.com/auth/userinfo.email
             client-name: Sign in with Google
         provider:
           google:

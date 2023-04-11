@@ -2,34 +2,40 @@ package com.epam.esm.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 
-@Entity
+@Entity(name = "auth_user")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class AuthUser implements UserDetails {
 
-    public static final String USER_SEQ = "user_seq";
+    private static final String USER_SEQ = "user_seq";
+
+    @Serial
+    private static final long serialVersionUID = 878739267659072571L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = USER_SEQ)
@@ -49,13 +55,13 @@ public class AuthUser implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Role role;
+    @OneToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private AuthUserRole role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList(role.name());
+        return AuthorityUtils.createAuthorityList("ROLE_" + role.getName());
     }
 
     @Override
@@ -102,6 +108,6 @@ public class AuthUser implements UserDetails {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(id);
     }
 }

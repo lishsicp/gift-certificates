@@ -23,11 +23,10 @@ User Permissions:
         * Signup.
         * Login.
      - User:
-        * All operations for guest.
-        * Addition of news, comments.
+        * All read operations.
+        * Make an order on main entity.
      - Administrator (can be added only via database call):
-        * All operations for users.
-        * Addition and modification of entities.
+        * All operations, including addition and modification of entities.
 
 4. Get acquainted with the concepts OAuth2 and OpenId Connect
 5. (Optional task) Use OAuth2 as an authorization protocol.

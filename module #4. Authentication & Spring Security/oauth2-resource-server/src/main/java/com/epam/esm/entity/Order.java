@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -28,7 +29,11 @@ import java.util.Objects;
 @Builder
 public class Order extends BaseEntity {
 
+    @Serial
+    private static final long serialVersionUID = 9163842282812487835L;
+
     public static final String ORDER_SEQ = "order_id_seq";
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ORDER_SEQ)
     @SequenceGenerator(name = ORDER_SEQ, sequenceName = ORDER_SEQ, allocationSize = 1)

@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.util.Objects;
 
 @Entity(name = "user_")
@@ -21,6 +22,9 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 public class User extends BaseEntity {
+
+    @Serial
+    private static final long serialVersionUID = 8916024884626106628L;
 
     public static final String USER_SEQ = "user_id_seq";
 

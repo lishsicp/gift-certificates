@@ -8,54 +8,56 @@ import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
-import lombok.experimental.UtilityClass;
 import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 
-@UtilityClass
 public class ModelFactory {
 
-    private final ModelMapper modelMapper = new ModelMapper();
+    private static final ModelMapper modelMapper = new ModelMapper();
 
-    private final AtomicLong counter = new AtomicLong();
+    private static final AtomicLong counter = new AtomicLong();
 
-    private final LocalDateTime DATETIME = LocalDateTime.parse("2023-02-17T10:48:40.303950");
+    private static final LocalDateTime DATETIME = LocalDateTime.parse("2023-02-17T10:48:40.303950");
 
-    public long generateId() {
+    private ModelFactory() {
+        throw new UnsupportedOperationException();
+    }
+
+    private static long generateId() {
         return counter.incrementAndGet();
     }
 
-    public Tag createNewTag() {
+    public static Tag createNewTag() {
         long id = generateId();
         return Tag.builder().name("tag" + id).build();
     }
 
-    public Tag createTag() {
+    public static Tag createTag() {
         long id = generateId();
         return Tag.builder().id(id).name("tag" + id).build();
     }
 
-    public TagDto toTagDto(Tag tag) {
+    public static TagDto toTagDto(Tag tag) {
         return modelMapper.map(tag, TagDto.class);
     }
 
-    public GiftCertificate createGiftCertificate() {
+    public static GiftCertificate createGiftCertificate() {
         long id = generateId();
         return getGiftCertificateBuilder(id)
             .build();
     }
 
-    public GiftCertificate createNewGiftCertificate() {
+    public static GiftCertificate createNewGiftCertificate() {
         long id = generateId();
         return getGiftCertificateBuilder(id)
             .id(0)
             .build();
     }
 
-    private GiftCertificate.GiftCertificateBuilder getGiftCertificateBuilder(long num) {
+    private static GiftCertificate.GiftCertificateBuilder getGiftCertificateBuilder(long num) {
         return GiftCertificate.builder()
             .id(num)
             .name("gift" + num)
@@ -66,25 +68,25 @@ public class ModelFactory {
             .lastUpdateDate(DATETIME);
     }
 
-    public GiftCertificateDto toGiftCertificateDto(GiftCertificate giftCertificate) {
+    public static GiftCertificateDto toGiftCertificateDto(GiftCertificate giftCertificate) {
         return modelMapper.map(giftCertificate, GiftCertificateDto.class);
     }
 
-    public User createUser() {
+    public static User createUser() {
         long id = generateId();
         return User.builder().id(id).name("user" + id).email("user" + id + "@at.test").build();
     }
 
-    public User createNewUser() {
+    public static User createNewUser() {
         long id = generateId();
         return User.builder().name("user" + id).email("user" + id + "@at.test").build();
     }
 
-    public UserDto toUserDto(User user) {
+    public static UserDto toUserDto(User user) {
         return modelMapper.map(user, UserDto.class);
     }
 
-    public Order createOrder() {
+    public static Order createOrder() {
         long id = generateId();
         return Order.builder()
             .id(id)
@@ -95,14 +97,14 @@ public class ModelFactory {
             .build();
     }
 
-    public Order createNewOrder() {
+    public static Order createNewOrder() {
         return Order.builder()
             .price(new BigDecimal("10.99"))
             .purchaseDate(DATETIME)
             .build();
     }
 
-    public OrderDto toOrderDto(Order order) {
+    public static OrderDto toOrderDto(Order order) {
         return modelMapper.map(order, OrderDto.class);
     }
 }

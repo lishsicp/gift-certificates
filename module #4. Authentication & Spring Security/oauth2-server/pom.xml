@@ -13,7 +13,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.epam.esm</groupId>
-  <artifactId>gift-certificates-oauth2-server</artifactId>
+  <artifactId>oauth2-server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <packaging>jar</packaging>
@@ -26,6 +26,7 @@
     <authorization-server.version>1.0.1</authorization-server.version>
     <liquibase.version>4.20.0</liquibase.version>
     <webjars.version>3.4.1</webjars.version>
+    <testcontainers.postgresql.version>1.17.6</testcontainers.postgresql.version>
   </properties>
 
   <dependencies>
@@ -120,6 +121,12 @@
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${testcontainers.postgresql.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -135,6 +142,18 @@
             </exclude>
           </excludes>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.22.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

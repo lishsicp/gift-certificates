@@ -1,15 +1,5 @@
 package com.epam.esm.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,16 +10,28 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
-@Table(name = "gift_certificate")
+import java.io.Serial;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+
+@Entity(name = "gift_certificate")
 @NoArgsConstructor
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
 public class GiftCertificate extends BaseEntity {
+
+    @Serial
+    private static final long serialVersionUID = 2372946955532531797L;
 
     public static final String GIFT_CERTIFICATE_SEQ = "gift_certificate_id_seq";
 

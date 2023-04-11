@@ -29,7 +29,7 @@ public final class OAuth2TokenClaimsCustomizer implements OAuth2TokenCustomizer<
 	public void customize(JwtEncodingContext context) {
 		authUserRepository.findByEmail(context.getPrincipal().getName()).ifPresent(user -> {
 			context.getClaims()
-				.claim("role", "ROLE_" + user.getRole().name());
+				.claim("role", "ROLE_" + user.getRole().getName());
 			context.getClaims()
 				.claim("name", user.getFirstname() + " " + user.getLastname());
 			context.getClaims()

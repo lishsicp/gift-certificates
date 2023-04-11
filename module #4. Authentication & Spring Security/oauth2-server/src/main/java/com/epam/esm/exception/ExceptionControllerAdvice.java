@@ -3,7 +3,6 @@ package com.epam.esm.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @ControllerAdvice
-@Order(2)
 @RequiredArgsConstructor
 public class ExceptionControllerAdvice extends ExceptionHandlerExceptionResolver {
 

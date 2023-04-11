@@ -13,17 +13,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRegisterDto {
+public class UserRegistrationDto {
     @Email
     @NotBlank
     private String email;
-    @Pattern(regexp = "\\w*")
+    @Pattern(regexp = "\\D*")
     @NotBlank
     private String firstname;
-    @Pattern(regexp = "\\w*")
+    @Pattern(regexp = "\\D*")
     @NotBlank
     private String lastname;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Pattern(regexp = "[\\w*]{8,}", message = "Should be at least 8 characters")
+    @Pattern(regexp = "[\\w!\"#$%&'()*+,\\-./:;<=>?@\\[\\\\\\]^_`{|}~*]{8,}", message = "Should be at least 8 characters")
     private String password;
 }

@@ -1,8 +1,9 @@
 package com.epam.esm.idp;
 
 import com.epam.esm.entity.AuthUser;
-import com.epam.esm.entity.Role;
+import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.repository.AuthUserRepository;
+import com.epam.esm.repository.AuthUserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -18,6 +19,7 @@ import java.util.function.Consumer;
 public final class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2User> {
 
 	private final AuthUserRepository userRepository;
+	private final AuthUserRoleRepository userRoleRepository;
 
 	@Override
 	public void accept(OAuth2User user) {
@@ -30,7 +32,9 @@ public final class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2Use
 					.firstname(fullName[0])
 					.lastname(fullName[1])
 					.password(Sha512DigestUtils.shaHex(RandomStringUtils.randomAlphabetic(10))) // random password
-					.role(Role.USER)
+					.role(userRoleRepository
+						.findByName("USER")
+						.orElseThrow(() -> new EntityNotFoundException("User role does not exist")))
 					.build();
 				log.info("Saving new user: name=" + user.getName() + ", attributes=" + user.getAttributes() + ", authorities=" + user.getAuthorities());
 				this.userRepository.save(authUser);

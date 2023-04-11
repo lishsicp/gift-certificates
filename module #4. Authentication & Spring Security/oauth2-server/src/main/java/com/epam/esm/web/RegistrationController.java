@@ -1,6 +1,6 @@
 package com.epam.esm.web;
 
-import com.epam.esm.dto.UserRegisterDto;
+import com.epam.esm.dto.UserRegistrationDto;
 import com.epam.esm.service.UserRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class RegistrationController {
 
     private final UserRegistrationService authUserRegisterService;
 
@@ -21,7 +21,7 @@ public class AuthenticationController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public UserRegisterDto register(@RequestBody @Valid UserRegisterDto registerDto) {
+    public UserRegistrationDto register(@RequestBody @Valid UserRegistrationDto registerDto) {
         authUserRegisterService.register(registerDto);
         return registerDto;
     }

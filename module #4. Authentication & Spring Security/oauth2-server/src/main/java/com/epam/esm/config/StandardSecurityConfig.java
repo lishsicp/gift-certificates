@@ -37,13 +37,13 @@ public class StandardSecurityConfig {
             .oauth2UserHandler(auth2UserHandler);
 
         http
-            .csrf(c -> c.ignoringRequestMatchers("/**"))
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/**"))
             .authorizeHttpRequests(
                 authorize -> authorize
-                    .requestMatchers("/oauth2/**", "/login", "/webjars/**").permitAll()
+                    .requestMatchers("/oauth2/**", "/login", "/webjars/**", "/connect/**").permitAll()
                     .anyRequest()
                     .authenticated())
-            .formLogin(l -> l
+            .formLogin(formLogin -> formLogin
                 .usernameParameter("email")
             );
 

@@ -1,12 +1,12 @@
 package com.epam.esm.jose;
 
+import lombok.experimental.UtilityClass;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 
+@UtilityClass
 final class KeyGeneratorUtils {
-
-	private KeyGeneratorUtils() {
-	}
 
 	static KeyPair generateRsaKey() {
 		KeyPair keyPair;

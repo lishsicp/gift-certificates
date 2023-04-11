@@ -1,16 +1,15 @@
 package com.epam.esm.jose;
 
 import com.nimbusds.jose.jwk.RSAKey;
+import lombok.experimental.UtilityClass;
 
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
+@UtilityClass
 public final class Jwks {
-
-	private Jwks() {
-	}
 
 	public static RSAKey generateRsa() {
 		KeyPair keyPair = KeyGeneratorUtils.generateRsaKey();

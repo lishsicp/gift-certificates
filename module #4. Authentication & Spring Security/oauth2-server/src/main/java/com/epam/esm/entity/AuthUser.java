@@ -61,7 +61,7 @@ public class AuthUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList(role.getName());
+        return AuthorityUtils.createAuthorityList("ROLE_" + role.getName());
     }
 
     @Override
@@ -108,6 +108,6 @@ public class AuthUser implements UserDetails {
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(id);
     }
 }

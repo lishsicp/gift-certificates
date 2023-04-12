@@ -25,14 +25,17 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         if (existsByEmail) {
             throw new DuplicateKeyException("User exist");
         }
-        var role = authUserRoleRepository.findByName("USER")
-            .orElseThrow(() -> new EntityNotFoundException("Role do not exist"));
+        var role = authUserRoleRepository.findByName("USER");
+        if (role.isEmpty()) {
+            throw new EntityNotFoundException("Role do not exist");
+        }
+
         AuthUser authUser = AuthUser.builder()
             .email(userRegistrationDto.getEmail())
             .password(passwordEncoder.encode(userRegistrationDto.getPassword()))
             .firstname(userRegistrationDto.getFirstname())
             .lastname(userRegistrationDto.getLastname())
-            .role(role)
+            .role(role.get())
             .build();
         authUserRepository.save(authUser);
     }

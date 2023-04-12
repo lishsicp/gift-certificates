@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public final class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2User> {
+public class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2User> {
 
 	private final AuthUserRepository userRepository;
 	private final AuthUserRoleRepository userRoleRepository;

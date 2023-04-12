@@ -2,6 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: insert-auth-user-role-data
       author: Yaroslav Lobur
+      context: prod
       changes:
         - insert:
             tableName: auth_user_role
@@ -18,6 +19,7 @@ databaseChangeLog:
   - changeSet:
       id: insert-admin-auth-user-data
       author: Yaroslav Lobur
+      context: prod
       changes:
         - insert:
             tableName: auth_user

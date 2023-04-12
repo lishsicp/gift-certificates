@@ -29,27 +29,26 @@ public class UserRoleController {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AuthUserRole> create(@RequestBody String roleName) {
-        return ResponseEntity.ok(userRoleService.create(AuthUserRole.builder()
-            .name(roleName).build()));
+    public AuthUserRole create(@RequestBody AuthUserRole role) {
+        return userRoleService.create(role);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<AuthUserRole>> getAll() {
-        return ResponseEntity.ok(userRoleService.getAll());
+    public List<AuthUserRole> getAll() {
+        return userRoleService.getAll();
     }
 
     @GetMapping("/{roleName}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AuthUserRole> getByName(@PathVariable String roleName) {
-        return ResponseEntity.ok(userRoleService.getByName(roleName));
+    public AuthUserRole getByName(@PathVariable String roleName) {
+        return userRoleService.getByName(roleName);
     }
 
     @DeleteMapping("/{roleName}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<List<AuthUserRole>> deleteByName(@PathVariable String roleName) {
+    public ResponseEntity<AuthUserRole> deleteByName(@PathVariable String roleName) {
         userRoleService.deleteByName(roleName);
         return ResponseEntity.noContent().build();
     }

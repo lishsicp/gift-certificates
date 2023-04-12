@@ -7,6 +7,7 @@ import com.epam.esm.repository.AuthUserRoleRepository;
 import com.epam.esm.service.UserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
+    @Transactional
     public AuthUserRole create(AuthUserRole authUserRole) {
         Optional<AuthUserRole> userRole = authUserRoleRepository.findByName(authUserRole.getName());
         if (userRole.isPresent()) {
@@ -42,6 +44,7 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
+    @Transactional
     public void deleteByName(String roleName) {
         Optional<AuthUserRole> userRole = authUserRoleRepository.findByName(roleName);
         if (userRole.isEmpty()) {

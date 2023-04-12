@@ -2,27 +2,34 @@ package com.epam.esm.util;
 
 import com.epam.esm.dto.RegisteredClientDto;
 import com.epam.esm.dto.UserRegistrationDto;
+import com.epam.esm.entity.AuthUser;
 import com.epam.esm.entity.AuthUserRole;
-import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-@UtilityClass
-public class EntityModelFactory {
+public final class EntityModelFactory {
 
-    private final AtomicLong counter = new AtomicLong();
+    private static final AtomicLong counter = new AtomicLong();
 
-    public long generateId() {
+    private EntityModelFactory() {
+        throw new UnsupportedOperationException();
+    }
+
+    private static long generateId() {
         return counter.incrementAndGet();
     }
 
-    public AuthUserRole createRole(String roleName) {
+    public static AuthUserRole createRole(String roleName) {
         long id = generateId();
         return AuthUserRole.builder().id(id).name(roleName).build();
     }
 
-    public RegisteredClientDto createRegisteredClientDto() {
+    public static AuthUserRole createNewRole(String roleName) {
+        return AuthUserRole.builder().name(roleName).build();
+    }
+
+    public static RegisteredClientDto createRegisteredClientDto() {
         return RegisteredClientDto.builder()
             .clientId("test_client_id")
             .clientSecret("test_client_secret")
@@ -38,12 +45,22 @@ public class EntityModelFactory {
             .build();
     }
 
-    public UserRegistrationDto createUserRegistrationDto() {
+    public static UserRegistrationDto createUserRegistrationDto() {
         return UserRegistrationDto.builder()
             .email("test@example.com")
             .password("testPassword")
             .firstname("John")
             .lastname("Doe")
+            .build();
+    }
+
+    public static AuthUser createNewAuthUser() {
+        return AuthUser.builder()
+            .email("test@example.com")
+            .password("testPassword")
+            .firstname("John")
+            .lastname("Doe")
+            .role(createNewRole("USER"))
             .build();
     }
 }

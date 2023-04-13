@@ -11,6 +11,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +48,7 @@ public class TagController {
      * @param size The page size
      * @return All the tags
      */
+    @PreAuthorize("hasAuthority('SCOPE_tag.read')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<TagDto> getAll(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
@@ -62,6 +64,7 @@ public class TagController {
      * @param id The id of the tag
      * @return The tag with the given id
      */
+    @PreAuthorize("hasAuthority('SCOPE_tag.read')")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public TagDto getById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         TagDto tagDto = tagService.getById(id);
@@ -73,6 +76,7 @@ public class TagController {
      *
      * @return The most widely used tag with the highest cost of all orders.
      */
+    @PreAuthorize("hasAuthority('SCOPE_tag.read')")
     @GetMapping(path = "/popular", produces = MediaType.APPLICATION_JSON_VALUE)
     public TagDto getPopular() {
         TagDto tagDto = tagService.getMostWidelyUsedTagWithHighestCostOfAllOrders();
@@ -85,6 +89,7 @@ public class TagController {
      * @param tagDto The details of the tag to save
      * @return The newly saved tag
      */
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('SCOPE_tag.write')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto save(@RequestBody @Validated(OnPersist.class) TagDto tagDto) {
@@ -98,6 +103,7 @@ public class TagController {
      * @param id The id of the tag to delete
      * @return A response indicating the completion of the delete operation
      */
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('SCOPE_tag.write')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         tagService.delete(id);

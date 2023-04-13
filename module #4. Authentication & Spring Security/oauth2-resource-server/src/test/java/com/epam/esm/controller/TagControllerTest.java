@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -29,6 +30,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -38,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = TagController.class)
 @AutoConfigureMockMvc
 @AutoConfigureWebMvc
+@EnableMethodSecurity
 class TagControllerTest {
 
     @Autowired
@@ -61,6 +65,7 @@ class TagControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/tags/{id}", id)
+                .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_tag.read")))
                 .contentType("application/json"))
             .andExpect(status().isOk());
 
@@ -89,7 +94,8 @@ class TagControllerTest {
         given(tagService.getAll(page, size)).willReturn(new PageImpl<>(tags));
 
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/tags"))
+        ResultActions resultActions = mockMvc.perform(get("/api/tags")
+            .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_tag.read"))))
             .andExpect(status().isOk());
 
         resultActions
@@ -112,6 +118,7 @@ class TagControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/tags/popular")
+                .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_tag.read")))
                 .contentType("application/json"))
             .andExpect(status().isOk());
 
@@ -124,7 +131,7 @@ class TagControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/tag - Success")
+    @DisplayName("POST /api/tags - Success")
     void save_shouldReturnTag() throws Exception {
         // given
         Tag tag = ModelFactory.createTag();
@@ -133,7 +140,8 @@ class TagControllerTest {
         given(tagAssembler.toModel(any())).willReturn(tagDto);
 
         // when
-        ResultActions resultActions = mockMvc.perform(post("/api/tags/")
+        ResultActions resultActions = mockMvc.perform(post("/api/tags")
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_tag.write")))
             .contentType(MediaType.APPLICATION_JSON)
             .content(JsonMapperUtil.asJson(tagDto)));
         resultActions
@@ -152,7 +160,8 @@ class TagControllerTest {
         long id = 1;
 
         // when
-        mockMvc.perform(delete("/api/tags/{id}", id))
+        mockMvc.perform(delete("/api/tags/{id}", id)
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_tag.write"))))
             .andExpect(status().isNoContent());
 
         // then

@@ -27,8 +27,10 @@ public class UserIdPermission implements PermissionEvaluator {
     @Override
     public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
         Object permission) {
-        JwtAuthenticationToken token = (JwtAuthenticationToken) authentication;
-        Optional<User> user = userRepository.findByEmail(token.getName());
-        return user.isPresent() && Objects.equals(user.get().getId(), targetId);
+        if (authentication instanceof JwtAuthenticationToken token) {
+            Optional<User> user = userRepository.findByEmail(token.getName());
+            return user.isPresent() && Objects.equals(user.get().getId(), targetId);
+        }
+        return false;
     }
 }

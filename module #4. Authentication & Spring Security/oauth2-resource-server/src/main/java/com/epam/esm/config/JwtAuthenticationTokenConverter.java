@@ -21,12 +21,12 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private final UserRepository userRepository;
     private static final String SCOPE_PREFIX = "SCOPE_";
     private static final Set<String> USER_PERMISSION =
-        Set.of("tag.read", "user.read", "certificate.read", "user.order.read", "user.order.write", "openid");
+        Set.of("tag.read", "user.read", "certificate.read", "order.read", "order.write", "openid");
 
     @Override
     public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {

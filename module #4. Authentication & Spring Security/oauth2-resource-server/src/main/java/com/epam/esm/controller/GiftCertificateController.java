@@ -5,6 +5,8 @@ import com.epam.esm.controller.constraint.FilterConstraint;
 import com.epam.esm.dto.GiftCertificateDto;
 import com.epam.esm.dto.group.OnPersist;
 import com.epam.esm.service.GiftCertificateService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
@@ -12,6 +14,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,9 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -83,6 +83,7 @@ public class GiftCertificateController {
      * @param giftCertificateDto the {@link GiftCertificateDto Gift Certificate} to be saved
      * @return saved {@link GiftCertificateDto Gift Certificate}
      */
+    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_certificate.write')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public GiftCertificateDto save(
@@ -98,6 +99,7 @@ public class GiftCertificateController {
      * @param giftCertificateDto the new fields for the {@link GiftCertificateDto Gift Certificate}
      * @return the updated {@link GiftCertificateDto Gift Certificate}
      */
+    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_certificate.write')")
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public GiftCertificateDto update(@PathVariable @Min(value = 1, message = "40001") long id,
         @RequestBody @Valid GiftCertificateDto giftCertificateDto) {
@@ -110,6 +112,7 @@ public class GiftCertificateController {
      *
      * @param id the Id of the {@link GiftCertificateDto Gift Certificate} to be deleted
      */
+    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_certificate.write')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(
         @PathVariable @Valid @Min(value = 1, message = "40001") long id) {

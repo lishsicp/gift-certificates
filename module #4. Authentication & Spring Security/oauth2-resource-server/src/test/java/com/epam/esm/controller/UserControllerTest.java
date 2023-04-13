@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -26,6 +27,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = UserController.class)
 @AutoConfigureMockMvc
 @AutoConfigureWebMvc
+@EnableMethodSecurity
 class UserControllerTest {
 
     @Autowired
@@ -60,6 +64,7 @@ class UserControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/users")
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_user.read")))
             .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         resultActions
@@ -84,7 +89,8 @@ class UserControllerTest {
         given(userAssembler.toModel(userDto)).willReturn(userDto);
 
         // when
-        mockMvc.perform(get("/api/users/{id}", userDto.getId()))
+        mockMvc.perform(get("/api/users/{id}", userDto.getId())
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_user.read"))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value(userDto.getName()))
             .andExpect(jsonPath("$.email").value(userDto.getEmail()));

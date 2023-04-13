@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,10 +13,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tag")
 @Getter
 @Setter
 @ToString
@@ -25,6 +24,9 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 public class Tag extends BaseEntity {
+
+    @Serial
+    private static final long serialVersionUID = -6839879817689954274L;
 
     public static final String TAG_SEQ = "tag_id_seq";
 

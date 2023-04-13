@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
@@ -32,6 +33,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -40,9 +44,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(classes = GiftCertificateController.class)
+@SpringBootTest(classes = { GiftCertificateController.class })
 @AutoConfigureMockMvc
 @AutoConfigureWebMvc
+@EnableMethodSecurity
 class GiftCertificateControllerTest {
 
     @Autowired
@@ -53,6 +58,8 @@ class GiftCertificateControllerTest {
 
     @MockBean
     private GiftCertificateAssembler giftCertificateAssembler;
+
+    private static final String[] ADMIN_AUTHORITIES = {"ROLE_ADMIN", "SCOPE_certificate.write"};
 
     @Test
     @DisplayName("GET /api/certificates - Success")
@@ -71,7 +78,8 @@ class GiftCertificateControllerTest {
 
         // when
         ResultActions resultActions = mockMvc
-            .perform(get("/api/certificates/"));
+            .perform(get("/api/certificates")
+                .with(jwt()));
 
         resultActions
             .andExpect(status().isOk())
@@ -95,11 +103,9 @@ class GiftCertificateControllerTest {
         given(giftCertificateAssembler.toModel(certificate)).willReturn(new GiftCertificateDto());
 
         // when
-        ResultActions resultActions = mockMvc
-            .perform(get("/api/certificates/" + id));
+        ResultActions resultActions = mockMvc.perform(get("/api/certificates/" + id).with(jwt()));
 
-        resultActions
-            .andExpect(status().isOk());
+        resultActions.andExpect(status().isOk());
 
         // then
         then(giftCertificateService).should().getById(id);
@@ -116,7 +122,8 @@ class GiftCertificateControllerTest {
         given(giftCertificateAssembler.toModel(certificate)).willReturn(certificate);
 
         // when
-        ResultActions resultActions = mockMvc.perform(post("/api/certificates/")
+        ResultActions resultActions = mockMvc.perform(post("/api/certificates")
+            .with(jwt().authorities(createAuthorityList(ADMIN_AUTHORITIES)))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(JsonMapperUtil.asJson(certificate)));
 
@@ -126,6 +133,43 @@ class GiftCertificateControllerTest {
         // then
         then(giftCertificateService).should().save(any(GiftCertificateDto.class));
         then(giftCertificateAssembler).should().toModel(certificate);
+    }
+
+    @Test
+    @DisplayName("POST /api/certificates responds with status 403 for role USER")
+    void save_whenUserWithInsufficientPrivileges_shouldReturnAccessDenied() throws Exception {
+        // given
+        GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
+
+        // when
+        ResultActions resultActions = mockMvc.perform(post("/api/certificates")
+            .with(jwt().authorities(createAuthorityList("ROLE_USER")))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .content(JsonMapperUtil.asJson(certificate)));
+
+        // then
+        resultActions.andExpect(status().isForbidden());
+        then(giftCertificateService).should(never()).save(any(GiftCertificateDto.class));
+        then(giftCertificateAssembler).should(never()).toModel(certificate);
+    }
+
+    @Test
+    @DisplayName("PATCH /api/certificates responds with status 403 for role USER")
+    void update_whenUserWithInsufficientPrivileges_shouldReturnAccessDenied() throws Exception {
+        // given
+        GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
+        long id = certificate.getId();
+
+        // when
+        ResultActions resultActions = mockMvc.perform(patch("/api/certificates/" + id)
+            .with(jwt().authorities(createAuthorityList("ROLE_USER")))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .content(JsonMapperUtil.asJson(certificate)));
+
+        // then
+        resultActions.andExpect(status().isForbidden());
+        then(giftCertificateService).should(never()).update(anyLong(), any(GiftCertificateDto.class));
+        then(giftCertificateAssembler).should(never()).toModel(certificate);
     }
 
     @Test
@@ -141,6 +185,7 @@ class GiftCertificateControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(patch("/api/certificates/" + id)
+            .with(jwt().authorities(createAuthorityList(ADMIN_AUTHORITIES)))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(JsonMapperUtil.asJson(dto)));
 
@@ -162,11 +207,27 @@ class GiftCertificateControllerTest {
         long id = 1L;
 
         // when
-        mockMvc.perform(delete("/api/certificates/" + id))
+        mockMvc.perform(delete("/api/certificates/" + id)
+            .with(jwt().authorities(createAuthorityList(ADMIN_AUTHORITIES))))
             .andExpect(status().isNoContent());
 
         // then
         then(giftCertificateService).should().delete(id);
+    }
+
+    @Test
+    @DisplayName("DELETE /api/certificates responds with status 403 for role USER")
+    void deleteById_whenUserWithInsufficientPrivileges_shouldReturnAccessDenied() throws Exception {
+        // given
+        long id = 1L;
+
+        // when
+        ResultActions resultActions = mockMvc.perform(delete("/api/certificates/" + id)
+            .with(jwt().authorities(createAuthorityList("ROLE_USER"))));
+
+        // then
+        resultActions.andExpect(status().isForbidden());
+        then(giftCertificateService).should(never()).delete(anyLong());
     }
 
 }

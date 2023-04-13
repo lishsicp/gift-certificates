@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -31,13 +30,6 @@ import java.io.IOException;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private static final String[] TAG_ENDPOINTS = {"/api/tags", "/api/tags/**"};
-    private static final String[] USER_ENDPOINTS = {"/api/users", "/api/users/**"};
-    private static final String[] CERTIFICATE_ENDPOINTS = {"/api/certificates", "/api/certificates/**"};
-    private static final String[] ORDER_ENDPOINTS = {"/api/orders", "/api/orders/**"};
-    private static final String ADMIN = "ADMIN";
-    private static final String USER_ORDERS_ENDPOINT = "/api/orders/users/*";
-
     private final String issuer;
     private final JwtAuthenticationTokenConverter jwtAuthenticationTokenConverter;
     private final PermissionEvaluator permissionEvaluator;
@@ -58,20 +50,6 @@ public class SecurityConfig {
 
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-            .authorizeHttpRequests(request -> request
-                // Guest
-                .requestMatchers(HttpMethod.GET, CERTIFICATE_ENDPOINTS).permitAll()
-
-                // User
-                .requestMatchers(HttpMethod.GET, TAG_ENDPOINTS).authenticated()
-                .requestMatchers(HttpMethod.GET, USER_ENDPOINTS).hasAuthority("SCOPE_user.read")
-                .requestMatchers(HttpMethod.GET, USER_ORDERS_ENDPOINT).hasAuthority("SCOPE_user.order.read")
-                .requestMatchers(HttpMethod.POST,ORDER_ENDPOINTS).hasAnyAuthority("SCOPE_user.order.write", "SCOPE_order.write")
-
-                // Admin
-                .anyRequest().hasRole(ADMIN)
-            )
 
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(authenticationEntryPoint())

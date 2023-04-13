@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -29,6 +30,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.springframework.security.core.authority.AuthorityUtils.createAuthorityList;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -39,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = OrderController.class)
 @AutoConfigureMockMvc
 @AutoConfigureWebMvc
+@EnableMethodSecurity
 class OrderControllerTest {
 
     @Autowired
@@ -61,7 +65,8 @@ class OrderControllerTest {
 
         // when
         ResultActions resultActions = mockMvc
-            .perform(get("/api/orders/{id}", orderId));
+            .perform(get("/api/orders/{id}", orderId)
+                .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_order.read"))));
 
         resultActions
             .andExpect(status().isOk())
@@ -93,6 +98,7 @@ class OrderControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/orders")
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_order.read")))
             .param("page", String.valueOf(page))
             .param("size", String.valueOf(size))
             .contentType(MediaType.APPLICATION_JSON_VALUE));
@@ -122,15 +128,16 @@ class OrderControllerTest {
             orders.getContent(),
             new PagedModel.PageMetadata(size, page, orders.getSize())
         );
-
         given(orderService.getOrdersByUserId(page, size, userId)).willReturn(orders);
         given(orderAssembler.toCollectionModel(any(), any(Link.class))).willReturn(pagedOrders);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/orders/users/{id}", userId)
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_order.read")))
             .param("page", String.valueOf(page))
             .param("size", String.valueOf(size))
             .contentType(MediaType.APPLICATION_JSON_VALUE));
+
         resultActions
             .andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.orderDtoList").exists())
@@ -157,6 +164,7 @@ class OrderControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/api/orders")
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_order.write")))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(JsonMapperUtil.asJson(makeOrderDto)));
 
@@ -175,7 +183,8 @@ class OrderControllerTest {
         long id = 1;
 
         // when
-        mockMvc.perform(delete("/api/orders/{id}", id))
+        mockMvc.perform(delete("/api/orders/{id}", id)
+            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_order.write"))))
             .andExpect(status().isNoContent());
 
         // then

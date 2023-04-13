@@ -8,6 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface AuthUserRoleRepository extends JpaRepository<AuthUserRole, Long> {
+
     Optional<AuthUserRole> findByName(String name);
+
     void deleteByName(String roleName);
 }

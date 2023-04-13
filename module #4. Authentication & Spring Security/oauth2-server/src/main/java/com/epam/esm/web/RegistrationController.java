@@ -17,9 +17,7 @@ public class RegistrationController {
 
     private final UserRegistrationService authUserRegisterService;
 
-    @PostMapping(path = "/oauth2/register",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/oauth2/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserRegistrationDto register(@RequestBody @Valid UserRegistrationDto registerDto) {
         authUserRegisterService.register(registerDto);

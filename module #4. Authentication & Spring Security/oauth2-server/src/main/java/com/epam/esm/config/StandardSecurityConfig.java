@@ -35,19 +35,15 @@ public class StandardSecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         corsCustomizer.customize(http);
 
-        FederatedIdentityConfigurer federatedIdentityConfigurer = new FederatedIdentityConfigurer()
-            .oauth2UserHandler(auth2UserHandler);
+        FederatedIdentityConfigurer federatedIdentityConfigurer =
+            new FederatedIdentityConfigurer().oauth2UserHandler(auth2UserHandler);
 
-        http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/**"))
-            .authorizeHttpRequests(
-                authorize -> authorize
-                    .requestMatchers("/oauth2/**", "/login", "/webjars/**").permitAll()
-                    .anyRequest()
-                    .authenticated())
-            .formLogin(formLogin -> formLogin
-                .usernameParameter("email")
-            );
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/**"))
+            .authorizeHttpRequests(authorize -> authorize.requestMatchers("/oauth2/**", "/login", "/webjars/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated())
+            .formLogin(formLogin -> formLogin.usernameParameter("email"));
 
         http.apply(federatedIdentityConfigurer);
 
@@ -61,8 +57,7 @@ public class StandardSecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> authUserRepository
-            .findByEmail(username)
+        return username -> authUserRepository.findByEmail(username)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 

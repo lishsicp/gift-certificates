@@ -53,12 +53,9 @@ public class WebSecurityConfig {
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-            .oidc(oidc -> oidc
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userInfoMapper(userInfoMapper())));
+            .oidc(oidc -> oidc.userInfoEndpoint(userInfo -> userInfo.userInfoMapper(userInfoMapper())));
 
-        http
-            .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt) // enables OIDC 1.0 Userinfo endpoint
+        http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt) // enables OIDC 1.0 Userinfo endpoint
             .formLogin(Customizer.withDefaults());
 
         http.apply(new FederatedIdentityConfigurer());
@@ -88,9 +85,7 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder()
-            .issuer("http://oauth2-server.com:8082")
-            .build();
+        return AuthorizationServerSettings.builder().issuer("http://oauth2-server.com:8082").build();
     }
 
     @Bean
@@ -109,8 +104,7 @@ public class WebSecurityConfig {
         RegisteredClientRepository registeredClientRepository) {
         JdbcOAuth2AuthorizationService jdbcOAuth2AuthorizationService =
             new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
-        jdbcOAuth2AuthorizationService
-            .setAuthorizationRowMapper(new AuthUserRowMapper(registeredClientRepository));
+        jdbcOAuth2AuthorizationService.setAuthorizationRowMapper(new AuthUserRowMapper(registeredClientRepository));
         return jdbcOAuth2AuthorizationService;
     }
 
@@ -118,8 +112,7 @@ public class WebSecurityConfig {
 
         AuthUserRowMapper(RegisteredClientRepository registeredClientRepository) {
             super(registeredClientRepository);
-            getObjectMapper()
-                .addMixIn(AuthUser.class, AuthUserMixin.class)
+            getObjectMapper().addMixIn(AuthUser.class, AuthUserMixin.class)
                 .addMixIn(AuthUserRole.class, AuthUserRoleMixin.class);
         }
     }
@@ -130,13 +123,9 @@ public class WebSecurityConfig {
     private static class AuthUserMixin {
 
         @JsonCreator
-        public AuthUserMixin(
-            @JsonProperty("id") Long ignoredId,
-            @JsonProperty("email") String ignoredEmail,
-            @JsonProperty("password") String ignoredPassword,
-            @JsonProperty("firstname") String ignoredFirstname,
-            @JsonProperty("lastname") String ignoredLastname,
-            @JsonProperty("role") AuthUserRole ignoredRole) {
+        public AuthUserMixin(@JsonProperty("id") Long ignoredId, @JsonProperty("email") String ignoredEmail,
+            @JsonProperty("password") String ignoredPassword, @JsonProperty("firstname") String ignoredFirstname,
+            @JsonProperty("lastname") String ignoredLastname, @JsonProperty("role") AuthUserRole ignoredRole) {
         }
     }
 
@@ -146,9 +135,7 @@ public class WebSecurityConfig {
     private static class AuthUserRoleMixin {
 
         @JsonCreator
-        public AuthUserRoleMixin(
-            @JsonProperty("id") Long ignoredId,
-            @JsonProperty("name") String ignoredName) {
+        public AuthUserRoleMixin(@JsonProperty("id") Long ignoredId, @JsonProperty("name") String ignoredName) {
         }
     }
 }

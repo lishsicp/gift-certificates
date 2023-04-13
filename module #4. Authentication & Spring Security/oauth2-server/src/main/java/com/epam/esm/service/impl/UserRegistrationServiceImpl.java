@@ -23,7 +23,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     public void register(UserRegistrationDto userRegistrationDto) {
         boolean existsByEmail = authUserRepository.existsByEmail(userRegistrationDto.getEmail());
         if (existsByEmail) {
-            throw new DuplicateKeyException("User exist");
+            throw new DuplicateKeyException(String.format("User with this email '%s' already exist", userRegistrationDto.getEmail()));
         }
         var role = authUserRoleRepository.findByName("USER");
         if (role.isEmpty()) {

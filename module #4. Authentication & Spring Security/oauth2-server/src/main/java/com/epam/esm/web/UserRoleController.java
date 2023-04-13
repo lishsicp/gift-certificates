@@ -25,8 +25,7 @@ public class UserRoleController {
 
     private final UserRoleService userRoleService;
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public AuthUserRole create(@RequestBody AuthUserRole role) {

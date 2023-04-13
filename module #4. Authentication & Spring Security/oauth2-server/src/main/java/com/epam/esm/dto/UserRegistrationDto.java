@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserRegistrationDto {
+
     @Email
     @NotBlank
     private String email;
@@ -24,6 +25,6 @@ public class UserRegistrationDto {
     @NotBlank
     private String lastname;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Pattern(regexp = "[\\w!\"#$%&'()*+,\\-./:;<=>?@\\[\\\\\\]^_`{|}~*]{8,}", message = "Should be at least 8 characters")
+    @Pattern(regexp = "[\\w!\"#$%&'()*+,\\-./:;<=>?@\\[\\\\\\]^_`{|}~]{8,}", message = "Should be at least 8 characters")
     private String password;
 }

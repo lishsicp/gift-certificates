@@ -8,33 +8,38 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-@Getter
-@Setter
+
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RegisteredClientDto implements Serializable {
 
     @Serial
-	private static final long serialVersionUID = 5060408528228241329L;
+    private static final long serialVersionUID = 5060408528228241329L;
 
-    private static final String AUTHENTICATION_METHODS_REGEX = "client_secret_basic|client_secret_post|client_secret_jwt|private_key_jwt|none|";
+    private static final String AUTHENTICATION_METHODS_REGEX =
+        "client_secret_basic|client_secret_post|client_secret_jwt|private_key_jwt|none|";
     private static final String AUTHORIZATION_GRANT_REGEX = "authorization_code|refresh_token|client_credentials";
-	private static final String SCOPE_REGEX = "\\D+.\\D+|\\D+:\\D+|\\D+";
+    private static final String SCOPE_REGEX = "\\D+.\\D+|\\D+:\\D+|\\D+";
     private static final String REDIRECT_URI_REGEX = "^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 
-	private static final String SCOPES_MESSAGE = "Scopes can only have non-digit characters or/and be separated by '.' or ':'";
-	private static final String AUTHENTICATION_METHODS_MESSAGE = "Can only be equal to 'client_secret_basic' or 'client_secret_post'";
-	private static final String AUTHORIZATION_GRANT_MESSAGE = "Can only be equal to 'authorization_code', 'refresh_token' or 'client_credentials'";
-	private static final String WORD_CHARACTERS_MESSAGE = "Only word characters";
-	private static final String REDIRECT_URI_MESSAGE = "Doesn't look like URL";
+    private static final String SCOPES_MESSAGE =
+        "Scopes can only have non-digit characters or/and be separated by '.' or ':'";
+    private static final String AUTHENTICATION_METHODS_MESSAGE =
+        "Can only be equal to 'client_secret_basic' or 'client_secret_post'";
+    private static final String AUTHORIZATION_GRANT_MESSAGE =
+        "Can only be equal to 'authorization_code', 'refresh_token' or 'client_credentials'";
+    private static final String WORD_CHARACTERS_MESSAGE = "Only word characters";
+    private static final String REDIRECT_URI_MESSAGE = "Doesn't look like URL";
     private static final String TOKEN_ERROR_MESSAGE = "Token time to live must be more then 300 seconds";
 
     @Pattern(regexp = "[\\w-_]+", message = WORD_CHARACTERS_MESSAGE)
@@ -45,7 +50,7 @@ public class RegisteredClientDto implements Serializable {
     @NotBlank
     private String clientSecret;
 
-    @Pattern(regexp = "[\\w-_]+", message = WORD_CHARACTERS_MESSAGE)
+    @Pattern(regexp = "[\\w-_\\s]+", message = WORD_CHARACTERS_MESSAGE)
     @NotBlank
     private String clientName;
 

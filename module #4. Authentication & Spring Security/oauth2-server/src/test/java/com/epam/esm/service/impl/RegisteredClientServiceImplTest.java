@@ -1,6 +1,7 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dto.RegisteredClientDto;
+import com.epam.esm.dto.ScopesDto;
 import com.epam.esm.exception.DuplicateKeyException;
 import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.util.EntityModelFactory;
@@ -52,7 +53,7 @@ class RegisteredClientServiceImplTest {
         RegisteredClientDto registeredClientDto = EntityModelFactory.createRegisteredClientDto();
         RegisteredClient registeredClient = createRegisteredClient(registeredClientDto);
         given(registeredClientRepository.findByClientId(registeredClientDto.getClientId())).willReturn(null);
-        given(passwordEncoder.encode(anyString())).willReturn("test_client_secret");
+        given(passwordEncoder.encode(anyString())).willReturn(registeredClient.getClientSecret());
 
         // when
         registeredClientService.create(registeredClientDto);
@@ -82,14 +83,80 @@ class RegisteredClientServiceImplTest {
     void getByClientId_whenRegisteredClientExists_shouldReturnRegisteredClient() {
         // given
         String clientId = "testClientId";
-        RegisteredClient registeredClient = createRegisteredClient(EntityModelFactory.createRegisteredClientDto());
+        RegisteredClientDto registeredClientDto = EntityModelFactory.createRegisteredClientDto();
+        RegisteredClient registeredClient = createRegisteredClient(registeredClientDto);
         given(registeredClientRepository.findByClientId(clientId)).willReturn(registeredClient);
-        
+
         // when
-        RegisteredClient actualRegisteredClient = registeredClientService.getByClientId(clientId);
+        RegisteredClientDto actualRegisteredClient = registeredClientService.getByClientId(clientId);
 
         // then
-        assertRegisteredClients(registeredClient, actualRegisteredClient);
+        assertRegisteredClientsDto(registeredClientDto, actualRegisteredClient);
+    }
+
+    @Test
+    void updateScopesByClientId_whenRegisteredClientExists_shouldReturnUpdatedRegisteredClient() {
+        // given
+        RegisteredClientDto registeredClientDto = EntityModelFactory.createRegisteredClientDto();
+        RegisteredClient registeredClient = createRegisteredClient(registeredClientDto);
+        String clientId = registeredClientDto.getClientId();
+        String scopes = String.join(" ", registeredClientDto.getScopes());
+        ScopesDto scopesDto = ScopesDto.builder().scopes(scopes).build();
+        given(registeredClientRepository.findByClientId(clientId)).willReturn(registeredClient);
+
+        // when
+        RegisteredClientDto updatedClientDto = registeredClientService.updateScopesByClientId(clientId, scopesDto);
+
+        // then
+        then(registeredClientRepository).should().findByClientId(clientId);
+        then(registeredClientRepository).should().save(registeredClient);
+
+        assertNotNull(updatedClientDto);
+        assertEquals(clientId, updatedClientDto.getClientId());
+        assertEquals(scopes, String.join(" ", updatedClientDto.getScopes()));
+    }
+
+    @Test
+    void updateScopesByClientId_whenRegisteredClientDoesNotExists_shouldThrowEntityNotFoundException() {
+        // given
+        String clientId = "testClientId";
+        String scopes = "read write";
+        ScopesDto scopesDto = ScopesDto.builder().scopes(scopes).build();
+        given(registeredClientRepository.findByClientId(clientId)).willReturn(null);
+
+        // when/then
+        assertThrows(EntityNotFoundException.class,
+            () -> registeredClientService.updateScopesByClientId(clientId, scopesDto));
+        then(registeredClientRepository).should().findByClientId(clientId);
+        then(registeredClientRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void getScopesByClientId_whenRegisteredClientExists_shouldReturnScopes() {
+        // given
+        RegisteredClient registeredClient = createRegisteredClient(EntityModelFactory.createRegisteredClientDto());
+        given(registeredClientRepository.findByClientId(registeredClient.getClientId())).willReturn(registeredClient);
+
+        // when
+        ScopesDto scopesDto = registeredClientService.getScopesByClientId(registeredClient.getClientId());
+
+        // then
+        then(registeredClientRepository).should().findByClientId(registeredClient.getClientId());
+
+        assertNotNull(scopesDto);
+        assertEquals(String.join(" ", registeredClient.getScopes()), scopesDto.getScopes());
+    }
+
+    @Test
+    void getScopesByClientId_whenRegisteredClientDoesNotExists_shouldThrowEntityNotFoundException() {
+        // given
+        String clientId = "testClientId";
+        given(registeredClientRepository.findByClientId(clientId)).willReturn(null);
+
+        // when/then
+        assertThrows(EntityNotFoundException.class, () -> registeredClientService.getScopesByClientId(clientId));
+        then(registeredClientRepository).should().findByClientId(clientId);
+        then(registeredClientRepository).shouldHaveNoMoreInteractions();
     }
 
     @Test
@@ -127,18 +194,36 @@ class RegisteredClientServiceImplTest {
             .build();
     }
 
-    private void assertRegisteredClients(RegisteredClient expectedRegisteredClient, RegisteredClient actualRegisteredClient) {
-        assertNotNull(expectedRegisteredClient);
-        assertEquals(actualRegisteredClient.getClientId(), expectedRegisteredClient.getClientId());
-        assertEquals(actualRegisteredClient.getClientSecret(), expectedRegisteredClient.getClientSecret());
-        assertEquals(actualRegisteredClient.getClientName(), expectedRegisteredClient.getClientName());
-        assertEquals(actualRegisteredClient.getRedirectUris(), expectedRegisteredClient.getRedirectUris());
-        assertEquals(actualRegisteredClient.getScopes(), expectedRegisteredClient.getScopes());
-        assertEquals(actualRegisteredClient.getClientSettings().isRequireAuthorizationConsent(), expectedRegisteredClient.getClientSettings().isRequireAuthorizationConsent());
-        assertEquals(actualRegisteredClient.getClientSettings().isRequireProofKey(), expectedRegisteredClient.getClientSettings().isRequireProofKey());
-        assertEquals(actualRegisteredClient.getTokenSettings().getAccessTokenTimeToLive(), expectedRegisteredClient.getTokenSettings().getAccessTokenTimeToLive());
-        assertEquals(actualRegisteredClient.getTokenSettings().getRefreshTokenTimeToLive(), expectedRegisteredClient.getTokenSettings().getRefreshTokenTimeToLive());
-        assertEquals(actualRegisteredClient.getClientAuthenticationMethods().size(), expectedRegisteredClient.getClientAuthenticationMethods().size());
-        assertEquals(actualRegisteredClient.getAuthorizationGrantTypes().size(), expectedRegisteredClient.getAuthorizationGrantTypes().size());
+    private void assertRegisteredClientsDto(RegisteredClientDto expected, RegisteredClientDto actual) {
+        assertNotNull(actual);
+        assertEquals(expected.getClientId(), actual.getClientId());
+        assertEquals(expected.getClientSecret(), actual.getClientSecret());
+        assertEquals(expected.getClientName(), actual.getClientName());
+        assertEquals(expected.getRedirectUris(), actual.getRedirectUris());
+        assertEquals(expected.getScopes(), actual.getScopes());
+        assertEquals(expected.isRequireAuthorizationConsent(), actual.isRequireAuthorizationConsent());
+        assertEquals(expected.isRequireProofKey(), actual.isRequireProofKey());
+        assertEquals(expected.getAccessTokenTimeToLiveInSeconds(), actual.getAccessTokenTimeToLiveInSeconds());
+        assertEquals(expected.getRefreshTokenTimeToLiveInSeconds(), actual.getRefreshTokenTimeToLiveInSeconds());
+        assertEquals(expected.getClientAuthenticationMethods().size(), actual.getClientAuthenticationMethods().size());
+        assertEquals(expected.getAuthorizationGrantTypes().size(), actual.getAuthorizationGrantTypes().size());
+    }
+
+    private void assertRegisteredClients(RegisteredClient expected, RegisteredClient actual) {
+        assertNotNull(actual);
+        assertEquals(expected.getClientId(), actual.getClientId());
+        assertEquals(expected.getClientSecret(), actual.getClientSecret());
+        assertEquals(expected.getClientName(), actual.getClientName());
+        assertEquals(expected.getRedirectUris(), actual.getRedirectUris());
+        assertEquals(expected.getScopes(), actual.getScopes());
+        assertEquals(expected.getClientSettings().isRequireAuthorizationConsent(),
+            actual.getClientSettings().isRequireAuthorizationConsent());
+        assertEquals(expected.getClientSettings().isRequireProofKey(), actual.getClientSettings().isRequireProofKey());
+        assertEquals(expected.getTokenSettings().getAccessTokenTimeToLive(),
+            actual.getTokenSettings().getAccessTokenTimeToLive());
+        assertEquals(expected.getTokenSettings().getRefreshTokenTimeToLive(),
+            actual.getTokenSettings().getRefreshTokenTimeToLive());
+        assertEquals(expected.getClientAuthenticationMethods().size(), actual.getClientAuthenticationMethods().size());
+        assertEquals(expected.getAuthorizationGrantTypes().size(), actual.getAuthorizationGrantTypes().size());
     }
 }

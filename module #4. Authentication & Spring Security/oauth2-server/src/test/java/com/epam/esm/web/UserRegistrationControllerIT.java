@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(PostgresExtension.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class RegistrationControllerIT {
+class UserRegistrationControllerIT {
 
     @Autowired
     private UserRegistrationServiceImpl userRegistrationService;

@@ -27,29 +27,24 @@ import static org.mockito.Mockito.never;
 @ExtendWith(MockitoExtension.class)
 class UserRepositoryOAuth2UserHandlerTest {
 
+    private static final String USER_EMAIL = "test@example.com";
     @Mock
     private AuthUserRepository userRepository;
-
     @Mock
     private AuthUserRoleRepository userRoleRepository;
-
     @Mock
     private OAuth2User user;
-
     @InjectMocks
     private UserRepositoryOAuth2UserHandler userHandler;
-
     @Captor
     private ArgumentCaptor<AuthUser> userCaptor;
-
-    private static final String USER_EMAIL = "test@example.com";
 
     @Test
     void accept_shouldSaveNewUser_whenUserDoesNotExist() {
         // Given
         String userName = "Test User";
         String[] fullName = userName.split("\\s");
-        AuthUserRole role = EntityModelFactory.createRole("USER");
+        AuthUserRole role = EntityModelFactory.createNewRole("USER");
 
         given(user.getName()).willReturn(USER_EMAIL);
         given(user.getAttribute("name")).willReturn(userName);

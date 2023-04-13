@@ -52,9 +52,8 @@ class RegistrationControllerIT {
         userRoleService.create(createNewRole("USER"));
 
         // when
-        MvcResult result = mockMvc.perform(post("/oauth2/register")
-                .content(asJson(userRegistrationDto))
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
+        MvcResult result = mockMvc.perform(
+                post("/oauth2/register").content(asJson(userRegistrationDto)).contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(status().isCreated())
             .andReturn();
 
@@ -74,13 +73,11 @@ class RegistrationControllerIT {
         userRegistrationService.register(userRegistrationDto);
 
         // when
-        ResultActions resultActions = mockMvc.perform(post("/oauth2/register")
-            .content(asJson(userRegistrationDto))
+        ResultActions resultActions = mockMvc.perform(post("/oauth2/register").content(asJson(userRegistrationDto))
             .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        resultActions
-            .andExpect(result -> assertTrue(result.getResolvedException() instanceof DuplicateKeyException));
+        resultActions.andExpect(result -> assertTrue(result.getResolvedException() instanceof DuplicateKeyException));
     }
 
     @Test
@@ -89,12 +86,10 @@ class RegistrationControllerIT {
         UserRegistrationDto userRegistrationDto = createUserRegistrationDto();
 
         // when
-        ResultActions resultActions = mockMvc.perform(post("/oauth2/register")
-            .content(asJson(userRegistrationDto))
+        ResultActions resultActions = mockMvc.perform(post("/oauth2/register").content(asJson(userRegistrationDto))
             .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        resultActions
-            .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException));
+        resultActions.andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException));
     }
 }

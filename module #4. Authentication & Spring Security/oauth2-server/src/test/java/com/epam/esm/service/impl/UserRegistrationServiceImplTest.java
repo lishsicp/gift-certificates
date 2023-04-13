@@ -43,7 +43,7 @@ class UserRegistrationServiceImplTest {
     void register_whenAuthUserDoesNowExist_shouldCreateNewAuthUser() {
         // given
         UserRegistrationDto userRegistrationDto = EntityModelFactory.createUserRegistrationDto();
-        AuthUserRole userRole = EntityModelFactory.createRole("USER");
+        AuthUserRole userRole = EntityModelFactory.createNewRole("USER");
         given(authUserRoleRepository.findByName("USER")).willReturn(Optional.of(userRole));
         given(passwordEncoder.encode(anyString())).willReturn(userRegistrationDto.getPassword());
         given(authUserRepository.existsByEmail(userRegistrationDto.getEmail())).willReturn(false);

@@ -34,7 +34,7 @@ class UserRoleServiceImplTest {
     @Test
     void getByName_whenAuthUserRoleExist_shouldReturnAuthUserRole() {
         // given
-        AuthUserRole expected = EntityModelFactory.createRole(ROLE_NAME);
+        AuthUserRole expected = EntityModelFactory.createNewRole(ROLE_NAME);
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.of(expected));
 
         // when
@@ -56,7 +56,8 @@ class UserRoleServiceImplTest {
     @Test
     void getAll_shouldReturnAllAuthUserRoles() {
         // given
-        var allRoles = List.of(EntityModelFactory.createRole(ROLE_NAME), EntityModelFactory.createRole(NEW_ROLE_NAME));
+        var allRoles =
+            List.of(EntityModelFactory.createNewRole(ROLE_NAME), EntityModelFactory.createNewRole(NEW_ROLE_NAME));
         given(authUserRoleRepository.findAll()).willReturn(allRoles);
 
         // when
@@ -69,7 +70,7 @@ class UserRoleServiceImplTest {
     @Test
     void create_whenAuthUserRoleDoesNotExist_shouldCreateNewAuthUserRole() {
         // given
-        AuthUserRole newRole = EntityModelFactory.createRole(NEW_ROLE_NAME);
+        AuthUserRole newRole = EntityModelFactory.createNewRole(NEW_ROLE_NAME);
         given(authUserRoleRepository.findByName(NEW_ROLE_NAME)).willReturn(Optional.empty());
         given(authUserRoleRepository.save(newRole)).willReturn(newRole);
 
@@ -83,7 +84,7 @@ class UserRoleServiceImplTest {
     @Test
     void create_whenAuthUserRoleExists_shouldThrowDuplicateKeyException() {
         // given
-        AuthUserRole existingRole = EntityModelFactory.createRole(ROLE_NAME);
+        AuthUserRole existingRole = EntityModelFactory.createNewRole(ROLE_NAME);
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.of(existingRole));
 
         // when/then
@@ -93,7 +94,7 @@ class UserRoleServiceImplTest {
     @Test
     void deleteByName_whenAuthUserRoleExists_shouldDeleteAuthUserRole() {
         // given
-        AuthUserRole existingRole = EntityModelFactory.createRole(ROLE_NAME);
+        AuthUserRole existingRole = EntityModelFactory.createNewRole(ROLE_NAME);
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.of(existingRole));
 
         // when

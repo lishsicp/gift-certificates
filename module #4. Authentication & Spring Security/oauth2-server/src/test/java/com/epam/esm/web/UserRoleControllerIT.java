@@ -25,6 +25,7 @@ import static com.epam.esm.util.EntityModelFactory.createNewRole;
 import static com.epam.esm.util.JsonMapperUtil.asJson;
 import static com.epam.esm.util.JsonMapperUtil.asObject;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,13 +39,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class UserRoleControllerIT {
 
+    private static final String ROLE_NAME = "TEST";
     @Autowired
     private UserRoleServiceImpl userRoleService;
-
     @Autowired
     private MockMvc mockMvc;
-
-    private static final String ROLE_NAME = "TEST";
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
@@ -53,15 +52,14 @@ class UserRoleControllerIT {
         AuthUserRole role = createNewRole(ROLE_NAME);
 
         // When
-        MvcResult result = mockMvc.perform(post("/oauth2/roles")
-                .content(asJson(role))
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(status().isCreated())
-            .andReturn();
+        MvcResult result =
+            mockMvc.perform(post("/oauth2/roles").content(asJson(role)).contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isCreated())
+                .andReturn();
 
         // Then
         AuthUserRole createdRole = asObject(result, AuthUserRole.class);
-        assertThat(createdRole.getName()).isEqualTo(ROLE_NAME);
+        assertEquals(ROLE_NAME, createdRole.getName());
     }
 
     @Test
@@ -72,13 +70,11 @@ class UserRoleControllerIT {
         userRoleService.create(role);
 
         // When
-        ResultActions resultActions = mockMvc.perform(post("/oauth2/roles")
-                .content(asJson(role))
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
+        ResultActions resultActions =
+            mockMvc.perform(post("/oauth2/roles").content(asJson(role)).contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        resultActions
-            .andExpect(res -> assertTrue(res.getResolvedException() instanceof DuplicateKeyException));
+        resultActions.andExpect(res -> assertTrue(res.getResolvedException() instanceof DuplicateKeyException));
     }
 
     @Test
@@ -91,9 +87,7 @@ class UserRoleControllerIT {
         userRoleService.create(role2);
 
         // When
-        MvcResult result = mockMvc.perform(get("/oauth2/roles"))
-            .andExpect(status().isOk())
-            .andReturn();
+        MvcResult result = mockMvc.perform(get("/oauth2/roles")).andExpect(status().isOk()).andReturn();
 
         // Then
         AuthUserRole[] roles = asObject(result, AuthUserRole[].class);
@@ -108,13 +102,11 @@ class UserRoleControllerIT {
         userRoleService.create(role);
 
         // When
-        MvcResult result = mockMvc.perform(get("/oauth2/roles/" + ROLE_NAME))
-            .andExpect(status().isOk())
-            .andReturn();
+        MvcResult result = mockMvc.perform(get("/oauth2/roles/" + ROLE_NAME)).andExpect(status().isOk()).andReturn();
 
         // Then
         AuthUserRole retrievedRole = asObject(result, AuthUserRole.class);
-        assertThat(retrievedRole).isEqualTo(role);
+        assertEquals(role, retrievedRole);
     }
 
     @Test
@@ -124,8 +116,7 @@ class UserRoleControllerIT {
         ResultActions resultActions = mockMvc.perform(get("/oauth2/roles/" + ROLE_NAME));
 
         // Then
-        resultActions
-            .andExpect(res -> assertTrue(res.getResolvedException() instanceof EntityNotFoundException));
+        resultActions.andExpect(res -> assertTrue(res.getResolvedException() instanceof EntityNotFoundException));
     }
 
     @Test
@@ -136,21 +127,19 @@ class UserRoleControllerIT {
         userRoleService.create(role);
 
         // When
-        ResultActions resultActions = mockMvc
-            .perform(delete("/oauth2/roles/" + ROLE_NAME));
+        ResultActions resultActions = mockMvc.perform(delete("/oauth2/roles/" + ROLE_NAME));
 
         // Then
         resultActions.andExpect(status().isNoContent());
     }
+
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void deleteByName_whenRoleDoesNotExist_shouldThrowEntityNotFoundException() throws Exception {
         // When
-        ResultActions resultActions = mockMvc
-            .perform(delete("/oauth2/roles/" + ROLE_NAME));
+        ResultActions resultActions = mockMvc.perform(delete("/oauth2/roles/" + ROLE_NAME));
 
         // Then
-        resultActions
-            .andExpect(res -> assertTrue(res.getResolvedException() instanceof EntityNotFoundException));
+        resultActions.andExpect(res -> assertTrue(res.getResolvedException() instanceof EntityNotFoundException));
     }
 }

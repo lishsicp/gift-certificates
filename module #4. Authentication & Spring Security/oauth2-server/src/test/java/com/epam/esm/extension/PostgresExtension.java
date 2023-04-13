@@ -10,12 +10,9 @@ import org.testcontainers.utility.DockerImageName;
 public class PostgresExtension implements Extension, BeforeAllCallback, AfterAllCallback {
 
     @SuppressWarnings("rawtypes")
-    private static final PostgreSQLContainer container = new PostgreSQLContainer(
-        DockerImageName.parse("postgres").withTag("15.2-alpine")
-    )
-        .withDatabaseName("oauth2_server")
-        .withUsername("lobur")
-        .withPassword("pass");
+    private static final PostgreSQLContainer container =
+        new PostgreSQLContainer(DockerImageName.parse("postgres").withTag("15.2-alpine")).withDatabaseName(
+            "oauth2_server").withUsername("lobur").withPassword("pass");
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) {

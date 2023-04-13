@@ -2,23 +2,26 @@ package com.epam.esm.util;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.experimental.UtilityClass;
 import org.springframework.test.web.servlet.MvcResult;
 
-@UtilityClass
 public class JsonMapperUtil {
 
-    private final ObjectMapper objectMapper;
+    private static final ObjectMapper objectMapper;
 
     static {
-        objectMapper = JsonMapper.builder()
-            .disable(MapperFeature.USE_ANNOTATIONS)
-            .addModule(new JavaTimeModule()).build();
+        objectMapper =
+            JsonMapper.builder().disable(MapperFeature.USE_ANNOTATIONS).addModule(new JavaTimeModule()).build();
+        objectMapper.setPropertyNamingStrategy(new SnakeCaseStrategy());
     }
 
-    public String asJson(final Object obj) {
+    private JsonMapperUtil() {
+        throw new UnsupportedOperationException();
+    }
+
+    public static String asJson(final Object obj) {
         try {
             return objectMapper.writeValueAsString(obj);
         } catch (Exception e) {
@@ -26,7 +29,7 @@ public class JsonMapperUtil {
         }
     }
 
-    public <T> T asObject(MvcResult mvcResult, Class<T> classType) {
+    public static <T> T asObject(MvcResult mvcResult, Class<T> classType) {
         try {
             return objectMapper.readValue(mvcResult.getResponse().getContentAsString(), classType);
         } catch (Exception e) {

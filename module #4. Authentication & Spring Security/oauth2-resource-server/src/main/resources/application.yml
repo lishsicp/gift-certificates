@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8080
 spring:
   application:
     name: resource-server
@@ -7,9 +7,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://auth-server:8081
+          issuer-uri: http://oauth2-server.com:8082
   datasource:
-    url: ${POSTGRES_URL}
+    url: ${POSTGRES_RESOURCE_URL}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver

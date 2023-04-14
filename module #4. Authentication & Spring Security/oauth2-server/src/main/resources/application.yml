@@ -2,8 +2,6 @@ server:
   port: 8082
 spring:
   config:
-    activate:
-      on-profile: dev
     import: google-idp.properties
   security:
     oauth2:
@@ -22,12 +20,12 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/oauth2_server
-    username: lobur
-    password: pass
+    url: ${POSTGRES_AUTH_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
   application:
     name: oauth2-server

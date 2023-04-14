@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,46 +41,48 @@ class UserRegistrationServiceImplTest {
     private UserRegistrationServiceImpl userRegistrationService;
 
     @Test
-    void register_whenAuthUserDoesNowExist_shouldCreateNewAuthUser() {
+    void register_shouldCreateNewAuthUser_whenAuthUserDoesNotExists() {
         // given
-        UserRegistrationDto userRegistrationDto = EntityModelFactory.createUserRegistrationDto();
+        UserRegistrationDto userDto = EntityModelFactory.createUserRegistrationDto();
         AuthUserRole userRole = EntityModelFactory.createNewRole("USER");
         given(authUserRoleRepository.findByName("USER")).willReturn(Optional.of(userRole));
-        given(passwordEncoder.encode(anyString())).willReturn(userRegistrationDto.getPassword());
-        given(authUserRepository.existsByEmail(userRegistrationDto.getEmail())).willReturn(false);
+        given(passwordEncoder.encode(anyString())).willReturn(userDto.getPassword());
+        given(authUserRepository.existsByEmail(userDto.getEmail())).willReturn(false);
 
         // when
-        userRegistrationService.register(userRegistrationDto);
+        userRegistrationService.register(userDto);
 
         // then
         ArgumentCaptor<AuthUser> captor = ArgumentCaptor.forClass(AuthUser.class);
         then(authUserRepository).should().save(captor.capture());
 
         AuthUser registeredUser = captor.getValue();
-        assertEquals(registeredUser.getEmail(), userRegistrationDto.getEmail());
-        assertEquals(registeredUser.getFirstname(), userRegistrationDto.getFirstname());
-        assertEquals(registeredUser.getLastname(), userRegistrationDto.getLastname());
-        assertEquals(registeredUser.getPassword(), userRegistrationDto.getPassword());
-        assertEquals(registeredUser.getRole(), userRole);
+        assertAll(() -> {
+            assertEquals(userDto.getEmail(), registeredUser.getEmail());
+            assertEquals(userDto.getFirstname(), registeredUser.getFirstname());
+            assertEquals(userDto.getLastname(), registeredUser.getLastname());
+            assertEquals(userDto.getPassword(), registeredUser.getPassword());
+            assertEquals(userRole, registeredUser.getRole());
+        });
     }
 
     @Test
-    void register_whenAuthUserExist_shouldThrowDuplicateKeyException() {
+    void register_shouldThrowDuplicateKeyException_whenAuthUserExists() {
         // given
-        UserRegistrationDto userRegistrationDto = EntityModelFactory.createUserRegistrationDto();
-        given(authUserRepository.existsByEmail(userRegistrationDto.getEmail())).willReturn(true);
+        UserRegistrationDto userDto = EntityModelFactory.createUserRegistrationDto();
+        given(authUserRepository.existsByEmail(userDto.getEmail())).willReturn(true);
 
         // when/then
-        assertThrows(DuplicateKeyException.class, () -> userRegistrationService.register(userRegistrationDto));
+        assertThrows(DuplicateKeyException.class, () -> userRegistrationService.register(userDto));
     }
 
     @Test
-    void register_whenAuthUserRoleDoesNotExist_shouldThrowEntityNotFoundException() {
+    void register_shouldThrowEntityNotFoundException_whenAuthUserRoleDoesNotExist() {
         // given
-        UserRegistrationDto userRegistrationDto = EntityModelFactory.createUserRegistrationDto();
+        UserRegistrationDto userDto = EntityModelFactory.createUserRegistrationDto();
         given(authUserRoleRepository.findByName("USER")).willReturn(Optional.empty());
 
         // when/then
-        assertThrows(EntityNotFoundException.class, () -> userRegistrationService.register(userRegistrationDto));
+        assertThrows(EntityNotFoundException.class, () -> userRegistrationService.register(userDto));
     }
 }

@@ -48,7 +48,7 @@ class RegisteredClientServiceImplTest {
     private RegisteredClientServiceImpl registeredClientService;
 
     @Test
-    void create_whenRegisteredClientDoesNotExist_shouldCreateNewClient() {
+    void create_shouldCreateNewClient_whenRegisteredClientDoesNotExist() {
         // given
         RegisteredClientDto registeredClientDto = EntityModelFactory.createRegisteredClientDto();
         RegisteredClient registeredClient = createRegisteredClient(registeredClientDto);
@@ -65,7 +65,7 @@ class RegisteredClientServiceImplTest {
     }
 
     @Test
-    void create_whenRegisteredClientExists_shouldThrowDuplicateKeyException() {
+    void create_shouldThrowDuplicateKeyException_whenRegisteredClientExists() {
         // given
         RegisteredClientDto registeredClientDto = EntityModelFactory.createRegisteredClientDto();
         RegisteredClient registeredClient = createRegisteredClient(registeredClientDto);
@@ -80,7 +80,7 @@ class RegisteredClientServiceImplTest {
     }
 
     @Test
-    void getByClientId_whenRegisteredClientExists_shouldReturnRegisteredClient() {
+    void getByClientId_shouldReturnRegisteredClient_whenRegisteredClientExists() {
         // given
         String clientId = "testClientId";
         RegisteredClientDto registeredClientDto = EntityModelFactory.createRegisteredClientDto();
@@ -95,7 +95,7 @@ class RegisteredClientServiceImplTest {
     }
 
     @Test
-    void updateScopesByClientId_whenRegisteredClientExists_shouldReturnUpdatedRegisteredClient() {
+    void updateScopesByClientId_shouldReturnUpdatedRegisteredClient_whenRegisteredClientExists() {
         // given
         RegisteredClientDto registeredClientDto = EntityModelFactory.createRegisteredClientDto();
         RegisteredClient registeredClient = createRegisteredClient(registeredClientDto);
@@ -117,7 +117,7 @@ class RegisteredClientServiceImplTest {
     }
 
     @Test
-    void updateScopesByClientId_whenRegisteredClientDoesNotExists_shouldThrowEntityNotFoundException() {
+    void updateScopesByClientId_shouldThrowEntityNotFoundException_whenRegisteredClientDoesNotExists() {
         // given
         String clientId = "testClientId";
         String scopes = "read write";
@@ -132,7 +132,7 @@ class RegisteredClientServiceImplTest {
     }
 
     @Test
-    void getScopesByClientId_whenRegisteredClientExists_shouldReturnScopes() {
+    void getScopesByClientId_shouldReturnScopes_whenRegisteredClientExists() {
         // given
         RegisteredClient registeredClient = createRegisteredClient(EntityModelFactory.createRegisteredClientDto());
         given(registeredClientRepository.findByClientId(registeredClient.getClientId())).willReturn(registeredClient);
@@ -148,7 +148,7 @@ class RegisteredClientServiceImplTest {
     }
 
     @Test
-    void getScopesByClientId_whenRegisteredClientDoesNotExists_shouldThrowEntityNotFoundException() {
+    void getScopesByClientId_shouldThrowEntityNotFoundException_whenRegisteredClientDoesNotExists() {
         // given
         String clientId = "testClientId";
         given(registeredClientRepository.findByClientId(clientId)).willReturn(null);
@@ -160,7 +160,7 @@ class RegisteredClientServiceImplTest {
     }
 
     @Test
-    void getByClientId_whenRegisteredClientDoesNotExists_shouldThrowException() {
+    void getByClientId_shouldThrowException_whenRegisteredClientDoesNotExists() {
         // given
         String clientId = "testClientId";
 

@@ -13,7 +13,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.epam.esm</groupId>
-  <artifactId>gift-certificates-oauth2-server</artifactId>
+  <artifactId>oauth2-server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <packaging>jar</packaging>

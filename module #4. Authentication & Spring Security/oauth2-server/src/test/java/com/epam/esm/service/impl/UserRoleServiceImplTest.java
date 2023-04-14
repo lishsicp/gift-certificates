@@ -32,7 +32,7 @@ class UserRoleServiceImplTest {
     private UserRoleServiceImpl userRoleService;
 
     @Test
-    void getByName_whenAuthUserRoleExist_shouldReturnAuthUserRole() {
+    void getByName_shouldReturnAuthUserRole_whenAuthUserRoleExist() {
         // given
         AuthUserRole expected = EntityModelFactory.createNewRole(ROLE_NAME);
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.of(expected));
@@ -45,7 +45,7 @@ class UserRoleServiceImplTest {
     }
 
     @Test
-    void getByName_whenAuthUserRoleDoesNotExist_shouldThrowEntityNotFoundException() {
+    void getByName_shouldThrowEntityNotFoundException_whenAuthUserRoleDoesNotExist() {
         // given
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.empty());
 
@@ -68,7 +68,7 @@ class UserRoleServiceImplTest {
     }
 
     @Test
-    void create_whenAuthUserRoleDoesNotExist_shouldCreateNewAuthUserRole() {
+    void create_shouldCreateNewAuthUserRole_whenAuthUserRoleDoesNotExist() {
         // given
         AuthUserRole newRole = EntityModelFactory.createNewRole(NEW_ROLE_NAME);
         given(authUserRoleRepository.findByName(NEW_ROLE_NAME)).willReturn(Optional.empty());
@@ -82,7 +82,7 @@ class UserRoleServiceImplTest {
     }
 
     @Test
-    void create_whenAuthUserRoleExists_shouldThrowDuplicateKeyException() {
+    void create_shouldThrowDuplicateKeyException_whenAuthUserRoleExists() {
         // given
         AuthUserRole existingRole = EntityModelFactory.createNewRole(ROLE_NAME);
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.of(existingRole));
@@ -92,7 +92,7 @@ class UserRoleServiceImplTest {
     }
 
     @Test
-    void deleteByName_whenAuthUserRoleExists_shouldDeleteAuthUserRole() {
+    void deleteByName_shouldDeleteAuthUserRole__whenAuthUserRoleExists() {
         // given
         AuthUserRole existingRole = EntityModelFactory.createNewRole(ROLE_NAME);
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.of(existingRole));
@@ -105,7 +105,7 @@ class UserRoleServiceImplTest {
     }
 
     @Test
-    void deleteByName_whenAuthUserRoleDoesNotExists_shouldThrowEntityNotFoundException() {
+    void deleteByName_shouldThrowEntityNotFoundException_whenAuthUserRoleDoesNotExists() {
         // given
         given(authUserRoleRepository.findByName(ROLE_NAME)).willReturn(Optional.empty());
 

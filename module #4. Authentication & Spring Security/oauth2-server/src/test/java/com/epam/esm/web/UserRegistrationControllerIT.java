@@ -45,7 +45,7 @@ class UserRegistrationControllerIT {
     private MockMvc mockMvc;
 
     @Test
-    void register_whenAuthUserDoesNotExist_shouldCreateNewAuthUser() throws Exception {
+    void register_shouldCreateNewAuthUser_whenAuthUserDoesNotExist() throws Exception {
         // given
         UserRegistrationDto userRegistrationDto = createUserRegistrationDto();
 
@@ -66,7 +66,7 @@ class UserRegistrationControllerIT {
     }
 
     @Test
-    void register_whenAuthUserExist_shouldThrowDuplicateKeyException() throws Exception {
+    void register_shouldThrowDuplicateKeyException_whenAuthUserExist() throws Exception {
         // given
         UserRegistrationDto userRegistrationDto = createUserRegistrationDto();
         userRoleService.create(createNewRole("USER"));
@@ -81,7 +81,7 @@ class UserRegistrationControllerIT {
     }
 
     @Test
-    void register_whenAuthUserRoleDoesNotExist_shouldThrowEntityNotFoundException() throws Exception {
+    void register_shouldThrowEntityNotFoundException_whenAuthUserRoleDoesNotExist() throws Exception {
         // given
         UserRegistrationDto userRegistrationDto = createUserRegistrationDto();
 

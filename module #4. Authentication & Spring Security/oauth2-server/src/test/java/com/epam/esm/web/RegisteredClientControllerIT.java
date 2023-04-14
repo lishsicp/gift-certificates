@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -23,12 +24,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.epam.esm.util.JsonMapperUtil.asJson;
 import static com.epam.esm.util.JsonMapperUtil.asObject;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -39,15 +43,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @EnableMethodSecurity
 class RegisteredClientControllerIT {
 
+    private static final String LOGIN_REDIRECT_URL = "http://localhost/login";
+    private static final String ACCESS_DENIED_MESSAGE =
+        "Access is denied, you do not have permission to access this resource";
     @Autowired
     private RegisteredClientServiceImpl registeredClientService;
-
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByClientId_whenRegisteredClientExists_shouldReturnRegisteredClient() throws Exception {
+    void getByClientId_shouldReturnRegisteredClient_whenRegisteredClientExists() throws Exception {
         // given
         RegisteredClientDto dto = EntityModelFactory.createRegisteredClientDto();
         registeredClientService.create(dto);
@@ -64,7 +70,7 @@ class RegisteredClientControllerIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByClientId_whenRegisteredClientDoesNotExists_shouldThrowEntityNotFoundException() throws Exception {
+    void getByClientId_shouldThrowEntityNotFoundException_whenRegisteredClientDoesNotExists() throws Exception {
         // given
         String clientId = "client_id";
 
@@ -76,8 +82,32 @@ class RegisteredClientControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "user")
+    void getByClientId_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        // given
+        String clientId = "client_id";
+
+        // when / then
+        mockMvc.perform(get("/connect/register/{clientId}", clientId))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code", is(HttpStatus.FORBIDDEN.value())))
+            .andExpect(jsonPath("$.error_message", is(ACCESS_DENIED_MESSAGE)));
+    }
+
+    @Test
+    void getByClientId_shouldRespondWithFound_whenUserIsNotAuthenticated() throws Exception {
+        // given
+        String clientId = "client_id";
+
+        // when / then
+        mockMvc.perform(get("/connect/register/{clientId}", clientId))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
+    }
+
+    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void create_whenRegisteredClientDoesNotExist_shouldCreateNewClient() throws Exception {
+    void create_shouldCreateNewClient_whenRegisteredClientDoesNotExist() throws Exception {
         // given
         RegisteredClientDto dto = EntityModelFactory.createRegisteredClientDto();
 
@@ -94,7 +124,7 @@ class RegisteredClientControllerIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void create_whenRegisteredClientExist_shouldThrowDuplicateKeyException() throws Exception {
+    void create_shouldThrowDuplicateKeyException_whenRegisteredClientExist() throws Exception {
         // given
         RegisteredClientDto dto = EntityModelFactory.createRegisteredClientDto();
         registeredClientService.create(dto);
@@ -108,8 +138,32 @@ class RegisteredClientControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "user")
+    void create_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        // given
+        RegisteredClientDto dto = EntityModelFactory.createRegisteredClientDto();
+
+        // when / then
+        mockMvc.perform(post("/connect/register").contentType(MediaType.APPLICATION_JSON_VALUE).content(asJson(dto)))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code", is(HttpStatus.FORBIDDEN.value())))
+            .andExpect(jsonPath("$.error_message", is(ACCESS_DENIED_MESSAGE)));
+    }
+
+    @Test
+    void create_shouldRespondWithFound_whenUserIsNotAuthenticated() throws Exception {
+        // given
+        RegisteredClientDto dto = EntityModelFactory.createRegisteredClientDto();
+
+        // when / then
+        mockMvc.perform(post("/connect/register").contentType(MediaType.APPLICATION_JSON_VALUE).content(asJson(dto)))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
+    }
+
+    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void updateScopes_whenRegisteredClientExists_shouldReturnUpdatedRegisteredClient() throws Exception {
+    void updateScopes_shouldReturnUpdatedRegisteredClient_whenRegisteredClientExists() throws Exception {
         // given
         RegisteredClientDto dto = EntityModelFactory.createRegisteredClientDto();
         registeredClientService.create(dto);
@@ -128,7 +182,7 @@ class RegisteredClientControllerIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void updateScopes_whenRegisteredClientDoesNotExists_shouldThrowEntityNotFoundException() throws Exception {
+    void updateScopes_shouldThrowEntityNotFoundException_whenRegisteredClientDoesNotExists() throws Exception {
         // given
         String clientId = "client_id";
         ScopesDto scopesDto = ScopesDto.builder().scopes("read write").build();
@@ -143,8 +197,36 @@ class RegisteredClientControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "user")
+    void updateScopes_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        // given
+        String clientId = "client_id";
+        ScopesDto scopesDto = ScopesDto.builder().scopes("read write").build();
+
+        // when / then
+        mockMvc.perform(
+                patch("/connect/register/{clientId}/scopes", clientId).contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .content(asJson(scopesDto)))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code", is(HttpStatus.FORBIDDEN.value())))
+            .andExpect(jsonPath("$.error_message", is(ACCESS_DENIED_MESSAGE)));
+    }
+
+    @Test
+    void updateScopes_shouldRespondWithFound_whenUserIsNotAuthenticated() throws Exception {
+        // given
+        String clientId = "client_id";
+        ScopesDto scopesDto = ScopesDto.builder().scopes("read write").build();
+
+        // when / then
+        mockMvc.perform(
+            patch("/connect/register/{clientId}/scopes", clientId).contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(asJson(scopesDto))).andExpect(status().isFound()).andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
+    }
+
+    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getScopes_whenRegisteredClientExists_shouldReturnScopes() throws Exception {
+    void getScopes_shouldReturnScopes_whenRegisteredClientExists() throws Exception {
         // given
         RegisteredClientDto dto = EntityModelFactory.createRegisteredClientDto();
         ScopesDto scopesDto = ScopesDto.builder().scopes(String.join(" ", dto.getScopes())).build();
@@ -162,7 +244,7 @@ class RegisteredClientControllerIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getScopes_whenRegisteredClientDoesNotExists_shouldThrowEntityNotFoundException() throws Exception {
+    void getScopes_shouldThrowEntityNotFoundException_whenRegisteredClientDoesNotExists() throws Exception {
         // given
         String clientId = "client_id";
 
@@ -173,8 +255,33 @@ class RegisteredClientControllerIT {
         resultActions.andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException));
     }
 
+    @Test
+    @WithMockUser(username = "user")
+    void getScopes_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        // given
+        String clientId = "client_id";
+
+        // when / then
+        mockMvc.perform(get("/connect/register/{clientId}/scopes", clientId))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code", is(HttpStatus.FORBIDDEN.value())))
+            .andExpect(jsonPath("$.error_message", is(ACCESS_DENIED_MESSAGE)));
+    }
+
+    @Test
+    void getScopes_shouldRespondWithFound_whenUserIsNotAuthenticated() throws Exception {
+        // given
+        String clientId = "client_id";
+
+        // when / then
+        mockMvc.perform(get("/connect/register/{clientId}/scopes", clientId))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
+    }
+
     private void assertRegisteredClientDtos(RegisteredClientDto expected, RegisteredClientDto actual) {
         assertNotNull(actual);
+        assertNotNull(actual.getClientSecret());
         assertEquals(expected.getClientId(), actual.getClientId());
         assertEquals(expected.getClientName(), actual.getClientName());
         assertEquals(expected.getRedirectUris(), actual.getRedirectUris());

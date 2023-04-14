@@ -11,7 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -37,9 +41,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(PostgresExtension.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@EnableMethodSecurity
 class UserRoleControllerIT {
 
     private static final String ROLE_NAME = "TEST";
+    private static final String ACCESS_DENIED_MESSAGE = "Access is denied, you do not have permission to access this resource";
+    private static final String LOGIN_REDIRECT_URL = "http://localhost/login";
     @Autowired
     private UserRoleServiceImpl userRoleService;
     @Autowired
@@ -47,7 +54,7 @@ class UserRoleControllerIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void create_whenRoleDoesNotExist_shouldReturnCreatedRole() throws Exception {
+    void create_shouldReturnCreatedRole_whenRoleDoesNotExist() throws Exception {
         // Given
         AuthUserRole role = createNewRole(ROLE_NAME);
 
@@ -63,8 +70,32 @@ class UserRoleControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "user")
+    void create_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        // Given
+        AuthUserRole role = createNewRole(ROLE_NAME);
+
+        // When / Then
+        mockMvc.perform(post("/oauth2/roles").content(asJson(role)).contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code").value(HttpStatus.FORBIDDEN.value()))
+            .andExpect(jsonPath("$.error_message").value(ACCESS_DENIED_MESSAGE));
+    }
+
+    @Test
+    void create_shouldRespondWithFound_whenUserIsNotAuthenticated() throws Exception {
+        // Given
+        AuthUserRole role = createNewRole(ROLE_NAME);
+
+        // When / Then
+        mockMvc.perform(post("/oauth2/roles").content(asJson(role)).contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
+    }
+
+    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void create_whenRoleExist_shouldThrowDuplicateKeyException() throws Exception {
+    void create_shouldThrowDuplicateKeyException_whenRoleExist() throws Exception {
         // Given
         AuthUserRole role = EntityModelFactory.createNewRole(ROLE_NAME);
         userRoleService.create(role);
@@ -95,14 +126,30 @@ class UserRoleControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "user")
+    void getAll_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        mockMvc.perform(get("/oauth2/roles"))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code").value(HttpStatus.FORBIDDEN.value()))
+            .andExpect(jsonPath("$.error_message").value(ACCESS_DENIED_MESSAGE));
+    }
+
+    @Test
+    void getAll_shouldRespondWithFoundStatusCode_whenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/oauth2/roles"))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
+    }
+
+    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByName_whenRoleExist_shouldReturnRole() throws Exception {
+    void getByName_shouldReturnRole_whenRoleExist() throws Exception {
         // Given
         AuthUserRole role = createNewRole(ROLE_NAME);
         userRoleService.create(role);
 
         // When
-        MvcResult result = mockMvc.perform(get("/oauth2/roles/" + ROLE_NAME)).andExpect(status().isOk()).andReturn();
+        MvcResult result = mockMvc.perform(get("/oauth2/roles/{roleName}", ROLE_NAME)).andExpect(status().isOk()).andReturn();
 
         // Then
         AuthUserRole retrievedRole = asObject(result, AuthUserRole.class);
@@ -111,23 +158,39 @@ class UserRoleControllerIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void getByName_whenRoleDoesNotExist_shouldThrowEntityNotFoundException() throws Exception {
+    void getByName_shouldThrowEntityNotFoundException_whenRoleDoesNotExist() throws Exception {
         // When
-        ResultActions resultActions = mockMvc.perform(get("/oauth2/roles/" + ROLE_NAME));
+        ResultActions resultActions = mockMvc.perform(get("/oauth2/roles/{roleName}", ROLE_NAME));
 
         // Then
         resultActions.andExpect(res -> assertTrue(res.getResolvedException() instanceof EntityNotFoundException));
     }
 
     @Test
+    @WithMockUser(username = "user")
+    void getByName_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        mockMvc.perform(get("/oauth2/roles/{roleName}", ROLE_NAME))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code").value(HttpStatus.FORBIDDEN.value()))
+            .andExpect(jsonPath("$.error_message").value(ACCESS_DENIED_MESSAGE));
+    }
+
+    @Test
+    void getByName_shouldRespondWithFoundStatusCode_whenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(get("/oauth2/roles/{roleName}", ROLE_NAME))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
+    }
+
+    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void deleteByName_whenRoleExist_shouldReturnNoContent() throws Exception {
+    void deleteByName_shouldReturnNoContent_whenRoleExist() throws Exception {
         // Given
         AuthUserRole role = createNewRole(ROLE_NAME);
         userRoleService.create(role);
 
         // When
-        ResultActions resultActions = mockMvc.perform(delete("/oauth2/roles/" + ROLE_NAME));
+        ResultActions resultActions = mockMvc.perform(delete("/oauth2/roles/{roleName}", ROLE_NAME));
 
         // Then
         resultActions.andExpect(status().isNoContent());
@@ -135,11 +198,27 @@ class UserRoleControllerIT {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    void deleteByName_whenRoleDoesNotExist_shouldThrowEntityNotFoundException() throws Exception {
+    void deleteByName_shouldThrowEntityNotFoundException_whenRoleDoesNotExist() throws Exception {
         // When
-        ResultActions resultActions = mockMvc.perform(delete("/oauth2/roles/" + ROLE_NAME));
+        ResultActions resultActions = mockMvc.perform(delete("/oauth2/roles/{roleName}", ROLE_NAME));
 
         // Then
         resultActions.andExpect(res -> assertTrue(res.getResolvedException() instanceof EntityNotFoundException));
+    }
+
+    @Test
+    @WithMockUser(username = "user")
+    void deleteByName_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRole() throws Exception {
+        mockMvc.perform(delete("/oauth2/roles/{roleName}", ROLE_NAME))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error_code").value(HttpStatus.FORBIDDEN.value()))
+            .andExpect(jsonPath("$.error_message").value(ACCESS_DENIED_MESSAGE));
+    }
+
+    @Test
+    void deleteByName_shouldRespondWithFoundStatusCode_whenUserIsNotAuthenticated() throws Exception {
+        mockMvc.perform(delete("/oauth2/roles/{roleName}", ROLE_NAME))
+            .andExpect(status().isFound())
+            .andExpect(redirectedUrl(LOGIN_REDIRECT_URL));
     }
 }

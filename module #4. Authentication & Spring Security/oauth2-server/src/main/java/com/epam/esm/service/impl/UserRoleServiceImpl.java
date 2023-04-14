@@ -16,14 +16,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserRoleServiceImpl implements UserRoleService {
 
-    public static final String DO_NOT_EXIST = "User role do not exist";
+    private static final String DO_NOT_EXIST = "User role '%s' do not exist";
+    private static final String ALREADY_EXIST = "User role '%s' already exist";
     private final AuthUserRoleRepository authUserRoleRepository;
 
     @Override
     public AuthUserRole getByName(String roleName) {
         Optional<AuthUserRole> userRole = authUserRoleRepository.findByName(roleName);
         if (userRole.isEmpty()) {
-            throw new EntityNotFoundException(DO_NOT_EXIST);
+            throw new EntityNotFoundException(String.format(DO_NOT_EXIST, roleName));
         }
         return userRole.get();
     }
@@ -38,7 +39,7 @@ public class UserRoleServiceImpl implements UserRoleService {
     public AuthUserRole create(AuthUserRole authUserRole) {
         Optional<AuthUserRole> userRole = authUserRoleRepository.findByName(authUserRole.getName());
         if (userRole.isPresent()) {
-            throw new DuplicateKeyException("User role already exist");
+            throw new DuplicateKeyException(String.format(ALREADY_EXIST, authUserRole.getName()));
         }
         return authUserRoleRepository.save(authUserRole);
     }

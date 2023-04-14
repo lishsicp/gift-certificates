@@ -51,8 +51,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(authenticationEntryPoint())
+            .exceptionHandling(exceptionHandling -> exceptionHandling
+                .authenticationEntryPoint(unauthorizedHandler())
                 .accessDeniedHandler(accessDeniedHandler()))
 
             .oauth2ResourceServer(
@@ -63,7 +63,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private AuthenticationEntryPoint authenticationEntryPoint() {
+    private AuthenticationEntryPoint unauthorizedHandler() {
          return (request, response, authException) ->
              setExceptionBody(response, HttpStatus.UNAUTHORIZED, ErrorCodes.UNAUTHORIZED);
     }

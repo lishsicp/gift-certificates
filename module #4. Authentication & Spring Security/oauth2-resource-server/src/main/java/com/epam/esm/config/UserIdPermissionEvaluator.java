@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class UserIdPermission implements PermissionEvaluator {
+public class UserIdPermissionEvaluator implements PermissionEvaluator {
 
     private final UserRepository userRepository;
 

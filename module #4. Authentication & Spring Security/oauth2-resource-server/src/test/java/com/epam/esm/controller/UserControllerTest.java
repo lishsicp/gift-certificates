@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.Link;
@@ -37,7 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(classes = {UserController.class, TestMethodSecurityConfiguration.class})
+@Import(TestMethodSecurityConfiguration.class)
+@SpringBootTest(classes = UserController.class)
 @AutoConfigureMockMvc
 @AutoConfigureWebMvc
 class UserControllerTest {
@@ -63,18 +65,17 @@ class UserControllerTest {
         List<UserDto> userDtos = List.of(userDto1, userDto2);
         Page<UserDto> users = new PageImpl<>(userDtos);
 
-        given(userAssembler.toCollectionModel(any(), any(Link.class)))
-            .willReturn(PagedModel.of(users.getContent(), new PagedModel.PageMetadata(0, 0, 0)));
+        given(userAssembler.toCollectionModel(any(), any(Link.class))).willReturn(
+            PagedModel.of(users.getContent(), new PagedModel.PageMetadata(0, 0, 0)));
         given(userService.getAll(anyInt(), anyInt())).willReturn(users);
 
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/users")
-            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_user.read")))
-            .contentType(MediaType.APPLICATION_JSON_VALUE));
+        ResultActions resultActions = mockMvc.perform(
+            get("/api/users").with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_user.read")))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        resultActions
-            .andExpect(status().isOk())
+        resultActions.andExpect(status().isOk())
             .andExpect(jsonPath("$._embedded.userDtoList[0].name").value(userDto1.getName()))
             .andExpect(jsonPath("$._embedded.userDtoList[0].email").value(userDto1.getEmail()))
             .andExpect(jsonPath("$._embedded.userDtoList[1].name").value(userDto2.getName()))
@@ -88,34 +89,31 @@ class UserControllerTest {
     @DisplayName("GET /api/users - should respond with forbidden status code when user with insufficient role gets users")
     void getAll_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleGetsUsers() throws Exception {
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/users")
-            .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_user.read")))
-            .contentType(MediaType.APPLICATION_JSON_VALUE));
+        ResultActions resultActions = mockMvc.perform(
+            get("/api/users").with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_user.read")))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        resultActions
-            .andExpect(status().isForbidden());
+        resultActions.andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("GET /api/users - should respond with forbidden status code when user without user.read scope gets users")
     void getAll_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/users")
-            .with(jwt().authorities(createAuthorityList("ROLE_USER")))
-            .contentType(MediaType.APPLICATION_JSON_VALUE));
+        ResultActions resultActions = mockMvc.perform(
+            get("/api/users").with(jwt().authorities(createAuthorityList("ROLE_USER")))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        resultActions
-            .andExpect(status().isForbidden());
+        resultActions.andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("GET /api/users - should respond with unauthorized status code when user is not authenticated")
     void getAll_shouldRespondWithUnauthorizedStatusCode_whenUserIsNotAuthenticated() throws Exception {
         // when / then
-        mockMvc.perform(get("/api/users"))
-            .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/users")).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -128,12 +126,11 @@ class UserControllerTest {
         given(userAssembler.toModel(userDto)).willReturn(userDto);
 
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/users/{id}", userDto.getId())
-            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_user.read"))));
+        ResultActions resultActions = mockMvc.perform(get("/api/users/{id}", userDto.getId()).with(
+            jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_user.read"))));
 
         // then
-        resultActions
-            .andExpect(status().isOk())
+        resultActions.andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value(userDto.getName()))
             .andExpect(jsonPath("$.email").value(userDto.getEmail()));
 
@@ -153,12 +150,11 @@ class UserControllerTest {
         given(userIdPermissionEvaluator.hasPermission(any(), anyLong(), any(), any())).willReturn(true);
 
         // when
-        ResultActions resultActions = mockMvc.perform(get("/api/users/{id}", userDto.getId())
-            .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_user.read"))));
+        ResultActions resultActions = mockMvc.perform(get("/api/users/{id}", userDto.getId()).with(
+            jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_user.read"))));
 
         // then
-        resultActions
-            .andExpect(status().isOk())
+        resultActions.andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value(userDto.getName()))
             .andExpect(jsonPath("$.email").value(userDto.getEmail()));
 
@@ -206,8 +202,7 @@ class UserControllerTest {
         long userId = 1;
 
         // when / then
-        mockMvc.perform(
-                get("/api/users/{id}", userId).with(jwt().authorities(createAuthorityList("ROLE_ADMIN"))))
+        mockMvc.perform(get("/api/users/{id}", userId).with(jwt().authorities(createAuthorityList("ROLE_ADMIN"))))
             .andExpect(status().isForbidden());
 
         then(userService).should(never()).getById(anyLong());
@@ -222,7 +217,6 @@ class UserControllerTest {
         long userId = 1;
 
         // When / Then
-        mockMvc.perform(get("/api/users/{id}", userId))
-            .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/users/{id}", userId)).andExpect(status().isUnauthorized());
     }
 }

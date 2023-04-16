@@ -47,33 +47,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-
+            .csrf().disable()
+            .cors().disable()
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
             .exceptionHandling(exceptionHandling -> exceptionHandling
                 .authenticationEntryPoint(unauthorizedHandler())
                 .accessDeniedHandler(accessDeniedHandler()))
-
             .oauth2ResourceServer(
                 oauth2 -> oauth2
                     .jwt(jwt -> jwt
                         .jwtAuthenticationConverter(jwtAuthenticationTokenConverter)));
-
         return http.build();
     }
 
-    private AuthenticationEntryPoint unauthorizedHandler() {
-         return (request, response, authException) ->
-             setExceptionBody(response, HttpStatus.UNAUTHORIZED, ErrorCodes.UNAUTHORIZED);
+    @Bean
+    public AuthenticationEntryPoint unauthorizedHandler() {
+        return (request, response, authException) ->
+            setExceptionBody(response, HttpStatus.UNAUTHORIZED, ErrorCodes.UNAUTHORIZED);
     }
 
-    private AccessDeniedHandler accessDeniedHandler() {
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) ->
             setExceptionBody(response, HttpStatus.FORBIDDEN, ErrorCodes.ACCESS_DENIED);
     }
 
-    private void setExceptionBody(HttpServletResponse response, HttpStatus httpStatus, int errorCode ) throws IOException {
+    private void setExceptionBody(
+        HttpServletResponse response, HttpStatus httpStatus, int errorCode ) throws IOException {
         response.setContentType(MimeTypeUtils.APPLICATION_JSON_VALUE);
         response.setStatus(httpStatus.value());
         response.setCharacterEncoding("UTF-8");

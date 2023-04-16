@@ -18,18 +18,28 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A component that converts a JWT authentication object to an AbstractAuthenticationToken object, which provides the
+ * user's authentication credentials and authorities, based on the content of the JWT.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    private final UserRepository userRepository;
     private static final String SCOPE_PREFIX = "SCOPE_";
     private static final Set<String> USER_PERMISSION =
         Set.of("tag.read", "user.read", "certificate.read", "order.read", "order.write", "openid");
+    private final UserRepository userRepository;
 
+    /**
+     * Converts a JWT to an AbstractAuthenticationToken object, based on the content of the JWT.
+     *
+     * @param jwt The JWT to be converted.
+     * @return The AbstractAuthenticationToken object with the user's authentication credentials and authorities.
+     */
     @Override
-    public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
+    public JwtAuthenticationToken convert(@NonNull Jwt jwt) {
         boolean userExists = userRepository.existsByEmail(jwt.getSubject());
 
         if (!userExists) {
@@ -45,6 +55,12 @@ public class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractA
         return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
     }
 
+    /**
+     * Extracts user authorities from the JWT.
+     *
+     * @param jwt The JWT containing user authorities.
+     * @return A collection of user authorities.
+     */
     @SuppressWarnings("null")
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -53,10 +69,9 @@ public class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractA
         String userRole = (String) jwt.getClaims().get("role");
 
         if (userRole != null && userRole.equals("ROLE_USER") && !authorities.isEmpty()) {
-            List<GrantedAuthority> restrictedAuthorities =
-                authorities.stream()
-                    .filter(a -> !USER_PERMISSION.contains(a.getAuthority().substring(SCOPE_PREFIX.length())))
-                    .toList();
+            List<GrantedAuthority> restrictedAuthorities = authorities.stream()
+                .filter(a -> !USER_PERMISSION.contains(a.getAuthority().substring(SCOPE_PREFIX.length())))
+                .toList();
             authorities.removeAll(restrictedAuthorities);
         }
 

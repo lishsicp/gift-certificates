@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * A controller for managing managing user roles.
+ */
 @RestController
 @RequestMapping("oauth2/roles")
 @RequiredArgsConstructor
@@ -25,6 +28,12 @@ public class UserRoleController {
 
     private final UserRoleService userRoleService;
 
+    /**
+     * Creates a new user role.
+     *
+     * @param role The role to create.
+     * @return The created role.
+     */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
@@ -32,18 +41,35 @@ public class UserRoleController {
         return userRoleService.create(role);
     }
 
+    /**
+     * Gets a list of all user roles.
+     *
+     * @return A list of all user roles.
+     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public List<AuthUserRole> getAll() {
         return userRoleService.getAll();
     }
 
+    /**
+     * Gets a user role by name.
+     *
+     * @param roleName The name of the role to get.
+     * @return The user role with the specified name.
+     */
     @GetMapping("/{roleName}")
     @PreAuthorize("hasRole('ADMIN')")
     public AuthUserRole getByName(@PathVariable String roleName) {
         return userRoleService.getByName(roleName);
     }
 
+    /**
+     * Deletes a user role by name.
+     *
+     * @param roleName The name of the role to delete.
+     * @return A response indicating the success or failure of the delete operation.
+     */
     @DeleteMapping("/{roleName}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)

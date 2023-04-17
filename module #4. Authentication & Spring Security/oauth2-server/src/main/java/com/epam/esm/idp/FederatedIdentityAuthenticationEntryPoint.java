@@ -16,6 +16,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+/**
+ * This class is an implementation of AuthenticationEntryPoint interface for federated identity authentication.
+ */
 public final class FederatedIdentityAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
@@ -30,6 +33,16 @@ public final class FederatedIdentityAuthenticationEntryPoint implements Authenti
         this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
+    /**
+     * Redirects users to the identity provider's authentication page based on the 'idp' parameter value received with
+     * the HTTP request, or directs users to the login page upon authentication failure.
+     *
+     * @param request                 the HTTP request
+     * @param response                the HTTP response
+     * @param authenticationException the authentication exception
+     * @throws IOException      if an I/O related error occurs
+     * @throws ServletException if a servlet related error occurs
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
         AuthenticationException authenticationException) throws IOException, ServletException {

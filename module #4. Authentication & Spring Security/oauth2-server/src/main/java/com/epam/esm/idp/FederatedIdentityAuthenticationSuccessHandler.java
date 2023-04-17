@@ -13,6 +13,9 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import java.io.IOException;
 import java.util.function.Consumer;
 
+/**
+ * A class that handles authentication success for federated identity providers like OAuth2 and OpenID Connect.
+ */
 public final class FederatedIdentityAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
@@ -22,6 +25,14 @@ public final class FederatedIdentityAuthenticationSuccessHandler implements Auth
 
     private final Consumer<OidcUser> oidcUserHandler = user -> this.oauth2UserHandler.accept(user);
 
+    /**
+     * Handles a successful authentication event. If the principal is an instance of OAuth2AuthenticationToken, call the
+     * appropriate handler.
+     *
+     * @param request        the HTTP request
+     * @param response       the HTTP response
+     * @param authentication the authentication object
+     */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
@@ -35,6 +46,11 @@ public final class FederatedIdentityAuthenticationSuccessHandler implements Auth
         this.successHandler.onAuthenticationSuccess(request, response, authentication);
     }
 
+    /**
+     * Sets the OAuth2User handler.
+     *
+     * @param oauth2UserHandler the OAuth2User handler
+     */
     public void setOAuth2UserHandler(Consumer<OAuth2User> oauth2UserHandler) {
         this.oauth2UserHandler = oauth2UserHandler;
     }

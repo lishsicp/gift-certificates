@@ -122,16 +122,17 @@ public class RegisteredClientServiceImpl implements RegisteredClientService {
                 .toList()
             )
             .authorizationGrantTypes(registeredClient
-                    .getAuthorizationGrantTypes()
-                    .stream()
-                    .map(AuthorizationGrantType::getValue)
-                    .toList())
+                .getAuthorizationGrantTypes()
+                .stream()
+                .map(AuthorizationGrantType::getValue)
+                .toList())
             .redirectUris(registeredClient.getRedirectUris().stream().toList())
             .scopes(registeredClient.getScopes().stream().toList())
             .requireProofKey(registeredClient.getClientSettings().isRequireProofKey())
             .requireAuthorizationConsent(registeredClient.getClientSettings().isRequireAuthorizationConsent())
             .accessTokenTimeToLiveInSeconds(registeredClient.getTokenSettings().getAccessTokenTimeToLive().toSeconds())
-            .refreshTokenTimeToLiveInSeconds(registeredClient.getTokenSettings().getRefreshTokenTimeToLive().toSeconds())
+            .refreshTokenTimeToLiveInSeconds(
+                registeredClient.getTokenSettings().getRefreshTokenTimeToLive().toSeconds())
             .build();
     }
 }

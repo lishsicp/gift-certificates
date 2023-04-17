@@ -9,6 +9,9 @@ import org.springframework.util.Assert;
 
 import java.util.function.Consumer;
 
+/**
+ * Configures Federated Identity for OAuth2 user authentication and handling.
+ */
 public final class FederatedIdentityConfigurer extends
     AbstractHttpConfigurer<FederatedIdentityConfigurer, HttpSecurity> {
 
@@ -20,6 +23,12 @@ public final class FederatedIdentityConfigurer extends
         return this;
     }
 
+    /**
+     * Initializes security with Federated Identity configuration.
+     *
+     * @param http HttpSecurity instance.
+     * @throws Exception Exception thrown in case of any error.
+     */
     @Override
     public void init(HttpSecurity http) throws Exception {
         ApplicationContext applicationContext = http.getSharedObject(ApplicationContext.class);
@@ -39,5 +48,4 @@ public final class FederatedIdentityConfigurer extends
                 exceptionHandling -> exceptionHandling.authenticationEntryPoint(authenticationEntryPoint))
             .oauth2Login(oauth2 -> oauth2.successHandler(authenticationSuccessHandler));
     }
-
 }

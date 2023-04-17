@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
 
+/**
+ * This class handles the creation of a new user in the application whenever a new user logs in via OAuth2
+ * authentication, by implementing the Consumer interface.
+ */
 @RequiredArgsConstructor
 @Component
 @Slf4j
@@ -21,6 +25,13 @@ public class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2User> {
     private final AuthUserRepository userRepository;
     private final AuthUserRoleRepository userRoleRepository;
 
+    /**
+     * This method is called by OAuth2LoginAuthenticationFilter on successful authentication. It checks if a user with
+     * the same email already exists in the AuthUserRepository, and if not, it creates a new AuthUser object and saves
+     * it to the repository.
+     *
+     * @param user The OAuth2User object obtained from the authentication process.
+     */
     @Override
     public void accept(OAuth2User user) {
         if (!userRepository.existsByEmail(user.getName())) {

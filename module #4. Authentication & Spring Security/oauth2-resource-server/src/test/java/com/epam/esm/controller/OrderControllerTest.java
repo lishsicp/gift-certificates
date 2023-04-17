@@ -183,7 +183,7 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("GET /api/orders - should respond with forbidden status code when user with insufficient role gets orders")
-    void getAll_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleGetsUser() throws Exception {
+    void getAll_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleGetsOrders() throws Exception {
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/orders").contentType(MediaType.APPLICATION_JSON_VALUE)
             .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_order.read"))));

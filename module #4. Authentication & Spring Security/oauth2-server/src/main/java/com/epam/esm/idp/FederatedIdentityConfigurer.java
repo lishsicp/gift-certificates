@@ -9,36 +9,43 @@ import org.springframework.util.Assert;
 
 import java.util.function.Consumer;
 
-public final class FederatedIdentityConfigurer extends AbstractHttpConfigurer<FederatedIdentityConfigurer, HttpSecurity> {
+/**
+ * Configures Federated Identity for OAuth2 user authentication and handling.
+ */
+public final class FederatedIdentityConfigurer extends
+    AbstractHttpConfigurer<FederatedIdentityConfigurer, HttpSecurity> {
 
-	private Consumer<OAuth2User> oauth2UserHandler;
+    private Consumer<OAuth2User> oauth2UserHandler;
 
-	public FederatedIdentityConfigurer oauth2UserHandler(Consumer<OAuth2User> oauth2UserHandler) {
-		Assert.notNull(oauth2UserHandler, "oauth2UserHandler cannot be null");
-		this.oauth2UserHandler = oauth2UserHandler;
-		return this;
-	}
+    public FederatedIdentityConfigurer oauth2UserHandler(Consumer<OAuth2User> oauth2UserHandler) {
+        Assert.notNull(oauth2UserHandler, "oauth2UserHandler cannot be null");
+        this.oauth2UserHandler = oauth2UserHandler;
+        return this;
+    }
 
-	@Override
-	public void init(HttpSecurity http) throws Exception {
-		ApplicationContext applicationContext = http.getSharedObject(ApplicationContext.class);
-		ClientRegistrationRepository clientRegistrationRepository =
-			applicationContext.getBean(ClientRegistrationRepository.class);
-		String loginPageUrl = "/login";
-		FederatedIdentityAuthenticationEntryPoint authenticationEntryPoint =
-			new FederatedIdentityAuthenticationEntryPoint(loginPageUrl, clientRegistrationRepository);
+    /**
+     * Initializes security with Federated Identity configuration.
+     *
+     * @param http HttpSecurity instance.
+     * @throws Exception Exception thrown in case of any error.
+     */
+    @Override
+    public void init(HttpSecurity http) throws Exception {
+        ApplicationContext applicationContext = http.getSharedObject(ApplicationContext.class);
+        ClientRegistrationRepository clientRegistrationRepository =
+            applicationContext.getBean(ClientRegistrationRepository.class);
+        String loginPageUrl = "/login";
+        FederatedIdentityAuthenticationEntryPoint authenticationEntryPoint =
+            new FederatedIdentityAuthenticationEntryPoint(loginPageUrl, clientRegistrationRepository);
 
-		FederatedIdentityAuthenticationSuccessHandler authenticationSuccessHandler =
-			new FederatedIdentityAuthenticationSuccessHandler();
-		if (this.oauth2UserHandler != null) {
-			authenticationSuccessHandler.setOAuth2UserHandler(this.oauth2UserHandler);
-		}
+        FederatedIdentityAuthenticationSuccessHandler authenticationSuccessHandler =
+            new FederatedIdentityAuthenticationSuccessHandler();
+        if (this.oauth2UserHandler != null) {
+            authenticationSuccessHandler.setOAuth2UserHandler(this.oauth2UserHandler);
+        }
 
-		http
-			.exceptionHandling(exceptionHandling ->
-				exceptionHandling.authenticationEntryPoint(authenticationEntryPoint))
-			.oauth2Login(oauth2 -> oauth2
-				.successHandler(authenticationSuccessHandler));
-	}
-
+        http.exceptionHandling(
+                exceptionHandling -> exceptionHandling.authenticationEntryPoint(authenticationEntryPoint))
+            .oauth2Login(oauth2 -> oauth2.successHandler(authenticationSuccessHandler));
+    }
 }

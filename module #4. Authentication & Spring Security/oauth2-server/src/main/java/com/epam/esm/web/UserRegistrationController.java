@@ -1,6 +1,6 @@
 package com.epam.esm.web;
 
-import com.epam.esm.dto.UserRegisterDto;
+import com.epam.esm.dto.UserRegistrationDto;
 import com.epam.esm.service.UserRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,17 +11,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * A controller for registering a new user.
+ */
 @RestController
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class UserRegistrationController {
 
     private final UserRegistrationService authUserRegisterService;
 
-    @PostMapping(path = "/oauth2/register",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    /**
+     * Registers a new user.
+     *
+     * @param registerDto DTO containing details of user to be registered
+     * @return DTO of registered user
+     */
+    @PostMapping(path = "/oauth2/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public UserRegisterDto register(@RequestBody @Valid UserRegisterDto registerDto) {
+    public UserRegistrationDto register(@RequestBody @Valid UserRegistrationDto registerDto) {
         authUserRegisterService.register(registerDto);
         return registerDto;
     }

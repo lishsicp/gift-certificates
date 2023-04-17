@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  postgres-auth:
+    image: 'postgres:15.2-alpine'
+    container_name: postgres-auth
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    environment:
+      - POSTGRES_DB=${AUTH_DB}
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+  postgres-resource:
+    image: 'postgres:15.2-alpine'
+    container_name: postgres-resource
+    ports:
+      - "5433:${POSTGRES_PORT}"
+    environment:
+      - POSTGRES_DB=${RESOURCE_DB}
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+
+  auth-server:
+    hostname: oauth2-server.com
+    build:
+      context: .
+      dockerfile: dockerfiles/auth.dockerfile
+    image: 'auth-server'
+    container_name: auth-server
+    depends_on:
+      - postgres-auth
+    ports:
+      - ${AUTH_SERVER_APPLICATION_PORT}:${AUTH_SERVER_APPLICATION_PORT}
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_AUTH_URL=jdbc:postgresql://postgres-auth:${POSTGRES_PORT}/${AUTH_DB}
+
+  gift-certificates-resource:
+    build:
+      context: .
+      dockerfile: dockerfiles/resource.dockerfile
+    image: 'gift-certificates-resource'
+    container_name: gift-certificates-resource
+    depends_on:
+      - postgres-resource
+    ports:
+      - ${RESOURCE_SERVER_APPLICATION_PORT}:${RESOURCE_SERVER_APPLICATION_PORT}
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_RESOURCE_URL=jdbc:postgresql://postgres-resource:${POSTGRES_PORT}/${RESOURCE_DB}
+

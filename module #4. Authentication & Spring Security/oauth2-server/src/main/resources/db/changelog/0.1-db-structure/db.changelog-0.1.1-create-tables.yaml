@@ -13,6 +13,30 @@ databaseChangeLog:
             path: oauth2-registered-client-schema.sql
             relativeToChangelogFile: true
   - changeSet:
+      id: create-auth-user-role-table
+      author: Yaroslav Lobur
+      changes:
+        - createSequence:
+            sequenceName: auth_user_role_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: auth_user_role
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  defaultValueComputed: nextval('auth_user_role_seq')
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(32)
+                  constraints:
+                    unique: true
+                    nullable: false
+  - changeSet:
       id: create-auth-user-table
       author: Yaroslav Lobur
       changes:
@@ -52,5 +76,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: role
-                  type: varchar(16)
+                  name: role_id
+                  type: smallint
+                  constraints:
+                    referencedTableName: auth_user_role
+                    referencedColumnNames: id
+                    foreignKeyName: auth_user_role_id_fk

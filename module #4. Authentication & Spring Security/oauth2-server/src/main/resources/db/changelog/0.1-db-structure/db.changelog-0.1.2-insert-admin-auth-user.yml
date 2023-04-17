@@ -1,7 +1,25 @@
 databaseChangeLog:
   - changeSet:
+      id: insert-auth-user-role-data
+      author: Yaroslav Lobur
+      context: prod
+      changes:
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column:
+                  name: name
+                  value: ADMIN
+        - insert:
+            tableName: auth_user_role
+            columns:
+              - column:
+                  name: name
+                  value: USER
+  - changeSet:
       id: insert-admin-auth-user-data
       author: Yaroslav Lobur
+      context: prod
       changes:
         - insert:
             tableName: auth_user
@@ -19,7 +37,7 @@ databaseChangeLog:
                   name: password
                   value: $2a$12$gi7hwAbZy3eLkCeKMbjxJelPpbj3coEbdBVh6/kEx.F4GD8ymAZhm #password
               - column:
-                  name: role
-                  value: ADMIN
+                  name: role_id
+                  value: 1
 
 

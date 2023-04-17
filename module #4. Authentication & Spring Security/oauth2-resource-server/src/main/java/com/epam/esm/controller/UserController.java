@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +40,7 @@ public class UserController {
      * @param size The page size
      * @return All the users
      */
+    @PreAuthorize("hasRole('ADMIN') and hasAuthority('SCOPE_user.read')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<UserDto> getAll(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
@@ -54,6 +56,7 @@ public class UserController {
      * @param id The id of the user
      * @return The user with the given id
      */
+    @PreAuthorize("(hasRole('ADMIN') or hasPermission(#id, '', '')) and hasAuthority('SCOPE_user.read')")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserDto getById(@PathVariable @Min(value = 1, message = "40001") long id) {
         UserDto userDto = userService.getById(id);

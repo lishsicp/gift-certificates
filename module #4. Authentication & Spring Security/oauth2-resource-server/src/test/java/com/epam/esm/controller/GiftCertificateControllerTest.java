@@ -132,27 +132,8 @@ class GiftCertificateControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/certificates - should respond with forbidden status code when admin user without 'certificate.write' scope saves certificate")
-    void save_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
-        // given
-        GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
-
-        // when
-        ResultActions resultActions = mockMvc.perform(
-            post("/api/certificates").with(jwt().authorities(createAuthorityList("ROLE_ADMIN")))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(asJson(certificate)));
-
-        // then
-        resultActions.andExpect(status().isForbidden());
-
-        then(giftCertificateService).shouldHaveNoInteractions();
-        then(giftCertificateAssembler).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("POST /api/certificates - should respond with forbidden status code when user with insufficient role saves certificate")
-    void save_shouldRespondWithForbiddenStatusCode_whenInsufficientRole() throws Exception {
+    @DisplayName("POST /api/certificates - should respond with forbidden status code when user without 'certificate.write' scope saves certificate")
+    void save_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
 
@@ -199,7 +180,7 @@ class GiftCertificateControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(patch("/api/certificates/{id}", id).with(
-                jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_certificate.write")))
+                jwt().authorities(createAuthorityList("ROLE_ADMIN")))
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(JsonMapperUtil.asJson(dto)));
 
@@ -214,28 +195,8 @@ class GiftCertificateControllerTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/certificates/{id} - should respond with forbidden status code when admin without 'certificate.write' scope updates certificate")
+    @DisplayName("PATCH /api/certificates/{id} - should respond with forbidden status code when user without 'certificate.write' scope updates certificate")
     void update_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
-        // given
-        GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
-        long id = certificate.getId();
-
-        // when
-        ResultActions resultActions = mockMvc.perform(
-            patch("/api/certificates/{id}", id).with(jwt().authorities(createAuthorityList("ROLE_ADMIN")))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(asJson(certificate)));
-
-        // then
-        resultActions.andExpect(status().isForbidden());
-
-        then(giftCertificateService).shouldHaveNoInteractions();
-        then(giftCertificateAssembler).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("PATCH /api/certificates/{id} - should respond with forbidden status code when user with insufficient role saves certificate")
-    void update_shouldRespondWithForbiddenStatusCode_whenInsufficientRole() throws Exception {
         // given
         GiftCertificateDto certificate = ModelFactory.toGiftCertificateDto(ModelFactory.createGiftCertificate());
         long id = certificate.getId();
@@ -288,24 +249,8 @@ class GiftCertificateControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/certificates/{id} - should respond with forbidden status code when user with insufficient role deletes certificate")
-    void deleteById_shouldRespondWithForbiddenStatusCode_whenInsufficientRole() throws Exception {
-        // given
-        long id = 1L;
-
-        // when
-        ResultActions resultActions = mockMvc.perform(delete("/api/certificates/{id}", id).with(
-            jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_certificate.write"))));
-
-        // then
-        resultActions.andExpect(status().isForbidden());
-        then(giftCertificateService).shouldHaveNoInteractions();
-        then(giftCertificateAssembler).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("DELETE /api/certificates/{id} - should respond with forbidden status code when admin user without 'certificate.write' scope deletes certificate")
-    void deleteById_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
+    @DisplayName("DELETE /api/certificates/{id} - should respond with forbidden status code when user without 'certificate.write' scope deletes certificate")
+    void deleteById_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         long id = 1L;
 

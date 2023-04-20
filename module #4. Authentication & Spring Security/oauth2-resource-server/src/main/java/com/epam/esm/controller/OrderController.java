@@ -47,7 +47,7 @@ public class OrderController {
      * @param id The id of the {@link OrderDto order}
      * @return The {@link OrderDto order} details
      */
-    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_order.read')")
+    @PreAuthorize(value = "hasRole('ADMIN') or hasAuthority('SCOPE_order.read')")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public OrderDto getById(
         @PathVariable @Min(value = 1, message = "40001") long id) {
@@ -62,7 +62,7 @@ public class OrderController {
      * @param size number of items in a page
      * @return a {@link PagedModel} which contains all {@link OrderDto Orders}
      */
-    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_order.read')")
+    @PreAuthorize(value = "hasRole('ADMIN') or hasAuthority('SCOPE_order.read')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<OrderDto> getAll(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
@@ -83,7 +83,7 @@ public class OrderController {
      * @return All the {@link OrderDto orders} of the given {@link User user}
      */
     @GetMapping(path = "/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("(hasRole('ADMIN') or hasPermission(#userId, '', '')) and hasAuthority('SCOPE_order.read')")
+    @PreAuthorize("hasRole('ADMIN') or (hasAuthority('SCOPE_order.read') and hasPermission(#userId, '', ''))")
     public PagedModel<OrderDto> getByUserId(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
         @RequestParam(required = false, defaultValue = "5") @Min(value = 1, message = "40014") int size,
@@ -99,7 +99,7 @@ public class OrderController {
      * @param orderDto The details of the new {@link OrderDto order} to make
      * @return The newly created {@link OrderDto order}.
      */
-    @PreAuthorize("(hasRole('ADMIN') or hasPermission(#orderDto.userId, '', '')) and hasAuthority('SCOPE_order.write')")
+    @PreAuthorize("hasRole('ADMIN') or (hasAuthority('SCOPE_order.write') and hasPermission(#orderDto.userId, '', ''))")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDto saveOrder(@RequestBody @Valid MakeOrderDto orderDto) {
@@ -113,7 +113,7 @@ public class OrderController {
      * @param id The id of the {@link OrderDto order} to delete
      * @return A response indicating the completion of the delete operation
      */
-    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_order.write')")
+    @PreAuthorize(value = "hasRole('ADMIN') or hasAuthority('SCOPE_order.write')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         orderService.delete(id);

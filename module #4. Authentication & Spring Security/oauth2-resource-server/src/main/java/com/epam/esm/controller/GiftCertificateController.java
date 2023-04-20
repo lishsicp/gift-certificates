@@ -83,7 +83,7 @@ public class GiftCertificateController {
      * @param giftCertificateDto the {@link GiftCertificateDto Gift Certificate} to be saved
      * @return saved {@link GiftCertificateDto Gift Certificate}
      */
-    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_certificate.write')")
+    @PreAuthorize(value = "hasRole('ADMIN') or hasAuthority('SCOPE_certificate.write')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public GiftCertificateDto save(
@@ -99,7 +99,7 @@ public class GiftCertificateController {
      * @param giftCertificateDto the new fields for the {@link GiftCertificateDto Gift Certificate}
      * @return the updated {@link GiftCertificateDto Gift Certificate}
      */
-    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_certificate.write')")
+    @PreAuthorize(value = "hasRole('ADMIN') or hasAuthority('SCOPE_certificate.write')")
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public GiftCertificateDto update(@PathVariable @Min(value = 1, message = "40001") long id,
         @RequestBody @Valid GiftCertificateDto giftCertificateDto) {
@@ -112,7 +112,7 @@ public class GiftCertificateController {
      *
      * @param id the Id of the {@link GiftCertificateDto Gift Certificate} to be deleted
      */
-    @PreAuthorize(value = "hasRole('ADMIN') and hasAuthority('SCOPE_certificate.write')")
+    @PreAuthorize(value = "hasRole('ADMIN') or hasAuthority('SCOPE_certificate.write')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(
         @PathVariable @Valid @Min(value = 1, message = "40001") long id) {

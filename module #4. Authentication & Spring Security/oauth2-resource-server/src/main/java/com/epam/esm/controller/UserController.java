@@ -40,7 +40,7 @@ public class UserController {
      * @param size The page size
      * @return All the users
      */
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('SCOPE_user.read')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('SCOPE_user.read')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedModel<UserDto> getAll(
         @RequestParam(required = false, defaultValue = "1") @Min(value = 1, message = "40013") int page,
@@ -56,7 +56,7 @@ public class UserController {
      * @param id The id of the user
      * @return The user with the given id
      */
-    @PreAuthorize("(hasRole('ADMIN') or hasPermission(#id, '', '')) and hasAuthority('SCOPE_user.read')")
+    @PreAuthorize("hasRole('ADMIN') or (hasAuthority('SCOPE_user.read') and hasPermission(#id, '', ''))")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserDto getById(@PathVariable @Min(value = 1, message = "40001") long id) {
         UserDto userDto = userService.getById(id);

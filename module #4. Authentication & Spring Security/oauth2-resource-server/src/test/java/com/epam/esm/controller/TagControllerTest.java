@@ -169,7 +169,7 @@ class TagControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/tags/popular - should return tag when any user with scope 'tag.read' gets popular tag")
+    @DisplayName("GET /api/tags/popular - should return tag when user with scope 'tag.read' gets popular tag")
     void getPopular_shouldReturnTag_whenUserGetsPopularTag() throws Exception {
         // given
         Tag tag = ModelFactory.createTag();
@@ -229,7 +229,7 @@ class TagControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            post("/api/tags").with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_tag.write")))
+            post("/api/tags").with(jwt().authorities(createAuthorityList("ROLE_ADMIN")))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(asJson(tagDto)));
         resultActions.andExpect(status().isCreated()).andExpect(jsonPath("$.name").value(tagDto.getName()));
@@ -240,35 +240,15 @@ class TagControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/tags - should respond with forbidden status code when admin without 'tag.write' scope saves tag")
-    void save_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
+    @DisplayName("POST /api/tags - should respond with forbidden status code when user without 'tag.write' scope saves tag")
+    void save_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         Tag tag = ModelFactory.createTag();
         TagDto tagDto = ModelFactory.toTagDto(tag);
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            post("/api/tags").with(jwt().authorities(createAuthorityList("ROLE_ADMIN")))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(asJson(tagDto)));
-
-        // then
-        resultActions.andExpect(status().isForbidden());
-
-        then(tagService).shouldHaveNoInteractions();
-        then(tagAssembler).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("POST /api/tags - should respond with forbidden status code when user with insufficient role saves tag")
-    void save_shouldRespondWithForbiddenStatusCode_whenInsufficientRole() throws Exception {
-        // given
-        Tag tag = ModelFactory.createTag();
-        TagDto tagDto = ModelFactory.toTagDto(tag);
-
-        // when
-        ResultActions resultActions = mockMvc.perform(
-            post("/api/tags").with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_tag.write")))
+            post("/api/tags").with(jwt().authorities(createAuthorityList("ROLE_USER")))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(asJson(tagDto)));
 
@@ -313,31 +293,14 @@ class TagControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/tags/{id} - should respond with forbidden status code tag when admin without 'tag.write' scope deletes tag")
-    void deleteById_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
+    @DisplayName("DELETE /api/tags/{id} - should respond with forbidden status code tag when user without 'tag.write' scope deletes tag")
+    void deleteById_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         long id = 1;
 
         // when
         ResultActions resultActions =
-            mockMvc.perform(delete("/api/tags/{id}", id).with(jwt().authorities(createAuthorityList("ROLE_ADMIN"))));
-
-        // then
-        resultActions.andExpect(status().isForbidden());
-
-        then(tagService).shouldHaveNoInteractions();
-        then(tagAssembler).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("DELETE /api/tags/{id} - should respond with forbidden status code tag when with insufficient role deletes tag")
-    void deleteById_shouldRespondWithForbiddenStatusCode_whenInsufficientRole() throws Exception {
-        // given
-        long id = 1;
-
-        // when
-        ResultActions resultActions = mockMvc.perform(
-            delete("/api/tags/{id}", id).with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_tag.write"))));
+            mockMvc.perform(delete("/api/tags/{id}", id).with(jwt().authorities(createAuthorityList("ROLE_USER"))));
 
         // then
         resultActions.andExpect(status().isForbidden());

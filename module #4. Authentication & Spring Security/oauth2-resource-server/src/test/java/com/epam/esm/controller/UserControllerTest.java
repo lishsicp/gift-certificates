@@ -86,18 +86,6 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/users - should respond with forbidden status code when user with insufficient role gets users")
-    void getAll_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleGetsUsers() throws Exception {
-        // when
-        ResultActions resultActions = mockMvc.perform(
-            get("/api/users").with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_user.read")))
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
-
-        // then
-        resultActions.andExpect(status().isForbidden());
-    }
-
-    @Test
     @DisplayName("GET /api/users - should respond with forbidden status code when user without user.read scope gets users")
     void getAll_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
         // when
@@ -127,7 +115,7 @@ class UserControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/users/{id}", userDto.getId()).with(
-            jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_user.read"))));
+            jwt().authorities(createAuthorityList("ROLE_ADMIN"))));
 
         // then
         resultActions.andExpect(status().isOk())
@@ -181,28 +169,13 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/users/{id} - should respond with forbidden status code when user with insufficient role gets user")
-    void getById_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleGetsUser() throws Exception {
-        // given
-        long userId = 1;
-
-        // when / then
-        mockMvc.perform(
-                get("/api/users/{id}", userId).with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_user.read"))))
-            .andExpect(status().isForbidden());
-
-        then(userService).should(never()).getById(anyLong());
-        then(userAssembler).should(never()).toModel(any(UserDto.class));
-    }
-
-    @Test
     @DisplayName("GET /api/users/{id} - should respond with forbidden status code when user without user.read scope gets user")
     void getById_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
         // given
         long userId = 1;
 
         // when / then
-        mockMvc.perform(get("/api/users/{id}", userId).with(jwt().authorities(createAuthorityList("ROLE_ADMIN"))))
+        mockMvc.perform(get("/api/users/{id}", userId).with(jwt().authorities(createAuthorityList("ROLE_USER"))))
             .andExpect(status().isForbidden());
 
         then(userService).should(never()).getById(anyLong());

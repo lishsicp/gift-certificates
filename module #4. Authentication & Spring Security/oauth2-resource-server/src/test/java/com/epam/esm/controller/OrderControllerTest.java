@@ -86,33 +86,15 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/orders/{id} - should respond with forbidden status code when admin user without 'order.read' scope gets order")
-    void getById_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
+    @DisplayName("GET /api/orders/{id} - should respond with forbidden status code when user without 'order.read' scope gets order")
+    void getById_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         long orderId = 1;
 
         // when
         ResultActions resultActions = mockMvc.perform(
             get("/api/orders/{id}", orderId).contentType(MediaType.APPLICATION_JSON_VALUE)
-                .with(jwt().authorities(createAuthorityList("ROLE_ADMIN"))));
-
-        resultActions.andExpect(status().isForbidden());
-
-        // then
-        then(orderService).shouldHaveNoInteractions();
-        then(orderAssembler).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("GET /api/orders/{id} - should respond with forbidden status code when user with insufficient role gets order")
-    void getById_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleGetsOrders() throws Exception {
-        // given
-        long orderId = 1;
-
-        // when
-        ResultActions resultActions = mockMvc.perform(
-            get("/api/orders/{id}", orderId).contentType(MediaType.APPLICATION_JSON_VALUE)
-                .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_order.read"))));
+                .with(jwt().authorities(createAuthorityList("ROLE_USER"))));
 
         resultActions.andExpect(status().isForbidden());
 
@@ -168,25 +150,11 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/orders - should respond with forbidden status code when admin user without 'order.read' scope gets orders")
+    @DisplayName("GET /api/orders - should respond with forbidden status code when user without 'order.read' scope gets orders")
     void getAll_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/orders").contentType(MediaType.APPLICATION_JSON_VALUE)
-            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN"))));
-
-        resultActions.andExpect(status().isForbidden());
-
-        // then
-        then(orderService).shouldHaveNoInteractions();
-        then(orderAssembler).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("GET /api/orders - should respond with forbidden status code when user with insufficient role gets orders")
-    void getAll_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleGetsOrders() throws Exception {
-        // when
-        ResultActions resultActions = mockMvc.perform(get("/api/orders").contentType(MediaType.APPLICATION_JSON_VALUE)
-            .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_order.read"))));
+            .with(jwt().authorities(createAuthorityList("ROLE_USER"))));
 
         resultActions.andExpect(status().isForbidden());
 
@@ -239,15 +207,15 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/orders/users/{id} - should respond with forbidden status code when any user without 'order.read' scope gets users orders")
-    void getByUserId_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
+    @DisplayName("GET /api/orders/users/{id} - should respond with forbidden status code when user without 'order.read' scope gets users orders")
+    void getByUserId_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         long userId = 1;
 
         // when
         ResultActions resultActions = mockMvc.perform(
             (get("/api/orders/users/{id}", userId).contentType(MediaType.APPLICATION_JSON_VALUE)
-                .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "ROLE_USER")))));
+                .with(jwt().authorities(createAuthorityList("ROLE_USER")))));
 
         resultActions.andExpect(status().isForbidden());
 
@@ -338,7 +306,7 @@ class OrderControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            post("/api/orders").with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_order.write")))
+            post("/api/orders").with(jwt().authorities(createAuthorityList("ROLE_ADMIN")))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(asJson(makeOrderDto)));
 
@@ -350,15 +318,15 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/orders - should respond with forbidden status code when any user without 'order.write' scope saves order")
-    void save_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
+    @DisplayName("POST /api/orders - should respond with forbidden status code when user without 'order.write' scope saves order")
+    void save_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         MakeOrderDto makeOrderDto = new MakeOrderDto(1, 1);
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/api/orders").contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(asJson(makeOrderDto))
-            .with(jwt().authorities(createAuthorityList("ROLE_ADMIN", "ROLE_USER"))));
+            .with(jwt().authorities(createAuthorityList("ROLE_USER"))));
 
         resultActions.andExpect(status().isForbidden());
 
@@ -372,11 +340,12 @@ class OrderControllerTest {
     void save_shouldRespondWithForbiddenStatusCode_whenUserSavesOrderNotOnTheirId() throws Exception {
         // given
         MakeOrderDto makeOrderDto = new MakeOrderDto(1, 1);
+        given(userIdPermissionEvaluator.hasPermission(any(), anyLong(), any(), any())).willReturn(false);
 
         // when
         ResultActions resultActions = mockMvc.perform(post("/api/orders").contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(asJson(makeOrderDto))
-            .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_order.read"))));
+            .with(jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_order.write"))));
 
         resultActions.andExpect(status().isForbidden());
 
@@ -435,7 +404,7 @@ class OrderControllerTest {
 
         // when
         mockMvc.perform(delete("/api/orders/{id}", id).with(
-                jwt().authorities(createAuthorityList("ROLE_ADMIN", "SCOPE_order.write"))))
+                jwt().authorities(createAuthorityList("ROLE_ADMIN"))))
             .andExpect(status().isNoContent());
 
         // then
@@ -443,30 +412,14 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/orders/{id} - should respond with forbidden status code when admin user without 'order.write' scope deletes order")
-    void delete_shouldRespondWithForbiddenStatusCode_whenNoScope() throws Exception {
+    @DisplayName("DELETE /api/orders/{id} - should respond with forbidden status code when user without 'order.write' scope deletes order")
+    void delete_shouldRespondWithForbiddenStatusCode_whenUserHasNoScope() throws Exception {
         // given
         long orderId = 1;
 
         // when
         ResultActions resultActions = mockMvc.perform(
-            delete("/api/orders/{id}", orderId).with(jwt().authorities(createAuthorityList("ROLE_ADMIN"))));
-
-        resultActions.andExpect(status().isForbidden());
-
-        // then
-        then(orderService).shouldHaveNoInteractions();
-    }
-
-    @Test
-    @DisplayName("DELETE /api/orders/{id} - should respond with forbidden status code when user with insufficient role deletes order")
-    void delete_shouldRespondWithForbiddenStatusCode_whenUserWithInsufficientRoleDeletesOrder() throws Exception {
-        // given
-        long orderId = 1;
-
-        // when
-        ResultActions resultActions = mockMvc.perform(delete("/api/orders/{id}", orderId).with(
-            jwt().authorities(createAuthorityList("ROLE_USER", "SCOPE_order.read"))));
+            delete("/api/orders/{id}", orderId).with(jwt().authorities(createAuthorityList("ROLE_USER"))));
 
         resultActions.andExpect(status().isForbidden());
 

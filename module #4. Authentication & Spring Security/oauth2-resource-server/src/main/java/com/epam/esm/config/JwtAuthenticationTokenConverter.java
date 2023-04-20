@@ -15,8 +15,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 /**
  * A component that converts a JWT authentication object to an AbstractAuthenticationToken object, which provides the
@@ -27,9 +25,6 @@ import java.util.Set;
 @Slf4j
 public class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    private static final String SCOPE_PREFIX = "SCOPE_";
-    private static final Set<String> USER_PERMISSION =
-        Set.of("tag.read", "user.read", "certificate.read", "order.read", "order.write", "openid");
     private final UserRepository userRepository;
 
     /**
@@ -67,13 +62,6 @@ public class JwtAuthenticationTokenConverter implements Converter<Jwt, AbstractA
         Collection<GrantedAuthority> authorities = grantedAuthoritiesConverter.convert(jwt);
 
         String userRole = (String) jwt.getClaims().get("role");
-
-        if (userRole != null && userRole.equals("ROLE_USER") && !authorities.isEmpty()) {
-            List<GrantedAuthority> restrictedAuthorities = authorities.stream()
-                .filter(a -> !USER_PERMISSION.contains(a.getAuthority().substring(SCOPE_PREFIX.length())))
-                .toList();
-            authorities.removeAll(restrictedAuthorities);
-        }
 
         authorities.add(new SimpleGrantedAuthority(userRole));
 

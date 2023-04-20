@@ -89,7 +89,7 @@ public class TagController {
      * @param tagDto The details of the tag to save
      * @return The newly saved tag
      */
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('SCOPE_tag.write')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('SCOPE_tag.write')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto save(@RequestBody @Validated(OnPersist.class) TagDto tagDto) {
@@ -103,7 +103,7 @@ public class TagController {
      * @param id The id of the tag to delete
      * @return A response indicating the completion of the delete operation
      */
-    @PreAuthorize("hasRole('ADMIN') and hasAuthority('SCOPE_tag.write')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('SCOPE_tag.write')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteById(@PathVariable @Valid @Min(value = 1, message = "40001") long id) {
         tagService.delete(id);

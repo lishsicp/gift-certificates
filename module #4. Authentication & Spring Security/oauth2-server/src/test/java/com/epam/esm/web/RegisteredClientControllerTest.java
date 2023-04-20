@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @EnableMethodSecurity
-class RegisteredClientControllerIT {
+class RegisteredClientControllerTest {
 
     private static final String LOGIN_REDIRECT_URL = "http://localhost/login";
     private static final String ACCESS_DENIED_MESSAGE =

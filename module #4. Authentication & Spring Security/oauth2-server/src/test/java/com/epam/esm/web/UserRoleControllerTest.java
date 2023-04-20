@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @EnableMethodSecurity
-class UserRoleControllerIT {
+class UserRoleControllerTest {
 
     private static final String ROLE_NAME = "TEST";
     private static final String ACCESS_DENIED_MESSAGE = "Access is denied, you do not have permission to access this resource";

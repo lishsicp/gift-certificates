@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.TestDatabaseAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Import(value = {GiftCertificateServiceImpl.class, GiftCertificateConverter.class, SpringConfig.class})
 @ExtendWith(PostgresExtension.class)
-@DataJpaTest(excludeAutoConfiguration = TestDatabaseAutoConfiguration.class)
+@DataJpaTest(excludeAutoConfiguration = { TestDatabaseAutoConfiguration.class, SecurityAutoConfiguration.class })
 @ActiveProfiles("test")
 class GiftCertificateServiceImplIT {
 

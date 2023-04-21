@@ -1,8 +1,10 @@
 package com.epam.esm.service.impl;
 
 
+import com.epam.esm.config.SpringConfig;
 import com.epam.esm.dto.MakeOrderDto;
 import com.epam.esm.dto.OrderDto;
+import com.epam.esm.dto.converter.OrderConverter;
 import com.epam.esm.exception.PersistentException;
 import com.epam.esm.extension.PostgresExtension;
 import com.epam.esm.repository.GiftCertificateRepository;
@@ -14,25 +16,27 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.jdbc.TestDatabaseAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Import(value = {OrderServiceImpl.class, OrderConverter.class, SpringConfig.class})
 @ExtendWith(PostgresExtension.class)
-@SpringBootTest
-@Transactional
+@DataJpaTest(excludeAutoConfiguration = { TestDatabaseAutoConfiguration.class, SecurityAutoConfiguration.class })
 @ActiveProfiles("test")
 class OrderServiceImplIT {
 

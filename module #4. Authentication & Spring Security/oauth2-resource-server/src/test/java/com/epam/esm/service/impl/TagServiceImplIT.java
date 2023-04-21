@@ -1,21 +1,25 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.config.SpringConfig;
 import com.epam.esm.dto.TagDto;
+import com.epam.esm.dto.converter.TagConverter;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.PersistentException;
-import com.epam.esm.repository.TagRepository;
 import com.epam.esm.extension.PostgresExtension;
+import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.ModelFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.jdbc.TestDatabaseAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +28,9 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Import(value = {TagServiceImpl.class, TagConverter.class, SpringConfig.class})
 @ExtendWith(PostgresExtension.class)
-@SpringBootTest
-@Transactional
+@DataJpaTest(excludeAutoConfiguration = { TestDatabaseAutoConfiguration.class, SecurityAutoConfiguration.class })
 @ActiveProfiles("test")
 class TagServiceImplIT {
 

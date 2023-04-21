@@ -5,11 +5,11 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.extension.PostgresExtension;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.util.ModelFactory;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.TestDatabaseAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(PostgresExtension.class)
-@Transactional
-@SpringBootTest
+@DataJpaTest(excludeAutoConfiguration = TestDatabaseAutoConfiguration.class)
 class GiftCertificateRepositoryImplIT {
 
     @Autowired

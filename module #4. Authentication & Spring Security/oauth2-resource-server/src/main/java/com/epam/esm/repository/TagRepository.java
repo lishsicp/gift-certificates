@@ -23,15 +23,13 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
      * with the highest total cost of all {@link com.epam.esm.entity.Order orders}.
      */
     @Query(value = """
-        select t.id, t.name, t.created_at, t.updated_at from order_ o
-        " +
-        " join gift_certificate g on o.gift_certificate_id = g.id
-        " +
-        " join gift_certificate_tag gct on g.id = gct.gift_certificate_id
-        " +
-        " join tag t on gct.tag_id = t.id
-        " +
-        " group by t.id order by count(t.id) desc, sum(o.cost) desc limit 1
+        select t.id, t.name, t.created_at, t.updated_at
+        from order_ o
+        join gift_certificate g         on o.gift_certificate_id = g.id
+        join gift_certificate_tag gct   on g.id = gct.gift_certificate_id
+        join tag t                      on gct.tag_id = t.id
+        group by t.id
+        order by count(t.id) desc, sum(o.price) desc limit 1
         """, nativeQuery = true)
     Optional<Tag> findMostWidelyUsedTagWithHighestCostOfAllOrders();
 }

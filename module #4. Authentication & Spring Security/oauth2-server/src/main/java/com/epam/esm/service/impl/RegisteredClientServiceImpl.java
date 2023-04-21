@@ -25,8 +25,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RegisteredClientServiceImpl implements RegisteredClientService {
 
-    private static final String DO_NOT_EXIST = "Client with this '%s' do not exist";
-    private static final String ALREADY_EXIST = "Client with this '%s' already exist";
+    private static final String DO_NOT_EXIST = "Client with this client_id '%s' do not exist";
+    private static final String ALREADY_EXIST = "Client with this client_id '%s' already exist";
     private final RegisteredClientRepository registeredClientRepository;
     private final PasswordEncoder passwordEncoder;
 

@@ -27,7 +27,7 @@ public class ExceptionControllerAdvice extends ExceptionHandlerExceptionResolver
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ExceptionResponseBody> handleEntityNotFoundException(EntityNotFoundException ex) {
         ExceptionResponseBody build = new ExceptionResponseBody(40401, ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT.value()).body(build);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(build);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

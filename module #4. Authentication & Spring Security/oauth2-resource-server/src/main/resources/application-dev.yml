@@ -1,0 +1,35 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: resource-server
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://oauth2-server.com:8082
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gifts_dev
+    username: lobur
+    password: pass
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+logging:
+  level:
+    #org.springframework.web: INFO
+    org.springframework.security: debug
+    org.springframework.security.oauth2: debug
+    web: trace

@@ -1,0 +1,38 @@
+server:
+  port: 8082
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.oauth2: TRACE
+    web: trace
+spring:
+  config:
+    import: google-idp.properties
+    activate:
+      on-profile: dev
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            provider: google
+            client-id: ${google.client_id}
+            client-secret: ${google.client_secret}
+            scope: openid, https://www.googleapis.com/auth/userinfo.profile, https://www.googleapis.com/auth/userinfo.email
+            client-name: Sign in with Google
+        provider:
+          google:
+            user-name-attribute: email
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/oauth2_server
+    username: lobur
+    password: pass
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  application:
+    name: oauth2-server

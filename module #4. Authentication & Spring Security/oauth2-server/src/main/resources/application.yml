@@ -1,0 +1,31 @@
+server:
+  port: 8082
+spring:
+  config:
+    import: google-idp.properties
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            provider: google
+            client-id: ${google.client_id}
+            client-secret: ${google.client_secret}
+            scope: openid, https://www.googleapis.com/auth/userinfo.profile, https://www.googleapis.com/auth/userinfo.email
+            client-name: Sign in with Google
+        provider:
+          google:
+            user-name-attribute: email
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRES_AUTH_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+  application:
+    name: oauth2-server

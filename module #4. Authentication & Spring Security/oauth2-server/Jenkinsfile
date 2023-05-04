@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    tools {
+        // Install the Maven version configured as "3.8.6" and add it to the path.
+        maven "3.8.6"
+        jdk "Correto 17"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                bat 'mvn -f "module #4. Authentication & Spring Security/oauth2-server/pom.xml" install -DskipTests'
+            }
+        }
+
+        stage("Unit Test") {
+            steps {
+                bat 'mvn -f "module #4. Authentication & Spring Security/oauth2-server/pom.xml" test'
+            }
+        }
+
+        stage('Jacoco Static Analysis') {
+            steps {
+                junit healthScaleFactor: 0.9, testResults: 'module #4. Authentication & Spring Security/oauth2-resource-server/target/*-reports/TEST-*.xml'
+                jacoco exclusionPattern: '**/test/**/*.class', inclusionPattern: '**/main/**/*.class', sourceInclusionPattern: '**/*.java', sourcePattern: 'src/main/java'
+            }
+        }
+
+        stage('Sonar Scanner Coverage') {
+            steps {
+                withSonarQubeEnv(installationName = 'sq1') {
+                    bat 'mvn -f "module #4. Authentication & Spring Security/oauth2-server/pom.xml" sonar:sonar'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline : true
+                }
+            }
+        }
+
+        stage ('Record Test Coverage Results') {
+            steps {
+                recordCoverage(tools: [[pattern: '**/jacoco/jacoco.xml']])
+            }
+        }
+    }
+}

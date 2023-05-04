@@ -22,7 +22,7 @@ pipeline {
 
         stage('Jacoco Static Analysis') {
             steps {
-                junit healthScaleFactor: 0.9, testResults: 'module #4. Authentication & Spring Security/oauth2-resource-server/target/*-reports/TEST-*.xml'
+                junit healthScaleFactor: 0.9, testResults: 'module #4. Authentication & Spring Security/oauth2-server/target/surefire-reports/TEST-*.xml'
                 jacoco exclusionPattern: '**/test/**/*.class', inclusionPattern: '**/main/**/*.class', sourceInclusionPattern: '**/*.java', sourcePattern: 'src/main/java'
             }
         }

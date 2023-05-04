@@ -29,6 +29,8 @@
     <testcontainers.postgresql.version>1.17.6</testcontainers.postgresql.version>
     <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
     <jacoco.version>0.8.10</jacoco.version>
+    <sonar.sources>${project.basedir}/src</sonar.sources>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencies>
@@ -170,6 +172,13 @@
           <execution>
             <id>report</id>
             <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report-test</id>
+            <phase>test-compile</phase>
             <goals>
               <goal>report</goal>
             </goals>

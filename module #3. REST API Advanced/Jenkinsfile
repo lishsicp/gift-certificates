@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat 'mvn -f "module #3. REST API Advanced/pom.xml" install -DskipTests'
+                bat 'mvn -f "module #3. REST API Advanced/pom.xml" package -DskipTests'
             }
         }
 

@@ -39,22 +39,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getByEmail(String email) throws PersistentException {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isEmpty()) {
-            throw new PersistentException(ErrorCodes.RESOURCE_NOT_FOUND, email);
-        }
-        return userConverter.toDto(userOptional.get());
-    }
-
-    @Override
     public UserDto save(UserDto userDto) {
-        Optional<User> oUser = userRepository.findByEmail(userDto.getEmail());
-        if (oUser.isPresent()) {
-            throw new PersistentException(ErrorCodes.DUPLICATED_TAG, userDto.getEmail());
-        }
-        User savedUser = userRepository.save(userConverter.toEntity(userDto));
-        return userConverter.toDto(savedUser);
+        throw new UnsupportedOperationException();
     }
 
     @Override

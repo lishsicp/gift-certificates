@@ -26,6 +26,6 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
         " join gift_certificate g on o.gift_certificate_id = g.id\n" +
         " join gift_certificate_tag gct on g.id = gct.gift_certificate_id\n" +
         " join tag t on gct.tag_id = t.id\n" +
-        " group by t.id order by count(t.id) desc, sum(o.cost) desc limit 1", nativeQuery = true)
+        " group by t.id order by count(t.id) desc, sum(o.price) desc limit 1", nativeQuery = true)
     Optional<Tag> findMostWidelyUsedTagWithHighestCostOfAllOrders();
 }

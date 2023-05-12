@@ -130,6 +130,26 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<server>tomcat-maven-deployer</server>
+					<url>http://localhost:8080/manager/text</url>
+					<path>/module3</path>
+					<warFile>${project.basedir}/target/${project.artifactId}-${project.version}.war</warFile>
+				</configuration>
+				<executions>
+					<execution>
+						<id>redeploy-after-install</id>
+						<phase>install</phase>
+						<goals>
+							<goal>redeploy</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>

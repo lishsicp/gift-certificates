@@ -1,3 +1,9 @@
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.epam.esm%3Agift-certificates&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=com.epam.esm%3Agift-certificates)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.epam.esm%3Agift-certificates&metric=coverage)](https://sonarcloud.io/summary/new_code?id=com.epam.esm%3Agift-certificates)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=com.epam.esm%3Agift-certificates&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=com.epam.esm%3Agift-certificates)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=com.epam.esm%3Agift-certificates&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=com.epam.esm%3Agift-certificates)
+
 # REST API Advanced
 
 ### Setup

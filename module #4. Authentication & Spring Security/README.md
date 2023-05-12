@@ -33,3 +33,15 @@ User Permissions:
    a. OAuth2 scopes should be used to restrict data.
    b. Implicit grant and Resource owner credentials grant should be implemented.
 6. (Optional task) It's allowed to use Spring Data. Requirement for this task - all repository (and existing ones) should be migrated to Spring Data.
+
+**Jenkins:**\
+_Credentials:_\
+**Developer**\
+*email*: dev1@mail.com\
+*username*: dev1\
+*password*: dev1
+
+*Admin*\
+admin@mail.com\
+username: admin\
+password: admin

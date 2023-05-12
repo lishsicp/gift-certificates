@@ -110,8 +110,6 @@
         <version>2.2</version>
         <configuration>
           <server>tomcat-maven-deployer</server>
-          <username>deployer</username>
-          <password>password</password>
           <url>http://localhost:8080/manager/text</url>
           <path>/module2</path>
           <warFile>${project.basedir}/target/${project.parent.artifactId}-${project.parent.version}.war</warFile>

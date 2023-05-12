@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -117,7 +118,7 @@ public class WebSecurityConfig {
         }
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    @JsonTypeInfo(use = Id.NAME)
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class AuthUserMixin {
@@ -129,7 +130,7 @@ public class WebSecurityConfig {
         }
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    @JsonTypeInfo(use = Id.NAME)
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
     private static class AuthUserRoleMixin {

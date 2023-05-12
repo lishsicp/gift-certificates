@@ -11,6 +11,7 @@ import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
+import java.security.SecureRandom;
 import java.util.function.Consumer;
 
 /**
@@ -42,7 +43,8 @@ public class UserRepositoryOAuth2UserHandler implements Consumer<OAuth2User> {
                     .email(user.getAttribute("email"))
                     .firstname(fullName[0])
                     .lastname(fullName[1])
-                    .password(Sha512DigestUtils.shaHex(RandomStringUtils.randomAlphabetic(10))) // random password
+                    .password(Sha512DigestUtils.shaHex(
+                        RandomStringUtils.random(10, 0, 0, true, true, null, new SecureRandom()))) // random password
                     .role(userRoleRepository.findByName("USER")
                         .orElseThrow(() -> new EntityNotFoundException("User role does not exist")))
                     .build();

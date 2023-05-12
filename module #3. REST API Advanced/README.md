@@ -5,11 +5,37 @@
 1. Run `./mvnw test` (Unit) or `./mvnw integration-test` (Integration and Unit, docker daemon is required)
 
 **_Local postgres database:_**
-1. Run `./mvnw spring-boot:run '-Dspring-boot.run.profiles=dev' -DskipTests `
+1. Run `./mvnw spring-boot:run '-Dspring-boot.run.profiles=dev' -DskipTests`
 
 _**Docker:**_
 1. Edit `.env` if you need to.
 2. Run `docker-compose -up --build`
+
+**Jenkins:**\
+_Credentials:_\
+**Developer**\
+*email*: dev1@mail.com\
+*username*: dev1\
+*password*: dev1
+\
+**Admin**\
+*email*: admin@mail.com\
+*username*: admin\
+*password*: admin
+
+**Deploy to Tomcat 9:**\
+1. Add deploy-user to *conf/tomcat-users.xml*\
+   ```<user username="deployer" password="password" roles="manager-script, manager-gui"/>```
+2. Create file setenv.bat in tomcat bin directory with `set CATALINA_OPTS=%CATALINA_OPTS% "-Dspring.profiles.active=dev"` to use local db
+3. Add server to maven configuration in *conf/setting.xml*
+   ```
+      <server>
+          <id>tomcat-maven-deployer</id>
+          <username>deployer</username>
+          <password>password</password>
+      </server>
+   ```
+4. Deploy with command: `mvn tomcat7:deploy -DskipTests`
 
 ### Task
 #### General requirements
@@ -25,8 +51,8 @@ _**Docker:**_
         • HTTP Status: 404
         • response body    
         • {
-        • “errorMessage”: “Requested resource not found (id = 55)”,
-        • “errorCode”: 40401
+        •     “errorMessage”: “Requested resource not found (id = 55)”,
+        •     “errorCode”: 40401
         • }
 
    where *errorCode” is your custom code (it can be based on http status and requested resource - certificate or tag)

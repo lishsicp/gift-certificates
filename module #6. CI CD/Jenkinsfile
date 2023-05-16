@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    tools {
+        // Install the Maven version configured as "3.8.6" and add it to the path.
+        maven "3.8.6"
+        jdk "Correto 17"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                bat 'mvn -f "module #6. CI CD/pom.xml" package -DskipTests'
+            }
+        }
+
+        stage("Unit Test") {
+            steps {
+                bat 'mvn -f "module #6. CI CD/pom.xml" test integration-test'
+            }
+        }
+
+        stage('Jacoco Static Analysis') {
+            steps {
+                junit healthScaleFactor: 0.9, testResults: 'module #6. CI CD/target/*-reports/TEST-*.xml'
+                jacoco exclusionPattern: '**/test/**/*.class', inclusionPattern: '**/main/**/*.class', sourceInclusionPattern: '**/*.java', sourcePattern: '**/src/main/java'
+            }
+        }
+
+        stage('Sonar Scanner Coverage') {
+            steps {
+                withSonarQubeEnv(installationName = 'sq1') {
+                    bat 'mvn -f "module #6. CI CD/pom.xml" sonar:sonar'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline : true
+                }
+            }
+        }
+
+        stage ('Record Test Coverage Results') {
+            steps {
+                recordCoverage(tools: [[pattern: '**/jacoco-merged/jacoco.xml']])
+            }
+        }
+
+        stage ('Deploy to Tomcat') {
+            steps {
+                dir('module #6. CI CD') {
+                    deploy adapters: [tomcat9(credentialsId: 'e5945ae2-6c03-4f5a-922f-d851883a3d78', path: '', url: 'http://localhost:8080')], contextPath: '/', onFailure: false, war: '**/*.war'
+                }
+            }
+        }
+    }
+}

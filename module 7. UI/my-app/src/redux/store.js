@@ -1,26 +1,23 @@
 import {
-  configureStore, combineReducers, applyMiddleware,
+  configureStore, combineReducers,
 } from "@reduxjs/toolkit";
-import {certificatesReducer} from "./GiftCertificatesReducer";
-import searchParamsReducer from "./SearchParamsReducer";
 import {
-  createStateSyncMiddleware, initMessageListener,
+  createStateSyncMiddleware, initStateWithPrevTab
 } from "redux-state-sync";
 import thunk from "redux-thunk";
+import searchReducer from '../features/searchSlice';
+import certificatesReducer from '../features/certificatesSlice';
 
 const root = combineReducers({
-  data: certificatesReducer, search: searchParamsReducer,
+  data: certificatesReducer, search: searchReducer,
 });
-
-const middleware = [thunk, createStateSyncMiddleware()];
 
 const store = configureStore({
-  reducer: root, middleware: middleware,
+  reducer: root,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(
+      thunk).concat(createStateSyncMiddleware()),
 });
-
-applyMiddleware(...middleware);
-
-initMessageListener(store);
+initStateWithPrevTab(store);
 
 export default store;
 

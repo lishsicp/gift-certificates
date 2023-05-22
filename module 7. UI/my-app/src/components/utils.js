@@ -7,13 +7,13 @@ export function LongTextPopup({text, maxLength}) {
   }
   if (text.length > maxLength) {
     return (<OverlayTrigger
-            key="popup"
-            trigger={['hover', 'focus']}
-            placement="right"
-            overlay={<Tooltip id='tooltip-long-text'>{text}</Tooltip>}>
+        key="popup"
+        trigger={['hover', 'focus']}
+        placement="right"
+        overlay={<Tooltip id='tooltip-long-text'>{text}</Tooltip>}>
           <span>{text.length > maxLength ? text.slice(0, maxLength) + '...'
               : text}</span>
-        </OverlayTrigger>);
+    </OverlayTrigger>);
   } else {
     return <span>{text}</span>;
   }

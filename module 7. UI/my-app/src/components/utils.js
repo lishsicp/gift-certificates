@@ -1,5 +1,6 @@
 import {Alert, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import React, {useState} from 'react';
+import { ExclamationOctagonFill, CheckCircle } from 'react-bootstrap-icons'
 
 export function LongTextPopup({text, maxLength}) {
   if (!maxLength) {
@@ -51,10 +52,19 @@ export function DismissibleError({errorText}) {
     return (
         <Alert variant="danger" className='mt-2' onClose={() => setShow(false)}
                dismissible>
-          <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
-          <p>
-            {errorText}
-          </p>
+          <Alert.Heading className='d-flex align-items-center'><ExclamationOctagonFill className='mx-2'/>{errorText}</Alert.Heading>
+        </Alert>);
+  }
+}
+
+export function DismissibleSuccess({message}) {
+  const [show, setShow] = useState(true);
+
+  if (show) {
+    return (
+        <Alert variant="success" className='mt-2' onClose={() => setShow(false)}
+               dismissible>
+          <Alert.Heading className='d-flex align-items-center'><CheckCircle className="mx-2"/>{message}</Alert.Heading>
         </Alert>);
   }
 }

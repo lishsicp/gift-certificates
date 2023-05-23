@@ -1,8 +1,11 @@
 import {useState} from "react";
 import {Modal, Button} from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { deleteCertificate } from "../../../api/certificatesApi"
 
 const DeleteModal = ({id, name}) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const dispatch = useDispatch();
 
   const openDeleteModal = () => {
     setShowDeleteModal(true);
@@ -12,7 +15,7 @@ const DeleteModal = ({id, name}) => {
     setShowDeleteModal(false);
   };
   const handleDelete = () => {
-    // TODO
+    dispatch(deleteCertificate(id))
     closeDeleteModal();
   };
 
@@ -32,7 +35,7 @@ const DeleteModal = ({id, name}) => {
           </Modal.Header>
           <Modal.Body>
             Are you sure you want to delete {name.replace(
-              /Gift Certificate \d*$/, "").trim()} certificate?
+              /Gift Certificate \d*$/, "").trim()} certificate? (id = {id})
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={closeDeleteModal}>

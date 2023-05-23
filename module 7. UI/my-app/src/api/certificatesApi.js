@@ -3,6 +3,18 @@ import {
   fetchCertificatesSuccess,
   fetchCertificatesFailure,
 } from "../features/certificatesSlice";
+import {
+  addCertificateRequest,
+  addCertificateSuccess,
+  addCertificateFailure,
+  resetCertificateState
+} from "../features/addCertificateSlice";
+import {
+  deleteCertificateRequest,
+  deleteCertificateSuccess,
+  deleteCertificateFailure,
+  resetDeletionState,
+} from "../features/deleteCertificateSlice";
 import {API_ROOT} from "../constants";
 
 export const fetchCertificates = (page, size, searchParams = {}) => {
@@ -34,7 +46,7 @@ export const fetchCertificates = (page, size, searchParams = {}) => {
       }
 
       const response = await fetch(
-          API_ROOT + "/certificates?" + params.toString()
+        `${API_ROOT}/certificates?${params.toString()}`
       );
 
       if (response.status !== 200) {
@@ -54,3 +66,67 @@ export const fetchCertificates = (page, size, searchParams = {}) => {
     }
   };
 };
+
+export const addCertificate = (certificate, isEdit = false) => {
+  return async (dispatch) => {
+    try {
+      dispatch(addCertificateRequest());
+
+      const response = await fetch(
+          API_ROOT + "/certificates", {
+            method: isEdit ? "patch" : "post",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(certificate),
+          }
+      );
+
+      if (response.status !== 201) {
+        const errors = await response.json();
+        dispatch(addCertificateFailure(errors));
+      } else if (response.status === 201) {
+        const certificate = await response.json();
+        dispatch(addCertificateSuccess(certificate));
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(
+          addCertificateFailure([
+            {errorMessage: "There's an error. Please try again later."},
+          ])
+      );
+    }
+  }
+}
+
+export const deleteCertificate = (id) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteCertificateRequest());
+
+      const response = await fetch(
+        `${API_ROOT}/certificates/${id}`, {
+            method: "delete",
+            headers: {
+              "Content-Type": "application/json",
+            }
+          }
+      );
+
+      if (response.status !== 204) {
+        const errors = await response.json();
+        dispatch(deleteCertificateFailure(errors));
+      } else if (response.status === 204) {
+        dispatch(deleteCertificateSuccess());
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(
+        deleteCertificateFailure([
+            {errorMessage: "There's an error. Please try again later."},
+          ])
+      );
+    }
+  }
+}

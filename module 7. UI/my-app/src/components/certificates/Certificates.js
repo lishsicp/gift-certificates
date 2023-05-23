@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useCallback} from "react";
 import {useNavigate, useLocation} from "react-router-dom";
 import {connect, useSelector, useDispatch} from "react-redux";
-import {fetchCertificates} from "../../api/certificatesApi";
+import { fetchCertificates, addCertificate } from "../../api/certificatesApi";
 import {
   resetSearch,
   updateDateSort,
@@ -13,6 +13,7 @@ import {
   formatDate,
   dateDiffInDays,
   DismissibleError,
+  DismissibleSuccess,
 } from "../utils";
 import RenderPagination from "./Pagination";
 import {
@@ -24,11 +25,16 @@ import {
   Badge,
   Form,
   InputGroup,
-  Spinner
+  Spinner,
 } from "react-bootstrap";
 import {ArrowUp, ArrowDown} from "react-bootstrap-icons";
 import DeleteModal from "./modals/deleteModal";
 import ViewModal from "./modals/viewModal";
+import AddCertificateModal from "./modals/addCertificateModal";
+import { resetDeletionState } from "../../features/deleteCertificateSlice";
+import { resetCertificateState } from "../../features/addCertificateSlice";
+import { resetCertificatesState } from "../../features/certificatesSlice";
+import $ from 'jquery';
 
 const Certificates = () => {
   return (
@@ -50,7 +56,11 @@ const Certificates = () => {
   );
 };
 
-const RenderErrors = ({errors}) => {
+const RenderErrors = ({errors, resetFunction}) => {
+  const dispatch = useDispatch();
+  $(".alert-dismissible").fadeTo(5000, 10000).slideUp(1000, function() {
+    dispatch(resetFunction())
+  });
   if (!errors) {
     return;
   }
@@ -140,9 +150,6 @@ const SortByButton = ({sortType, sortState}) => {
     const queryParams = new URLSearchParams(location.search);
     let newSortType;
 
-    console.log("SORT TYPE:" + paginationState[sortType])
-    console.log(paginationState)
-
     if (sortType === "name_sort") {
       newSortType = paginationState.name_sort === "asc" ? "desc" : "asc";
       queryParams.delete("date_sort");
@@ -177,7 +184,7 @@ const SortByButton = ({sortType, sortState}) => {
           {sortState === "asc" ? (
               <ArrowUp className="sort-icon"/>
           ) : (
-              <ArrowDown/>
+              <ArrowDown className="sort-icon"/>
           )}
         </Button>
       </div>)
@@ -185,6 +192,8 @@ const SortByButton = ({sortType, sortState}) => {
 
 const RenderCertificatesTable = ({fetchCertificates}) => {
   const paginationState = useSelector((state) => state.search);
+  const isDeleteSuccess = useSelector((state) => state.deleteCertificate.isSuccess)
+  const isAddSuccess = useSelector((state) => state.addCertificate.isSuccess)
   const location = useLocation();
 
   const searchParams = new URLSearchParams(location.search);
@@ -192,8 +201,8 @@ const RenderCertificatesTable = ({fetchCertificates}) => {
   const page = searchParams.get("page") || 1;
   const name = searchParams.get("name") || "";
   const tags = searchParams.getAll("tags") || [];
-  const date_sort = paginationState.date_sort || searchParams.get("date_sort");
-  const name_sort = paginationState.name_sort || searchParams.get("name_sort");
+  const date_sort = searchParams.get("date_sort") || paginationState.date_sort;
+  const name_sort = searchParams.get("name_sort") || paginationState.name_sort;
 
   const tagsJson = JSON.stringify(tags);
 
@@ -204,7 +213,8 @@ const RenderCertificatesTable = ({fetchCertificates}) => {
       date_sort: date_sort,
       name_sort: name_sort,
     });
-  }, [fetchCertificates, page, size, name, tagsJson, date_sort, name_sort]);
+    if (isDeleteSuccess || isAddSuccess) {} // this is used as a hook to trigger update on successful operations
+  }, [fetchCertificates, page, size, name, tagsJson, date_sort, name_sort, isDeleteSuccess, isAddSuccess]);
 
   const fetchMemo = useMemo(() => fetch, [fetch]);
 
@@ -217,7 +227,11 @@ const RenderCertificatesTable = ({fetchCertificates}) => {
   return (
       <>
         <SearchInput/>
-        <RenderErrors errors={useSelector((state) => state.data.errors)}/>
+        <RenderErrors errors={useSelector((state) => state.deleteCertificate.errors)} resetFunction={resetDeletionState}/>
+        <RenderErrors errors={useSelector((state) => state.addCertificate.errors)} resetFunction={resetCertificateState}/>
+        <RenderErrors errors={useSelector((state) => state.data.errors)} resetFunction={resetCertificatesState}/>
+        {useSelector((state) => state.addCertificate.isSuccess) ? <DismissibleSuccess message="Certificate updated!" /> : null}
+        {useSelector((state) => state.deleteCertificate.isSuccess) ? <DismissibleSuccess message="Certificate deleted!" /> : null}
         {useSelector((state) => state.data.loading) ?
             <Spinner size="lg" animation="border" variant="dark"
                      className="align-self-center my-5"/> :
@@ -349,9 +363,7 @@ const RenderCertificatesTableBody = ({certificates}) => {
               <DeleteModal id={certificate.id} name={certificate.name}/>
             </div>
             <div className="col-auto px-0">
-              <Button variant="warning" size="sm" className="mx-0">
-                Edit
-              </Button>
+              <AddCertificateModal editCertificate={certificate}/>
             </div>
             <div className="col-auto px-0">
               <ViewModal certificate={certificate}/>
@@ -366,6 +378,8 @@ const mapStateToProps = (state) => {
   return {
     data: state.data,
     search: state.search,
+    add: state.addCertificate,
+    delete: state.deleteCertificate
   };
 };
 
@@ -375,6 +389,7 @@ const ConnectedRenderCertificates = connect(mapStateToProps, {
   resetSearch,
   updateDateSort,
   updateNameSort,
+  addCertificate
 })(RenderCertificatesTable);
 
 export default Certificates;

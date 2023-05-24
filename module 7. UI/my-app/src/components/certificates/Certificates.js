@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useCallback} from "react";
 import {useNavigate, useLocation} from "react-router-dom";
 import {connect, useSelector, useDispatch} from "react-redux";
-import { fetchCertificates, addCertificate } from "../../api/certificatesApi";
+import { fetchCertificates, addCertificate, editCertificate } from "../../api/certificatesApi";
 import {
   resetSearch,
   updateDateSort,
@@ -34,7 +34,7 @@ import AddCertificateModal from "./modals/addCertificateModal";
 import { resetDeletionState } from "../../features/deleteCertificateSlice";
 import { resetCertificateState } from "../../features/addCertificateSlice";
 import { resetCertificatesState } from "../../features/certificatesSlice";
-import $ from 'jquery';
+// import { useFetchCertificatesQuery } from "../../api/certificatesApiSlice";
 
 const Certificates = () => {
   return (
@@ -58,33 +58,38 @@ const Certificates = () => {
 
 const RenderErrors = ({errors, resetFunction}) => {
   const dispatch = useDispatch();
-  $(".alert-dismissible").fadeTo(5000, 10000).slideUp(1000, function() {
-    dispatch(resetFunction())
-  });
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      dispatch(resetFunction());
+    }, 5000);
+    return () => clearTimeout(timeoutId);
+  }, [dispatch, resetFunction]);
+
   if (!errors) {
-    return;
+    return null;
   }
+
   if (!Array.isArray(errors)) {
     errors = [errors];
   }
+
   if (errors.length > 0) {
-    return (
-        <div className="error-container">
+    return (<div className="error-container">
           {errors.map((error, i) => (
-              <DismissibleError key={i} errorText={error.errorMessage}/>
-          ))}
-        </div>
-    );
+              <DismissibleError key={i} errorText={error.errorMessage}/>))}
+        </div>);
   }
+
+  return null;
 };
 
-const SearchInput = () => {
+const SearchInput = ({search}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const size =
-      useSelector((state) => state.search.size) || searchParams.get("size");
+  const size = searchParams.get("size") || search.size;
   const page = searchParams.get("page") || 1;
 
   const handleSearch = useCallback(
@@ -151,10 +156,12 @@ const SortByButton = ({sortType, sortState}) => {
     let newSortType;
 
     if (sortType === "name_sort") {
-      newSortType = paginationState.name_sort === "asc" ? "desc" : "asc";
+      newSortType = paginationState[sortType] === "asc" ? "desc" : "asc";
+      queryParams.set("name_sort", newSortType)
       queryParams.delete("date_sort");
     } else if (sortType === "date_sort") {
-      newSortType = paginationState.date_sort === "asc" ? "desc" : "asc";
+      newSortType = paginationState[sortType] === "asc" ? "desc" : "asc";
+      queryParams.set("date_sort", newSortType)
       queryParams.delete("name_sort");
     }
 
@@ -190,21 +197,22 @@ const SortByButton = ({sortType, sortState}) => {
       </div>)
 }
 
-const RenderCertificatesTable = ({fetchCertificates}) => {
-  const paginationState = useSelector((state) => state.search);
-  const isDeleteSuccess = useSelector((state) => state.deleteCertificate.isSuccess)
-  const isAddSuccess = useSelector((state) => state.addCertificate.isSuccess)
+const RenderCertificatesTable = ({fetchCertificates, data, search, remove, add}) => {
+  const isDeleteSuccess = remove.isSuccess;
+  const isAddSuccess = add.isSuccess;
   const location = useLocation();
 
   const searchParams = new URLSearchParams(location.search);
-  const size = searchParams.get("size") || paginationState.size;
+  const size = searchParams.get("size") || search.size;
   const page = searchParams.get("page") || 1;
   const name = searchParams.get("name") || "";
   const tags = searchParams.getAll("tags") || [];
-  const date_sort = searchParams.get("date_sort") || paginationState.date_sort;
-  const name_sort = searchParams.get("name_sort") || paginationState.name_sort;
+  const date_sort = searchParams.get("date_sort");
+  const name_sort = searchParams.get("name_sort") || search.name_sort;
 
   const tagsJson = JSON.stringify(tags);
+
+  // const { data: certificate, isSuccess, error } = useFetchCertificatesQuery(page, size, {})
 
   const fetch = useCallback(() => {
     fetchCertificates(page, size, {
@@ -213,26 +221,22 @@ const RenderCertificatesTable = ({fetchCertificates}) => {
       date_sort: date_sort,
       name_sort: name_sort,
     });
-    if (isDeleteSuccess || isAddSuccess) {} // this is used as a hook to trigger update on successful operations
+    if (isDeleteSuccess || isAddSuccess) { /* this is used as a hook to trigger update on successful operations */ }
   }, [fetchCertificates, page, size, name, tagsJson, date_sort, name_sort, isDeleteSuccess, isAddSuccess]);
 
   const fetchMemo = useMemo(() => fetch, [fetch]);
 
-  useEffect(() => {
-    fetchMemo();
-  }, [fetchMemo]);
-
-  const certificates = useSelector((state) => state.data.certificates);
+  useEffect(() => {fetchMemo();}, [fetchMemo]);
 
   return (
       <>
-        <SearchInput/>
-        <RenderErrors errors={useSelector((state) => state.deleteCertificate.errors)} resetFunction={resetDeletionState}/>
-        <RenderErrors errors={useSelector((state) => state.addCertificate.errors)} resetFunction={resetCertificateState}/>
-        <RenderErrors errors={useSelector((state) => state.data.errors)} resetFunction={resetCertificatesState}/>
-        {useSelector((state) => state.addCertificate.isSuccess) ? <DismissibleSuccess message="Certificate updated!" /> : null}
-        {useSelector((state) => state.deleteCertificate.isSuccess) ? <DismissibleSuccess message="Certificate deleted!" /> : null}
-        {useSelector((state) => state.data.loading) ?
+        <SearchInput search={search}/>
+        <RenderErrors errors={remove.errors} resetFunction={resetDeletionState}/>
+        <RenderErrors errors={add.errors} resetFunction={resetCertificateState}/>
+        <RenderErrors errors={data.errors} resetFunction={resetCertificatesState}/>
+        {add.isSuccess ? <DismissibleSuccess message="Certificate updated!" /> : null}
+        {remove.isSuccess ? <DismissibleSuccess message="Certificate deleted!" /> : null}
+        {(data.loading || remove.loading || add.loading) ?
             <Spinner size="lg" animation="border" variant="dark"
                      className="align-self-center my-5"/> :
             <Table striped hover>
@@ -240,13 +244,13 @@ const RenderCertificatesTable = ({fetchCertificates}) => {
               <tr>
                 <th className="text-center d-flex justify-content-center align-items-center">
                   Name
-                  <SortByButton sortState={paginationState.name_sort}
+                  <SortByButton sortState={search.name_sort}
                                 sortType="name_sort"/>
                 </th>
                 <th className="text-center">Description</th>
                 <th className="text-center d-flex justify-content-center align-items-center">
                   Creation Date
-                  <SortByButton sortState={paginationState.date_sort}
+                  <SortByButton sortState={search.date_sort}
                                 sortType="date_sort"/>
                 </th>
                 <th className="text-center">Price</th>
@@ -256,7 +260,7 @@ const RenderCertificatesTable = ({fetchCertificates}) => {
               </tr>
               </thead>
               <tbody>
-              <RenderCertificatesTableBody certificates={certificates}/>
+              <RenderCertificatesTableBody certificates={data.certificates}/>
               </tbody>
             </Table>
         }
@@ -274,7 +278,7 @@ const PageSizeSelector = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const selectedSize = searchParams.get("size");
+  const selectedSize = searchParams.get("size") || 10;
   useEffect(() => {
     const handleSizeChange = (event) => {
       const searchParams = new URLSearchParams(location.search);
@@ -363,7 +367,7 @@ const RenderCertificatesTableBody = ({certificates}) => {
               <DeleteModal id={certificate.id} name={certificate.name}/>
             </div>
             <div className="col-auto px-0">
-              <AddCertificateModal editCertificate={certificate}/>
+              <AddCertificateModal certificateToEdit={certificate}/>
             </div>
             <div className="col-auto px-0">
               <ViewModal certificate={certificate}/>
@@ -379,7 +383,7 @@ const mapStateToProps = (state) => {
     data: state.data,
     search: state.search,
     add: state.addCertificate,
-    delete: state.deleteCertificate
+    remove: state.deleteCertificate
   };
 };
 
@@ -389,7 +393,8 @@ const ConnectedRenderCertificates = connect(mapStateToProps, {
   resetSearch,
   updateDateSort,
   updateNameSort,
-  addCertificate
+  addCertificate,
+  editCertificate
 })(RenderCertificatesTable);
 
 export default Certificates;

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addCertificate } from "../../../api/certificatesApi";
+import { editCertificate, addCertificate } from "../../../api/certificatesApi";
 import { Form, Button, Modal, Row, Col, InputGroup, } from "react-bootstrap";
 import { WithContext as ReactTags } from 'react-tag-input';
 
-const AddCertificateModal = ({editCertificate = {}}) => {
+const AddCertificateModal = ({certificateToEdit = {}}) => {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
-  const [certificate, setCertificate] = useState(editCertificate);
+  const [certificate, setCertificate] = useState(certificateToEdit);
   const [errors, setErrors] = useState({});
   const [tags, setTags] = useState([]);
   const [tagError, setTagError] = useState(null)
@@ -24,7 +24,7 @@ const AddCertificateModal = ({editCertificate = {}}) => {
       setTags([...tags, tag]);
       setTagError(null)
     } else {
-      setTagError("Tag name must be between 3 and 50 characters")
+      setTagError("Tag must be between 3 and 50 characters")
     }
   };
 
@@ -40,13 +40,19 @@ const AddCertificateModal = ({editCertificate = {}}) => {
     if (Object.keys(validationErrors).length === 0) {
       const certificateTags = tags.length > 0 ? tags.map(tag => ({ name: tag.text })) : [];
       const certificateData = {
+        ...(certificate.id) && ({id: certificate.id}),
         description: certificate.description,
         duration: certificate.duration,
         name: certificate.name,
         price: certificate.price,
         tags: certificateTags,
       };
-      dispatch(addCertificate(certificateData, certificate.id !== undefined));
+
+      if (certificate.id === null || certificate.id === undefined) {
+        dispatch(addCertificate(certificateData));
+      } else {
+        dispatch(editCertificate(certificateData));
+      }
       handleCloseModal();
     } else {
       setErrors(validationErrors);
@@ -82,24 +88,14 @@ const AddCertificateModal = ({editCertificate = {}}) => {
       errors.duration = "Duration must be a number";
     }
 
-    if (tags.length > 0) {
-      for (let i = 0; i < tags.length; i++) {
-        const tagName = tags[i].text;
-        if (tagName.length < 3 || tagName.length > 50) {
-          errors.tags = "Tag name must be between 3 and 50 characters";
-          break;
-        }
-      }
-    }
-
     return errors;
   };
 
   const handleOpenModal = () => {
     setShowModal(true);
-    if (editCertificate.id) {
-      setCertificate(editCertificate);
-      setTags(editCertificate.tags.map(tag => ({ id: tag.name, text: tag.name})))
+    if (certificateToEdit.id) {
+      setCertificate(certificateToEdit);
+      setTags(certificateToEdit.tags.map(tag => ({ id: tag.name, text: tag.name})))
     }
   };
 

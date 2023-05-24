@@ -22,7 +22,7 @@ const fetchCertificatesSlice = createSlice({
     resetCertificatesState: (state) => {
       //state.certificates = initialState.certificates;
       state.loading = initialState.loading;
-      state.page = initialState.page;
+      //state.page = initialState.page;
       state.errors = initialState.errors;
     }
   }

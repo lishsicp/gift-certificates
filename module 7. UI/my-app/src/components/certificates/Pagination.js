@@ -1,14 +1,12 @@
-import {useSelector} from "react-redux";
-import {Pagination} from "react-bootstrap";
-import {useNavigate, useLocation} from "react-router-dom";
+import { Pagination } from "react-bootstrap";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const RenderPagination = () => {
-  const paginationData = useSelector((state) => state.data.page);
+const RenderPagination = ({ paginationData }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  let number = parseInt(searchParams.get('page')) || 1;
-  const size = parseInt(searchParams.get('size')) || 10;
+  let number = parseInt(searchParams.get("page")) || 1;
+  const size = parseInt(searchParams.get("size")) || 10;
 
   let totalPages;
   if (paginationData) {
@@ -40,46 +38,50 @@ const RenderPagination = () => {
   };
   const pageRange = getPageRange();
 
-  return (<>
-    <Pagination>
-      <Pagination.First
+  return (
+    <>
+      <Pagination>
+        <Pagination.First
           disabled={number === 1}
           onClick={() => handlePageClick(1)}
-      />
-      <Pagination.Prev
+        />
+        <Pagination.Prev
           disabled={number === 1}
           onClick={() => handlePageClick(number - 1)}
-      />
-      <Pagination.Item
+        />
+        <Pagination.Item
           active={number === 1}
           onClick={() => handlePageClick(1)}
-      >
-        {1}
-      </Pagination.Item>
-      {pageRange.map((pageNum) => (<Pagination.Item
-          active={number - 1 === pageNum}
-          key={pageNum}
-          onClick={() => handlePageClick(pageNum + 1)}
-      >
-        {pageNum + 1}
-      </Pagination.Item>))}
-      <Pagination.Item
+        >
+          {1}
+        </Pagination.Item>
+        {pageRange.map((pageNum) => (
+          <Pagination.Item
+            active={number - 1 === pageNum}
+            key={pageNum}
+            onClick={() => handlePageClick(pageNum + 1)}
+          >
+            {pageNum + 1}
+          </Pagination.Item>
+        ))}
+        <Pagination.Item
           hidden={totalPages === 1}
           active={number === totalPages}
           onClick={() => handlePageClick(totalPages)}
-      >
-        {totalPages}
-      </Pagination.Item>
-      <Pagination.Next
+        >
+          {totalPages}
+        </Pagination.Item>
+        <Pagination.Next
           disabled={number === totalPages}
           onClick={() => handlePageClick(number + 1)}
-      />
-      <Pagination.Last
+        />
+        <Pagination.Last
           disabled={number === totalPages}
           onClick={() => handlePageClick(totalPages)}
-      />
-    </Pagination>
-  </>);
+        />
+      </Pagination>
+    </>
+  );
 };
 
 export default RenderPagination;

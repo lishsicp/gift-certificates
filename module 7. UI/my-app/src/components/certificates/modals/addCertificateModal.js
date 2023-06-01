@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { editCertificate, addCertificate } from "../../../api/certificatesApi";
-import { Form, Button, Modal, Row, Col, InputGroup, } from "react-bootstrap";
-import { WithContext as ReactTags } from 'react-tag-input';
+import { Form, Button, Modal, Row, Col, InputGroup } from "react-bootstrap";
+import { WithContext as ReactTags } from "react-tag-input";
+import "./tag-input.css";
+import {
+  useAddCertificateMutation,
+  useEditCertificateMutation,
+} from "../../../api/certificatesApiMutations";
+import {
+  addCertificateFailure,
+  addCertificateSuccess,
+} from "../../../features/certificate/addCertificateSlice";
 
-const AddCertificateModal = ({certificateToEdit = {}}) => {
+const AddCertificateModal = ({ certificateToEdit = {}, onClick }) => {
   const dispatch = useDispatch();
   const [showModal, setShowModal] = useState(false);
   const [certificate, setCertificate] = useState(certificateToEdit);
   const [errors, setErrors] = useState({});
   const [tags, setTags] = useState([]);
-  const [tagError, setTagError] = useState(null)
+  const [tagError, setTagError] = useState(null);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCertificate((prevCertificate) => ({
@@ -22,9 +30,9 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
   const handleAddTag = (tag) => {
     if (tag.text && tag.text.length >= 3 && tag.text.length <= 50) {
       setTags([...tags, tag]);
-      setTagError(null)
+      setTagError(null);
     } else {
-      setTagError("Tag must be between 3 and 50 characters")
+      setTagError("Tag must be between 3 and 50 characters");
     }
   };
 
@@ -34,13 +42,17 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
     setTags(newTags);
   };
 
+  const [add] = useAddCertificateMutation();
+  const [edit] = useEditCertificateMutation();
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length === 0) {
-      const certificateTags = tags.length > 0 ? tags.map(tag => ({ name: tag.text })) : [];
+      const certificateTags =
+        tags.length > 0 ? tags.map((tag) => ({ name: tag.text })) : [];
       const certificateData = {
-        ...(certificate.id) && ({id: certificate.id}),
+        ...(certificate.id && { id: certificate.id }),
         description: certificate.description,
         duration: certificate.duration,
         name: certificate.name,
@@ -49,10 +61,26 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
       };
 
       if (certificate.id === null || certificate.id === undefined) {
-        dispatch(addCertificate(certificateData));
+        add(certificateData)
+          .unwrap()
+          .then((response) => {
+            dispatch(addCertificateSuccess(response.data));
+          })
+          .catch((error) => {
+            dispatch(addCertificateFailure(error.data));
+          });
       } else {
-        dispatch(editCertificate(certificateData));
+        const id = certificate?.id;
+        edit({ id, ...certificateData })
+          .unwrap()
+          .then((response) => {
+            dispatch(addCertificateSuccess(response.data));
+          })
+          .catch((error) => {
+            dispatch(addCertificateFailure(error.data));
+          });
       }
+      onClick();
       handleCloseModal();
     } else {
       setErrors(validationErrors);
@@ -77,7 +105,11 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
       errors.description = "Description must be between 12 and 1000 characters";
     }
 
-    if (!certificate.price || isNaN(certificate.price) || parseFloat(certificate.price) <= 0) {
+    if (
+      !certificate.price ||
+      isNaN(certificate.price) ||
+      parseFloat(certificate.price) <= 0
+    ) {
       errors.price = "Price must be a number greater than 0";
     }
 
@@ -95,7 +127,9 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
     setShowModal(true);
     if (certificateToEdit.id) {
       setCertificate(certificateToEdit);
-      setTags(certificateToEdit.tags.map(tag => ({ id: tag.name, text: tag.name})))
+      setTags(
+        certificateToEdit.tags.map((tag) => ({ id: tag.name, text: tag.name }))
+      );
     }
   };
 
@@ -112,7 +146,7 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
       setCertificate({});
       setTags([]);
     }
-    setTagError(null)
+    setTagError(null);
     setErrors({});
   };
 
@@ -124,9 +158,7 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
         className="mx-0"
         onClick={handleOpenModal}
       >
-        {certificate.id
-          ? "Edit"
-          : "Add New"}
+        {certificate.id ? "Edit" : "Add New"}
       </Button>
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
@@ -149,6 +181,8 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
                   value={certificate.name || ""}
                   onChange={handleChange}
                   isInvalid={!!errors.name}
+                  autoFocus
+                  autoComplete="false"
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.name}
@@ -214,34 +248,31 @@ const AddCertificateModal = ({certificateToEdit = {}}) => {
             <Form.Group className="mb-3" controlId="tags" as={Row}>
               <InputGroup className="mb-3">
                 <Form.Label column sm={2} className="mx-2">
-                  Tags
+                  Enter tags
                 </Form.Label>
-                
-                <ReactTags id="tag-input"
+                <ReactTags
+                  id="tags"
                   classNames={{
-                    remove: "btn-sm text-decoration-none btn btn-link",
+                    remove: "btn-sm text-decoration-none btn bg-transparent",
                     tags: "react-tags-wrapper col w-100",
-                    selected: "mt-2",
-                    tag: "pl-2 mx-1 text-truncate badge rounded-pill bg-dark",
+                    selected: "mt-2 align-items-center justify-content-center",
+                    tag: "pl-2 mx-1 text-truncate badge bg-light text-dark item",
                     tagInputField: "form-control",
                   }}
+                  autofocus={false}
                   inputFieldPosition="top"
                   tags={tags}
                   handleDrag={handleDrag}
                   handleDelete={handleRemoveTag}
                   handleAddition={handleAddTag}
-                  placeholder="Add tags.."
+                  placeholder="Press `Enter` to add tag..."
                 ></ReactTags>
-                <Form.Control
-                hidden
-                  type="text"
-                  isInvalid={!!tagError}
-                />
+                <Form.Control hidden type="text" isInvalid={!!tagError} />
                 {tagError ? (
-                <Form.Control.Feedback type="invalid">
-                  {tagError} 
-                </Form.Control.Feedback>
-                ) : null }
+                  <Form.Control.Feedback type="invalid">
+                    {tagError}
+                  </Form.Control.Feedback>
+                ) : null}
               </InputGroup>
             </Form.Group>
           </Modal.Body>

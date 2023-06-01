@@ -1,22 +1,28 @@
-import {Routes, Route} from 'react-router-dom';
-import Login from './components/login/Login';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Header from './components/header/Header'
-import Footer from './components/footer/Footer'
-import Certificates from './components/certificates/Certificates';
+import { Routes, Route, useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Header from "./components/header/Header";
+import Footer from "./components/footer/Footer";
+import Certificates from "./components/certificates/Certificates";
+import {useEffect} from "react";
 
 function App() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (window.location.pathname === '/') {
+      navigate('/certificates');
+    }
+  }, [navigate]);
+
   return (
-      <>
-          <Header/>
-          <div className='app-content'>
-            <Routes>
-              <Route path='/certificates' element={<Certificates/>}></Route>
-              <Route path='/login' element={<Login/>}></Route>
-            </Routes>
-          </div>
-          <Footer/>
-      </>
+    <>
+      <Header />
+      <Routes>
+        <Route path="/certificates" element={<Certificates />}>
+        </Route>
+      </Routes>
+      <Footer />
+    </>
   );
 }
 

@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Form, Row, Col, Card, Button } from "react-bootstrap";
 
 function Login() {
+  // this component in not used because login form is provided by auth-server keeping this just in case
   return (
     <Container>
       <Row className="vh-100 d-flex justify-content-center align-items-center">

@@ -269,7 +269,7 @@ const AddCertificateModal = ({ certificateToEdit = {}, onClick }) => {
                 ></ReactTags>
                 <Form.Control hidden type="text" isInvalid={!!tagError} />
                 {tagError ? (
-                  <Form.Control.Feedback type="invalid">
+                  <Form.Control.Feedback type="invalid" className="text-center">
                     {tagError}
                   </Form.Control.Feedback>
                 ) : null}

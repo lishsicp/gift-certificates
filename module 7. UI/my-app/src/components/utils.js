@@ -1,6 +1,7 @@
 import { Alert, OverlayTrigger, Tooltip } from "react-bootstrap";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ExclamationOctagonFill, CheckCircle } from "react-bootstrap-icons";
+import { useDispatch } from "react-redux";
 
 export function LongTextPopup({ text, maxLength }) {
   if (!maxLength) {
@@ -46,51 +47,64 @@ export function dateDiffInDays(createDate, durationInDays) {
   const currentDate = new Date();
   const difference = expirationDate.getTime() - currentDate.getTime();
   const days = Math.ceil(difference / _MS_PER_DAY);
-  return days === 1
-    ? days + " day"
-    : days < 0
-    ? "expired"
-    : days === 0
-    ? "unlimited"
-    : days + " days";
-}
+  let result;
 
-export function DismissibleError({ errorText }) {
-  const [show, setShow] = useState(true);
-
-  if (show) {
-    return (
-      <Alert
-        variant="danger"
-        className="mt-2"
-        onClose={() => setShow(false)}
-        dismissible
-      >
-        <Alert.Heading className="d-flex align-items-center">
-          <ExclamationOctagonFill className="mx-2" />
-          {errorText}
-        </Alert.Heading>
-      </Alert>
-    );
+  if (days === 1) {
+    result = days + " day";
+  } else if (days < 0) {
+    result = "expired";
+  } else if (days === 0) {
+    result = "unlimited";
+  } else {
+    result = days + " days";
   }
+  return result;
 }
 
-export function DismissibleSuccess({ message }) {
+export const DismissibleAlert = ({ color, message, reset }) => {
   const [show, setShow] = useState(true);
+  const colors = [
+    "primary",
+    "secondary",
+    "success",
+    "danger",
+    "warning",
+    "info",
+    "light",
+    "dark",
+    "muted",
+    "white",
+  ];
+  if (!colors.includes(color)) {
+    throw new Error(`Color ${color} is not supported`);
+  }
+
+  useEffect(() => {
+    if (message && reset) {
+      const timeoutId = setTimeout(() => {
+        setShow(false);
+      }, 15000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [dispatch, reset, message]);
 
   if (show) {
     return (
       <Alert
-        variant="success"
+        variant={color}
         className="mt-2"
         onClose={() => setShow(false)}
         dismissible
       >
         <Alert.Heading className="d-flex align-items-center">
-          <CheckCircle className="mx-2" />
+          {color === "danger" ? (
+            <ExclamationOctagonFill className="mx-2" />
+          ) : (
+            <CheckCircle className="mx-2" />
+          )}
           {message}
         </Alert.Heading>
       </Alert>
     );
   }
-}
+};

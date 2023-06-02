@@ -3,11 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { fetchCertificates } from "../../api/certificatesApiQueries";
 import {
-  useAddCertificateMutation,
-  useDeleteCertificateMutation,
-  useEditCertificateMutation,
-} from "../../api/certificatesApiMutations";
-import {
   resetSearch,
   updateDateSort,
   updateNameSort,
@@ -17,8 +12,7 @@ import {
   LongTextPopup,
   formatDate,
   dateDiffInDays,
-  DismissibleError,
-  DismissibleSuccess,
+  DismissibleAlert,
 } from "../utils";
 import RenderPagination from "./Pagination";
 import {
@@ -50,7 +44,7 @@ const Certificates = () => {
         className="d-flex justify-content-center align-items-center"
         fluid="lg"
       >
-        <Row>
+        <Row className="w-100">
           <h2 className="fw-bold mt-2 text-uppercase bg-dark p-3 justify-content-center text-light w-100">
             Gift Certificates
           </h2>
@@ -118,25 +112,20 @@ const Authorize = () => {
         />
       ) : null}
       {isError ? (
-        <RenderErrors errors={error} resetFunction={() => emptyFunction()} />
+        <RenderErrors errors={error} reset={() => emptyFunction()} />
       ) : null}
       {isSuccess ? (
-        <DismissibleSuccess message="Successfully logged in!" />
+        <DismissibleAlert
+          color={"success"}
+          message="Successfully logged in!"
+          reset={() => emptyFunction()}
+        />
       ) : null}
     </>
   );
 };
 
 const RenderErrors = ({ errors, resetFunction }) => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      dispatch(resetFunction());
-    }, 5000);
-    return () => clearTimeout(timeoutId);
-  }, [dispatch, resetFunction]);
-
   if (!errors) {
     return null;
   }
@@ -149,7 +138,12 @@ const RenderErrors = ({ errors, resetFunction }) => {
     return (
       <div className="error-container">
         {errors.map((error, i) => (
-          <DismissibleError key={i} errorText={error.errorMessage} />
+          <DismissibleAlert
+            color={"danger"}
+            key={i}
+            message={error.errorMessage}
+            reset={() => resetFunction()}
+          />
         ))}
       </div>
     );
@@ -159,7 +153,6 @@ const RenderErrors = ({ errors, resetFunction }) => {
 };
 
 const SearchInput = ({ search }) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -169,10 +162,11 @@ const SearchInput = ({ search }) => {
   const handleSearch = useCallback(
     (event) => {
       event.preventDefault();
+      navigate("");
       const formData = new FormData(event.target);
       const searchText = formData.get("search");
       const searchTags = searchText.match(/#(\w+)/g);
-      const cleanedSearchText = searchText.replace(/#\w+/g, "").trim();
+      const cleanedSearchText = searchText.replace(/#(\w+)?/g, "").trim();
       const queryParams = new URLSearchParams();
       if (cleanedSearchText) {
         queryParams.set("name", cleanedSearchText);
@@ -192,11 +186,6 @@ const SearchInput = ({ search }) => {
     [navigate, page, size]
   );
 
-  const resetSearchState = useCallback(() => {
-    dispatch(resetSearch());
-    navigate(``);
-  }, [dispatch, navigate]);
-
   return (
     <InputGroup>
       <Form onSubmit={handleSearch} className="d-flex w-100">
@@ -207,11 +196,7 @@ const SearchInput = ({ search }) => {
           aria-label="Search for certificates"
           aria-describedby="search-for-certificates"
         />
-        <Button
-          type="submit"
-          variant="outline-primary"
-          onClick={() => resetSearchState()}
-        >
+        <Button type="submit" variant="outline-primary">
           Search
         </Button>
       </Form>
@@ -220,42 +205,33 @@ const SearchInput = ({ search }) => {
 };
 
 const SortByButton = ({ sortType, sortState }) => {
-  const paginationState = useSelector((state) => state.search);
+  const { name_sort, date_sort } = useSelector((state) => state.search);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSort = useCallback(
-    (sortType) => {
-      const queryParams = new URLSearchParams(location.search);
-      let newSortType;
+  const handleSort = useCallback(() => {
+    const queryParams = new URLSearchParams(location.search);
+    let newSortType;
 
-      if (sortType === "name_sort") {
-        newSortType = paginationState[sortType] === "asc" ? "desc" : "asc";
-        queryParams.set("name_sort", newSortType);
-        queryParams.delete("date_sort");
-      } else if (sortType === "date_sort") {
-        newSortType = paginationState[sortType] === "asc" ? "desc" : "asc";
-        queryParams.set("date_sort", newSortType);
-        queryParams.delete("name_sort");
-      }
+    if (sortType === "name_sort") {
+      newSortType = name_sort === "asc" ? "desc" : "asc";
+      queryParams.set("name_sort", newSortType);
+      queryParams.delete("date_sort");
+      dispatch(updateNameSort(newSortType));
+      dispatch(updateDateSort(null));
+    } else if (sortType === "date_sort") {
+      newSortType = date_sort === "asc" ? "desc" : "asc";
+      queryParams.set("date_sort", newSortType);
+      queryParams.delete("name_sort");
+      dispatch(updateNameSort(null));
+      dispatch(updateDateSort(newSortType));
+    }
 
-      queryParams.set(sortType, newSortType);
-      queryParams.set("page", 1);
-
-      if (newSortType !== paginationState[sortType]) {
-        if (sortType === "name_sort") {
-          dispatch(updateDateSort(null));
-          dispatch(updateNameSort(newSortType));
-        } else if (sortType === "date_sort") {
-          dispatch(updateNameSort(null));
-          dispatch(updateDateSort(newSortType));
-        }
-      }
-      navigate(`?${queryParams}`);
-    },
-    [dispatch, navigate, location.search, paginationState]
-  );
+    queryParams.set(sortType, newSortType);
+    queryParams.set("page", 1);
+    navigate(`?${queryParams}`);
+  }, [dispatch, navigate, location.search, name_sort, date_sort, sortType]);
 
   return (
     <div className="d-flex justify-content-center align-items-center">
@@ -346,10 +322,18 @@ const RenderCertificatesTable = ({
         />
       ) : null}
       {add.isSuccess ? (
-        <DismissibleSuccess message="Certificate updated!" />
+        <DismissibleAlert
+          color="success"
+          message="Certificate updated!"
+          reset={resetCertificateState}
+        />
       ) : null}
       {remove.isSuccess ? (
-        <DismissibleSuccess message="Certificate deleted!" />
+        <DismissibleAlert
+          color="success"
+          message="Certificate deleted!"
+          reset={resetDeletionState}
+        />
       ) : null}
       {data.loading || remove.loading || add.loading ? (
         <Spinner
@@ -384,7 +368,7 @@ const RenderCertificatesTable = ({
             </tr>
           </thead>
           <tbody>
-            <RenderCertificatesTableBody certificates={data.certificates} />
+            <RenderCertificatesTableBody data={data} />
           </tbody>
         </Table>
       )}
@@ -436,73 +420,97 @@ const PageSizeSelector = () => {
   );
 };
 
-const RenderCertificatesTableBody = ({ certificates }) => {
-  if (!certificates) {
+const RenderCertificatesTableBody = ({ data }) => {
+  const navigate = useNavigate();
+
+  const handleReset = () => {
+    navigate("");
+    document.getElementById("search").value = "";
+  };
+
+  if (!data?.certificates) {
     return null;
   }
 
-  if (!certificates._embedded) {
+  if (!data.certificates._embedded) {
     return (
-      <tr>
-        <td colSpan="7" className="text-center">
-          Certificates with these parameters do not exist
+      <tr className="col-12">
+        <td colSpan="8" className="text-center justify-items-center">
+          {data?.errors.length <= 0 ? (
+            <>
+              <p className="p-0 m-0">
+                Certificates with these parameters do not exist
+                <Button
+                  className="mx-2 p-1"
+                  variant="outline-secondary"
+                  onClick={handleReset}
+                >
+                  Reset
+                </Button>
+              </p>
+            </>
+          ) : (
+            "No certificates found"
+          )}
         </td>
       </tr>
     );
   }
 
-  return certificates._embedded.giftCertificateDtoList.map((certificate, i) => (
-    <tr key={i}>
-      <td className="align-middle">
-        <LongTextPopup maxLength={25} text={certificate.name} />
-      </td>
-      <td className="align-middle">
-        <LongTextPopup text={certificate.description} />
-      </td>
-      <td className="align-middle">{formatDate(certificate.createDate)}</td>
-      <td className="align-middle">{certificate.price}</td>
-      <td className="align-middle">
-        {dateDiffInDays(certificate.createDate, certificate.duration)}
-      </td>
-      <td className="align-middle w-25 text-center">
-        <div className="d-flex flex-wrap">
-          {certificate.tags.map((tag, tagIndex) => (
-            <Badge
-              pill
-              bg="dark"
-              className="m-1 p-2 text-truncate"
-              key={tagIndex}
-            >
-              <LongTextPopup
-                maxLength={15}
-                text={tag.name.replace(/\s+\d+$/, "")}
-              />
-            </Badge>
-          ))}
-        </div>
-      </td>
+  return data.certificates._embedded.giftCertificateDtoList.map(
+    (certificate, i) => (
+      <tr key={i}>
+        <td className="align-middle">
+          <LongTextPopup maxLength={25} text={certificate.name} />
+        </td>
+        <td className="align-middle">
+          <LongTextPopup text={certificate.description} />
+        </td>
+        <td className="align-middle">{formatDate(certificate.createDate)}</td>
+        <td className="align-middle">{certificate.price}</td>
+        <td className="align-middle">
+          {dateDiffInDays(certificate.createDate, certificate.duration)}
+        </td>
+        <td className="align-middle w-25 text-center">
+          <div className="d-flex flex-wrap">
+            {certificate.tags.map((tag, tagIndex) => (
+              <Badge
+                pill
+                bg="dark"
+                className="m-1 p-2 text-truncate"
+                key={tagIndex}
+              >
+                <LongTextPopup
+                  maxLength={15}
+                  text={tag.name.replace(/\s+\d+$/, "")}
+                />
+              </Badge>
+            ))}
+          </div>
+        </td>
 
-      <td className="align-middle">
-        <div className="row no-gutters justify-content-start">
-          <div className="col-auto px-0">
-            <RequireAuth
-              child={
-                <DeleteModal id={certificate.id} name={certificate.name} />
-              }
-            />
+        <td className="align-middle">
+          <div className="row no-gutters justify-content-start">
+            <div className="col-auto px-0">
+              <RequireAuth
+                child={
+                  <DeleteModal id={certificate.id} name={certificate.name} />
+                }
+              />
+            </div>
+            <div className="col-auto px-0">
+              <RequireAuth
+                child={<AddCertificateModal certificateToEdit={certificate} />}
+              />
+            </div>
+            <div className="col-auto px-0">
+              <ViewModal certificate={certificate} />
+            </div>
           </div>
-          <div className="col-auto px-0">
-            <RequireAuth
-              child={<AddCertificateModal certificateToEdit={certificate} />}
-            />
-          </div>
-          <div className="col-auto px-0">
-            <ViewModal certificate={certificate} />
-          </div>
-        </div>
-      </td>
-    </tr>
-  ));
+        </td>
+      </tr>
+    )
+  );
 };
 
 const mapStateToProps = (state) => {
@@ -520,9 +528,6 @@ const ConnectedRenderCertificates = connect(mapStateToProps, {
   resetSearch,
   updateDateSort,
   updateNameSort,
-  useAddCertificateMutation,
-  useEditCertificateMutation,
-  useDeleteCertificateMutation,
 })(RenderCertificatesTable);
 
 export default Certificates;

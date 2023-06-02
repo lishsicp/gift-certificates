@@ -8,10 +8,10 @@ const RenderPagination = ({ paginationData }) => {
   let number = parseInt(searchParams.get("page")) || 1;
   const size = parseInt(searchParams.get("size")) || 10;
 
-  let totalPages;
+  let totalPages = 0;
   if (paginationData) {
     totalPages = paginationData.totalPages;
-    if (number > totalPages) {
+    if (totalPages !== 0 && number > totalPages) {
       number = totalPages;
     }
   }
@@ -42,41 +42,52 @@ const RenderPagination = ({ paginationData }) => {
     <>
       <Pagination>
         <Pagination.First
-          disabled={number === 1}
+          disabled={number <= 1}
           onClick={() => handlePageClick(1)}
         />
         <Pagination.Prev
-          disabled={number === 1}
+          disabled={number <= 1}
           onClick={() => handlePageClick(number - 1)}
         />
-        <Pagination.Item
-          active={number === 1}
-          onClick={() => handlePageClick(1)}
-        >
-          {1}
-        </Pagination.Item>
-        {pageRange.map((pageNum) => (
-          <Pagination.Item
-            active={number - 1 === pageNum}
-            key={pageNum}
-            onClick={() => handlePageClick(pageNum + 1)}
-          >
-            {pageNum + 1}
-          </Pagination.Item>
-        ))}
-        <Pagination.Item
-          hidden={totalPages === 1}
-          active={number === totalPages}
-          onClick={() => handlePageClick(totalPages)}
-        >
-          {totalPages}
-        </Pagination.Item>
+        {
+          <>
+            <Pagination.Item
+              active={number === 1}
+              onClick={() => handlePageClick(1)}
+            >
+              1
+            </Pagination.Item>
+            {pageRange === 0
+              ? null
+              : pageRange.map((pageNum) => (
+                  <Pagination.Item
+                    active={number - 1 === pageNum}
+                    key={pageNum}
+                    onClick={() => handlePageClick(pageNum + 1)}
+                  >
+                    {pageNum + 1}
+                  </Pagination.Item>
+                ))}
+            {totalPages > 1 && (
+              <Pagination.Item
+                active={number === totalPages}
+                onClick={() => handlePageClick(totalPages)}
+              >
+                {totalPages}
+              </Pagination.Item>
+            )}
+          </>
+        }
         <Pagination.Next
-          disabled={number === totalPages}
+          disabled={
+            number === totalPages || (number - 1 <= 0 && totalPages === 0)
+          }
           onClick={() => handlePageClick(number + 1)}
         />
         <Pagination.Last
-          disabled={number === totalPages}
+          disabled={
+            number === totalPages || (number - 1 <= 0 && totalPages === 0)
+          }
           onClick={() => handlePageClick(totalPages)}
         />
       </Pagination>

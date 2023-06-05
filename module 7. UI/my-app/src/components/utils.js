@@ -1,7 +1,6 @@
 import { Alert, OverlayTrigger, Tooltip } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import { ExclamationOctagonFill, CheckCircle } from "react-bootstrap-icons";
-import { useDispatch } from "react-redux";
 
 export function LongTextPopup({ text, maxLength }) {
   if (!maxLength) {
@@ -86,7 +85,7 @@ export const DismissibleAlert = ({ color, message, reset }) => {
       }, 15000);
       return () => clearTimeout(timeoutId);
     }
-  }, [dispatch, reset, message]);
+  }, [reset, message]);
 
   if (show) {
     return (

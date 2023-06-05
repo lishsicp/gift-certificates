@@ -62,7 +62,7 @@ const ViewModal = ({ certificate }) => {
                     {dateDiffInDays(
                       selectedCertificate.createDate,
                       selectedCertificate.duration
-                    ) + " days"}
+                    )}
                   </p>
                 </Col>
               </Row>

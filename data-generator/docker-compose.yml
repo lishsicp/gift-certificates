@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  generator:
+    build: ./
+    image: 'generator'
+    container_name: generator
+    ports:
+      - '9090:9090'
+

@@ -1,1 +1,0 @@
-sleep 30 && java -jar /usr/local/lib/resource/certificates-resource-server.jar # sleep is for auth-server to start

@@ -1,9 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: populate tables with initial data
-      author: Yaroslav Lobur
-      changes:
-        - sqlFile:
-            path: db.changelog-0.1.2-insert-initial-data.sql
-            relativeToChangelogFile: true
-            encoding: UTF-8

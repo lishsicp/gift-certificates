@@ -1,5 +1,55 @@
 # React
 
+### Setup
+**_Tests:_**
+1. Run `./mvnw test` (Unit) or `./mvnw integration-test` (Integration and Unit, docker daemon is required)
+
+**_Local postgres database:_**
+1. Run `./mvnw spring-boot:run '-Dspring-boot.run.profiles=dev' -DskipTests `
+
+_**Docker:**_
+1. Edit `.env` if you need to.
+2. Run `docker-compose -up --build`
+
+_**Add Auth2 Client (Postman):**_
+1. Login to [oauth2-server.com:8082/login]() with POST:\
+   form-data:\
+   email: **admin@mail.com**\
+   password: **password**
+2. Make a POST request [oauth2-server.com:8082/connect/register]():\
+   `   {
+   "client_id": "certificates-ui-client",
+   "client_secret": "secret",
+   "client_name": "certificates-ui-client",
+   "client_authentication_methods": [
+   "client_secret_basic",
+   "client_secret_post"
+   ],
+   "authorization_grant_types": [
+   "authorization_code",
+   "refresh_token",
+   "client_credentials"
+   ],
+   "redirect_uris": [
+   "http://127.0.0.1:8080/certificates"
+   ],
+   "scopes": [
+   "tag.read",
+   "tag.write",
+   "user.write",
+   "user.read",
+   "certificate.read",
+   "certificate.write",
+   "order.read",
+   "order.write"
+   ],
+   "access_token_time_to_live_in_seconds": 600,
+   "refresh_token_time_to_live_in_seconds": 86400,
+   "require_proof_key": false,
+   "require_authorization_consent": false
+   }`
+   
+
 ### Getting started
 
 ### Task

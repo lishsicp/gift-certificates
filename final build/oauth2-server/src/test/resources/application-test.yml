@@ -1,0 +1,15 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test
+            client-secret: test
+            provider: google
+        provider:
+          google:
+            user-name-attribute: email
